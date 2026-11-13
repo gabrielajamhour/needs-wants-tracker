@@ -7,7 +7,7 @@ def cents_to_eur(cents: int) -> str: # Receives an integer and returns a string
     # 1234 -> '12,34 €'; 123456 -> '1.234,56 €'
 
     if not isinstance(cents, int) or isinstance(cents, bool):
-        raise TypeError
+        raise TypeError(f"cents must be int, got {type(cents).__name__}")
 
     euros, rest = divmod(abs(cents), 100) # Returns (quotient, remainder) --> e.g. divmod(1234, 100) returns (12, 34)
     sign = "-" if cents < 0 else ""

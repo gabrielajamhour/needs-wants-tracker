@@ -18,10 +18,22 @@
         <strong>Needs/Wants Tracker</strong>
         <nav>
             <a href="{{ url_for('index') }}">Expenses</a>
+            <a href="{{ url_for('new_expense') }}">New expense</a>
         </nav>
     </header>
     <main>
-        {% block content %}{% endblock %}
+        {% for category, message in get_flashed_messages(with_categories=true) %}
+        <!-- Function returns a list of tuples e.g. [("success", "Expense added successfully!"), ("error", "Invalid amount.")] -->
+
+            <p class="flash {{ category }}" role="status">
+                {{ message }}
+            </p>
+
+        {% endfor %}
+
+        {% block content %}
+
+        {% endblock %}
     </main>
 </body>
 

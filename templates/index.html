@@ -1,0 +1,44 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Expenses
+{% endblock %}
+
+{% block content %}
+
+    <h1>Expenses</h1>
+
+    {% if expenses %}
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Name</th>
+                    <th>Category</th>
+                    <th>Type</th>
+                    <th class="num">Amount</th>
+                </tr>
+            </thead>
+            <tbody>
+
+                {% for e in expenses %}
+                <tr>
+                    <td>{{ e["date"] }}</td>
+                    <td>{{ e["name"] }}</td>
+                    <td>{{ e["category"] }}</td>
+                    <td>{{ e["type"] | capitalize }}</td>
+                    <td class="num">{{ e["amount_cents"] | eur }}</td>
+                </tr>
+                {% endfor %}
+
+            </tbody>
+        </table>
+
+    {% else %}
+
+        <p>No expenses recorded yet.</p>
+
+    {% endif %}
+
+{% endblock %}

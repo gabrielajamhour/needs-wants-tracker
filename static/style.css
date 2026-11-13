@@ -1,0 +1,55 @@
+/* Page body */
+body {
+    margin: 0;
+    font-family: system-ui, sans-serif;
+    color: #1f2328;
+    background: #f6f7f9;
+}
+
+/* Page header */
+header {
+    display: flex;
+    gap: 24px;
+    align-items: center;
+    padding: 16px 24px;
+    background: #fff;
+    border-bottom: 1px solid #c9cfd6;
+}
+
+/* Nevigation links */
+nav a {
+    color: #1f6f6b;
+    text-decoration: none;
+}
+
+/* Main content area */
+main {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 24px;
+}
+
+/* Tables */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #fff;
+}
+
+/* Table headers and cells */
+th, td {
+    text-align: left;
+    padding: 12px;
+    border-bottom: 1px solid #c9cfd6;
+}
+
+/* Table header cells */
+th {
+    font-size: 0.85rem;
+    color: #5b6470;
+}
+
+/* Numeric values */
+.num {
+    text-align: right;
+}

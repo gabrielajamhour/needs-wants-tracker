@@ -3,6 +3,7 @@ import os
 from flask import Flask, abort, flash, jsonify, redirect, render_template, request, url_for
 
 from datetime import date, datetime
+from urllib.parse import urlsplit
 
 # Imports from other files in the project
 from db import close_db, get_db
@@ -87,6 +88,24 @@ def back_to_categories():
     show = request.form.get("show", "")
 
     return redirect(url_for("manage_categories", show=show if show in VALID_TYPES else None))
+
+def safe_next(target):
+    """Return target only if it is a local link to the expense list; otherwise the plain list URL."""
+
+    default = url_for("index")
+
+    if not target: # url
+        return default
+
+    # Split the URL into components
+    parts = urlsplit(target)
+
+    if parts.scheme or parts.netloc or parts.path != default:
+    # scheme: HTTP protocol (https or http); netloc: domain (e.g., google.com); path: site path (e.g., /expenses)
+    # parts.netloc rejects URLs that specify a domain, and parts.scheme rejects URLs that specify a protocol
+        return default
+    
+    return target
 
 
 @app.route("/")
@@ -185,12 +204,14 @@ def new_expense():
         return render_template(
             "expense_form.html", heading="New expense",
             categories=categories, form=request.form,
+            back_url=url_for("index"),
         ), 400
 
     # request.method == "GET"
     return render_template(
         "expense_form.html", heading="New expense",
         categories=categories, form={"date": date.today().isoformat()},
+        back_url=url_for("index"),
     )
 
 
@@ -205,6 +226,8 @@ def edit_expense(expense_id):
 
     if expense is None:
         abort(404) # Helper function used in web frameworks to halt the execution and return an HTTP 404 (Not Found) error
+
+    back_url = safe_next(request.args.get("next"))
 
     categories = get_categories(keep_id=expense["category_id"])
 
@@ -222,7 +245,7 @@ def edit_expense(expense_id):
 
             flash("Expense updated.", "success")
 
-            return redirect(url_for("index"))
+            return redirect(back_url)
         
         for message in errors:
             flash(message, "error")
@@ -230,6 +253,7 @@ def edit_expense(expense_id):
         return render_template(
             "expense_form.html", heading="Edit expense",
             categories=categories, form=request.form,
+            back_url=back_url,
         ), 400
 
     # request.method == "GET"
@@ -243,8 +267,8 @@ def edit_expense(expense_id):
     return render_template(
         "expense_form.html", heading="Edit expense",
         categories=categories, form=form,
+        back_url=back_url,
     )
-
 
 @app.post("/expenses/<int:expense_id>/delete")
 def delete_expense(expense_id):
@@ -258,7 +282,7 @@ def delete_expense(expense_id):
 
     flash("Expense deleted.", "success")
 
-    return redirect(url_for("index"))
+    return redirect(safe_next(request.args.get("next")))
 
 @app.route("/summary", methods=["GET", "POST"])
 def summary():

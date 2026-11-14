@@ -14,6 +14,11 @@ app.secret_key = os.environ.get("SECRET_KEY", "dev-only-change-me") # Temporary 
 app.teardown_appcontext(close_db) # Close connection when context finishes
 app.add_template_filter(cents_to_eur, "eur") # Simplify function usage
 
+# 50/30/20 Rule
+SPLIT = (("needs", "Needs", 50), ("wants", "Wants", 30))
+
+# Helpers
+
 def get_categories():
     return get_db().execute(
         "SELECT id, name, type FROM categories ORDER BY type, name"
@@ -165,3 +170,96 @@ def delete_expense(expense_id):
     flash("Expense deleted.", "success")
 
     return redirect(url_for("index"))
+
+@app.route("/summary", methods=["GET", "POST"])
+def summary():
+
+    db = get_db()
+
+    # The user can choose which month they wish to view
+    # If none is selected, the system automatically displays the current month
+    month = request.values.get("month") or date.today().strftime("%Y-%m")
+
+    try:
+        month = datetime.strptime(month, "%Y-%m").strftime("%Y-%m") # ensuring that the received month has a valid format
+    except ValueError:
+        abort(400)
+
+    if request.method == "POST":
+
+        income_cents = eur_to_cents(request.form.get("income", ""))
+
+        if income_cents is None or income_cents < 0:
+            flash("Enter a valid income (e.g. 1.000,00).", "error")
+
+        else:
+            db.execute(
+                "INSERT INTO budgets (month, income_cents) VALUES (?, ?) "
+                "ON CONFLICT(month) DO UPDATE " 
+                    "SET income_cents = excluded.income_cents",
+                (month, income_cents),
+            )
+            # 'excluded' is a special SQLite reference to the value that was attempted to be inserted but could not be, due to a conflict
+
+            db.commit()
+
+            flash("Income saved.", "success")
+
+        return redirect(url_for("summary", month=month))
+
+    # request.method == "GET"
+    budget = db.execute(
+        "SELECT income_cents FROM budgets WHERE month = ?", (month,) # single-value tuple
+    ).fetchone()
+
+    income = budget["income_cents"] if budget else None
+
+    rows = db.execute(
+        """
+        SELECT c.name, c.type, COALESCE(SUM(e.amount_cents), 0) AS total
+        FROM categories c
+        LEFT JOIN expenses e 
+               ON e.category_id = c.id AND strftime('%Y-%m', e.date) = ?
+        GROUP BY c.id
+        ORDER BY c.type, total DESC, c.name
+        """,
+        (month,),
+    ).fetchall()
+    # Use LEFT JOIN to also get categories without expenses
+    # Use COALESCE to substitute NULL values to 0, as a category with no expenses returns NULL when attempting to do the SUM
+
+    # Store the total spent by category type (needs/wants)
+    spent = {}
+
+    for row in rows:
+        spent[row["type"]] = spent.get(row["type"], 0) + row["total"]
+
+    total_spent = sum(spent.values())
+
+    # Budget cards
+    cards = []
+
+    for kind, label, pct in SPLIT: # type identifier, name to be displayed on the card, percentage allocated to that type
+
+        limit = income * pct // 100 if income is not None else None
+
+        total = spent.get(kind, 0)
+
+        cards.append({
+            "label": label,
+            "pct": pct,
+            "limit": limit,
+            "spent": total,
+            "used": round(total * 100 / limit) if limit else None,
+            "over": bool(limit) and total > limit,
+        })
+
+    return render_template(
+        "summary.html",
+        month=month,
+        income=income,
+        income_value=(cents_to_eur(income).removesuffix(" €") if income is not None else ""),
+        cards=cards,
+        total_spent=total_spent,
+        breakdown=[r for r in rows if r["total"] > 0], # So as to not display categories with zero spending
+    )

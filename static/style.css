@@ -128,3 +128,69 @@ form.inline {
     font-weight: 400;
     text-decoration: underline;
 }
+
+/* Form rows */
+.row {
+    display: flex; 
+    gap: 12px;
+    align-items: end;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+}
+
+/* Inputs inside form rows */
+.row input {
+    width: auto;
+}
+
+/* Card grid layout */
+.cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 16px;
+    margin: 24px 0;
+}
+
+/* Summary cards */
+.card {
+    background: #fff;
+    border: 1px solid #c9cfd6;
+    border-radius: 8px;
+    padding: 20px;
+}
+
+/* Progress bar container */
+.bar {
+    height: 12px;
+    border-radius: 6px;
+    background: #e3e6ea;
+    overflow: hidden;
+}
+
+/* Progress bar fill */
+.fill {
+    height: 100%;
+    background: #1f6f6b;
+}
+
+/* Progress bar when over budget */
+.fill.over {
+    background: #b42318;
+}
+
+/* Text indicating budget exceeded */
+.over-text {
+    color: #b42318;
+}
+
+/* Highlighted numeric values */
+.big {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin: 8px 0 0;
+}
+
+/* Spacing between consecutive tables */
+table + table {
+    margin-top: 16px;
+}

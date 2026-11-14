@@ -43,7 +43,9 @@
             {% if c.limit %}
             
                 <div class="bar" role="img" aria-label="{{ c.used }}% of the limit">
-                    <div class="fill {{ 'over' if c.over }}" style="width: {{ [c.used, 100] | min }}%"></div>
+                    <div class="fill {{ 'over' if c.over }}"
+                        style="--bar-width: {{ [c.used, 100] | min }}%">
+                    </div>
                 </div>
 
                 {% if c.over %}

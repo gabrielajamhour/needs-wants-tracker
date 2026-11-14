@@ -34,10 +34,10 @@
 
             <p>
                 {% if c.limit is not none %}
-                    Limit {{ c.limit | eur }} · 
+                    {{ 'Limit' if c.is_cap else 'Goal' }} {{ c.limit | eur }} · 
                 {% endif %}
-
-                Spent {{ c.spent | eur }}
+                
+                {{ 'Spent' if c.is_cap else 'Saved' }} {{ c.spent | eur }}
             </p>
 
             {% if c.limit %}

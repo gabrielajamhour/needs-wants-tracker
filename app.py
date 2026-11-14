@@ -15,7 +15,11 @@ app.teardown_appcontext(close_db) # Close connection when context finishes
 app.add_template_filter(cents_to_eur, "eur") # Simplify function usage
 
 # 50/30/20 Rule
-SPLIT = (("needs", "Needs", 50), ("wants", "Wants", 30))
+SPLIT = (
+    ("needs", "Needs", 50, True),
+    ("wants", "Wants", 30, True),
+    ("savings", "Savings", 20, False),
+)
 
 # Helpers
 
@@ -239,7 +243,7 @@ def summary():
     # Budget cards
     cards = []
 
-    for kind, label, pct in SPLIT: # type identifier, name to be displayed on the card, percentage allocated to that type
+    for kind, label, pct, is_cap in SPLIT: # type identifier, name to be displayed on the card, percentage allocated to that type
 
         limit = income * pct // 100 if income is not None else None
 
@@ -250,9 +254,10 @@ def summary():
             "pct": pct,
             "limit": limit,
             "spent": total,
+            "is_cap": is_cap,
             "used": round(total * 100 / limit) if limit else None,
-            "over": bool(limit) and total > limit,
-        })
+            "over": is_cap and bool(limit) and total > limit,
+    })
 
     return render_template(
         "summary.html",

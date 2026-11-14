@@ -1,6 +1,6 @@
 import os
 
-from flask import Flask, abort, flash, redirect, render_template, request, url_for
+from flask import Flask, abort, flash, jsonify, redirect, render_template, request, url_for
 
 from datetime import date, datetime
 
@@ -328,4 +328,36 @@ def summary():
         cards=cards,
         total_spent=total_spent,
         breakdown=[r for r in rows if r["total"] > 0], # So as to not display categories with zero spending
+    )
+
+@app.get("/suggest-category")
+def suggest_category():
+    """Return the category most often used with this expense name, as JSON."""
+
+    name = request.args.get("name", "").strip()
+
+    if not name:
+        return jsonify(suggestion=None)
+
+    row = get_db().execute(
+        """
+        SELECT c.id, c.name, c.type
+        FROM expenses e
+            JOIN categories c ON c.id = e.category_id
+        WHERE lower(e.name) = lower(?)
+        GROUP BY c.id
+        ORDER BY COUNT(*) DESC, MAX(e.date) DESC
+        LIMIT 1
+        """,
+        (name,),
+    ).fetchone()
+    # ORDER BY COUNT(*) causes the most frequently used category to appear as a suggestion
+    # If two categories have the exact same number of occurrences, they are sorted by the most recent date (MAX(e.date))
+    # LIMIT 1 ensures that only one suggestion is returned
+
+    if row is None:
+        return jsonify(suggestion=None)
+    
+    return jsonify(
+        suggestion={"id": row["id"], "name": row["name"].capitalize(), "type": row["type"]}
     )

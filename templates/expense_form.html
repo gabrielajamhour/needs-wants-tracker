@@ -19,6 +19,10 @@
             value="{{ form.get('name', '') }}" 
             required
         >
+        <div id="suggestion" class="hint" hidden aria-live="polite">
+            Suggested category: <strong id="suggestion-label"></strong>
+            <button type="button" id="suggestion-use">Use</button>
+        </div>
     </div>
 
     <div class="field">
@@ -80,5 +84,77 @@
     <button type="submit">Save</button>
 
 </form>
+
+<script>
+    
+    // Used a function to keep the script's variables within the function's scope,
+    // in order to avoid name conflicts with other potential scripts
+    (function () {
+
+        const nameInput = document.getElementById("name");
+        const select = document.getElementById("category_id");
+        const box = document.getElementById("suggestion");
+        const label = document.getElementById("suggestion-label");
+        const useButton = document.getElementById("suggestion-use");
+
+        let timer = null; 
+        let current = null; // Stores the category suggestion currently being displayed
+
+        // Hide the suggestion and clear the stored suggestion
+        function hide() {
+            box.hidden = true;
+            current = null;
+        }
+
+        async function fetchSuggestion() {
+
+            const name = nameInput.value.trim();
+
+            if (!name) { hide(); return; }
+
+            try {
+                const url = "{{ url_for('suggest_category') }}?name=" + encodeURIComponent(name);
+                const response = await fetch(url); // HTTP response
+
+                if (!response.ok) { hide(); return; }
+
+                const data = await response.json();
+
+                // Ignore the answer if the user kept typing in the meantime
+                if (nameInput.value.trim() !== name) { return; }
+
+                // There is no need to display a button for selecting a category that is already selected
+                if (!data.suggestion || String(data.suggestion.id) === select.value) {
+                    hide();
+                    return;
+                }
+
+                current = data.suggestion;
+                label.textContent = current.name + " (" + current.type + ")";
+                box.hidden = false;
+            } catch (error) {
+                hide();
+            }
+        }
+
+        // Listener to detect when the user types
+        nameInput.addEventListener("input", function () {
+            clearTimeout(timer);
+            timer = setTimeout(fetchSuggestion, 300);  // debounce: wait for a pause in typing
+        });
+
+        // Listener button to execute the function
+        useButton.addEventListener("click", function () {
+            if (current) {
+                select.value = String(current.id);
+                hide();
+            }
+        });
+
+        // Listener to hide the suggestion when the category changes
+        select.addEventListener("change", hide);
+    })();
+
+</script>
 
 {% endblock %}

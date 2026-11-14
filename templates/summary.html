@@ -1,0 +1,97 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Summary
+{% endblock %}
+
+{% block content %}
+
+    <h1>Monthly summary</h1>
+
+    <form method="get" class="row">
+        <label for="month">Month</label>
+        <input id="month" name="month" type="month" value="{{ month }}">
+        <button type="submit">View</button>
+    </form>
+
+    <form method="post" class="row">
+        <input type="hidden" name="month" value="{{ month }}">
+        <label for="income">Monthly income (€)</label>
+        <input id="income" name="income" type="text" inputmode="decimal"
+            value="{{ income_value }}" placeholder="0,00">
+        <button type="submit">Save income</button>
+    </form>
+
+    {% if income is none %}
+        <p>Set this month's income to see the limits.</p>
+    {% endif %}
+
+    <div class="cards">
+
+        {% for c in cards %}
+        <section class="card">
+            <h2>{{ c.label }} ({{ c.pct }}%)</h2>
+
+            <p>
+                {% if c.limit is not none %}
+                    Limit {{ c.limit | eur }} · 
+                {% endif %}
+
+                Spent {{ c.spent | eur }}
+            </p>
+
+            {% if c.limit %}
+            
+                <div class="bar" role="img" aria-label="{{ c.used }}% of the limit">
+                    <div class="fill {{ 'over' if c.over }}" style="width: {{ [c.used, 100] | min }}%"></div>
+                </div>
+
+                {% if c.over %}
+                    <p class="over-text">Above the limit in {{ (c.spent - c.limit) | eur }}</p>
+                {% endif %}
+
+            {% endif %}
+
+        </section>
+        {% endfor %}
+
+        <section class="card">
+            <h2>Remainder</h2>
+            <p class="big">
+                {% if income is not none %}
+                    {{ (income - total_spent) | eur }}
+                {% else %}
+                    —
+                {% endif %}
+            </p>
+            <p>Total spent: {{ total_spent | eur }}</p>
+        </section>
+    </div>
+
+    {% if breakdown %}
+
+        {% for type, items in breakdown | groupby("type") %}
+        <table>
+            <thead>
+                <tr>
+                    <th>{{ type | capitalize }}</th>
+                    <th class="num">Spent</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for r in items %}
+                <tr>
+                    <td>{{ r["name"] }}</td>
+                    <td class="num">{{ r["total"] | eur }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% endfor %}
+
+    {% else %}
+        <p>No expenses this month.</p>
+
+    {% endif %}
+
+{% endblock %}

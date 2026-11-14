@@ -1,0 +1,102 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Categories
+{% endblock %}
+
+{% block content %}
+
+    <h1>Categories</h1>
+
+    <form method="post" class="row">
+        <div>
+            <label for="name">New category</label>
+            <input id="name" name="name" type="text" maxlength="40" required placeholder="e.g.: subscriptions">
+        </div>
+
+        <div>
+            <label for="type">Type</label>
+            <select id="type" name="type" required>
+                <option value="">Choose...</option>
+                <option value="needs">Needs</option>
+                <option value="wants">Wants</option>
+                <option value="savings">Savings</option>
+            </select>
+        </div>
+
+        <input type="hidden" name="show" value="{{ selected }}">
+
+        <button type="submit">Add</button>
+    </form>
+
+    <nav class="chips" aria-label="Filter categories by type">
+
+        {% for value, label in [("", "All"), ("needs", "Needs"), ("wants", "Wants"), ("savings", "Savings")] %}
+
+        <a href="{{ url_for('manage_categories', show=value or None) }}"
+        class="chip {{ 'active' if selected == value }}"
+        {% if selected == value %}
+            aria-current="page"
+        {% endif %}>
+            {{ label }}
+        </a>
+
+        {% endfor %}
+    </nav>
+
+    {% if categories %}
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Type</th>
+                    <th>Uses</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+
+                {% for c in categories %}
+                    <tr class="{{ '' if c['is_active'] else 'archived' }}"> <!-- Apply class only to archived categories -->
+                        <td>{{ c["name"] | capitalize }}</td>
+                        <td>{{ c["type"] | capitalize }}</td>
+                        <td>{{ c["uses"] }}</td>
+                        <td>{{ "Active" if c["is_active"] else "Archived" }}</td>
+
+                        <td>
+                            <form method="post" action="{{ url_for('rename_category', category_id=c['id']) }}" class="inline">
+                                <input 
+                                    name="name" 
+                                    type="text" 
+                                    maxlength="40" 
+                                    required
+                                    value="{{ c['name'] | capitalize }}" 
+                                    aria-label="New name for {{ c['name'] | capitalize }}"
+                                >
+                                <input type="hidden" name="show" value="{{ selected }}">
+                                <button type="submit">Rename</button>
+                            </form>
+
+                            <form method="post" action="{{ url_for('toggle_category', category_id=c['id']) }}" class="inline">
+                                <input type="hidden" name="show" value="{{ selected }}">
+                                <button type="submit" class="link-button">
+                                    {{ "Archive" if c["is_active"] else "Restore" }}
+                                </button>
+                            </form>
+                        </td>
+
+                    </tr>
+                {% endfor %}
+
+            </tbody>
+        </table>
+
+    {% else %}
+        
+        <p>No category of this type.</p>
+
+    {% endif %}
+
+{% endblock %}

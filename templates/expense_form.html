@@ -56,25 +56,29 @@
 
             <option value="">Choose...</option>
 
-            {% for type, items in categories | groupby("type") %}
+            {% for type in ["needs", "wants", "savings"] %}
 
-            <optgroup label="{{ type | capitalize }}">
+                <optgroup label="{{ type | capitalize }}">
 
-                {% for c in items %}
+                    {% for c in categories %}
 
-                    {# The expenses table does not store the category name, but rather the category_id #}
-                    <option value="{{ c['id'] }}" 
-                        {% if form.get('category_id') | int == c['id'] %}
-                            selected
+                        {% if c["type"] == type %}
+
+                            {# The expenses table does not store the category name, but rather the category_id #}
+                            <option value="{{ c['id'] }}"
+                                {% if form.get('category_id') | int == c['id'] %}
+                                    selected
+                                {% endif %}
+                            >
+                                {# Maintain the selected category when the form needs to be displayed again following an error #}
+                                {{ c["name"] | capitalize }}
+                            </option>
+
                         {% endif %}
-                    >
-                        {# Maintain the selected category when the form needs to be displayed again following an error #}
-                        {{ c["name"] }}
-                    </option>
 
-                {% endfor %}
+                    {% endfor %}
 
-            </optgroup>
+                </optgroup>
 
             {% endfor %}
 

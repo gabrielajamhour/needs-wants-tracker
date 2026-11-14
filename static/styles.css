@@ -71,6 +71,10 @@ th {
     color: #b42318;
 }
 
+.flash.info {
+    border-color: #8a929c;
+}
+
 /* Form fields */
 form .field {
     margin-bottom: 18px;
@@ -194,4 +198,43 @@ form.inline {
 /* Spacing between consecutive tables */
 table + table {
     margin-top: 16px;
+}
+
+/* Styling for archived category rows */
+tr.archived {
+    color: #5b6470;
+}
+
+/* Styling for inline rename inputs inside table cells */
+td form.inline input {
+    display: inline-block;
+    width: 160px;
+    margin: 0 4px 0 0;
+    min-height: 36px;
+    padding: 4px 8px;
+}
+
+/* Layout and spacing for category filter chips */
+.chips {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin: 16px 0;
+}
+
+/* Styling for individual category filter chips */
+.chip {
+    padding: 8px 16px;
+    border: 1px solid #8a929c;
+    border-radius: 999px;
+    background: #fff;
+    color: #1f2328;
+    text-decoration: none;
+}
+
+/* Styling for the currently active category filter chip */
+.chip.active {
+    background: #1f6f6b;
+    border-color: #1f6f6b;
+    color: #fff;
 }

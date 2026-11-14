@@ -14,12 +14,36 @@ app.secret_key = os.environ.get("SECRET_KEY", "dev-only-change-me") # Temporary 
 app.teardown_appcontext(close_db) # Close connection when context finishes
 app.add_template_filter(cents_to_eur, "eur") # Simplify function usage
 
+# Types of expenses
+VALID_TYPES = {"needs", "wants", "savings"}
+
+# 50/30/20 Rule
+SPLIT = (
+    ("needs", "Needs", 50, True),
+    ("wants", "Wants", 30, True),
+    ("savings", "Savings", 20, False),
+)
+
+# Custom order for category types
+TYPE_ORDER_SQL = "CASE c.type WHEN 'needs' THEN 1 WHEN 'wants' THEN 2 ELSE 3 END"
+
 # Helpers
 
-def get_categories():
-    return get_db().execute(
-        "SELECT id, name, type FROM categories ORDER BY type, name"
-    ).fetchall()
+def get_categories(include_archived=False, keep_id=None):
+    """Active categories; optionally all, or active plus one specific id."""
+
+    sql = "SELECT id, name, type, is_active FROM categories"
+
+    params = []
+
+    if not include_archived: # Since it is False by default, the 'not' makes it True, and the block executes
+        sql += " WHERE is_active = 1 OR id = ?"
+        params.append(keep_id if keep_id is not None else -1)
+    # In practice, it returns only the active categories (id = -1, which acts as an impossible ID)
+
+    sql += f" ORDER BY is_active DESC, {TYPE_ORDER_SQL.replace('c.type', 'type')}, name COLLATE NOCASE"
+
+    return get_db().execute(sql, params).fetchall()
 
 
 def parse_expense_form(form, valid_category_ids):
@@ -54,15 +78,15 @@ def like_pattern(text):
     escaped = text.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_")
     return f"%{escaped}%"
 
-# Types of expenses
-VALID_TYPES = {"needs", "wants", "savings"}
+def normalize_category_name(raw):
+    """Trim, collapse inner spaces and lowercase: '  Dining   OUT ' -> 'dining out'."""
+    return " ".join(raw.lower().split())
 
-# 50/30/20 Rule
-SPLIT = (
-    ("needs", "Needs", 50, True),
-    ("wants", "Wants", 30, True),
-    ("savings", "Savings", 20, False),
-)
+def back_to_categories():
+    """Redirect to the categories page, keeping the type filter if it is valid."""
+    show = request.form.get("show", "")
+
+    return redirect(url_for("manage_categories", show=show if show in VALID_TYPES else None))
 
 
 @app.route("/")
@@ -128,7 +152,7 @@ def index():
         "index.html",
         expenses=expenses,
         total=sum(e["amount_cents"] for e in expenses),
-        categories=get_categories(),
+        categories=get_categories(include_archived=True),
         months=months,
         filters={"month": month, "category_id": category_id, "type": kind, "q": query},
     )
@@ -182,7 +206,7 @@ def edit_expense(expense_id):
     if expense is None:
         abort(404) # Helper function used in web frameworks to halt the execution and return an HTTP 404 (Not Found) error
 
-    categories = get_categories()
+    categories = get_categories(keep_id=expense["category_id"])
 
     if request.method == "POST":
 
@@ -286,7 +310,7 @@ def summary():
         LEFT JOIN expenses e 
                ON e.category_id = c.id AND strftime('%Y-%m', e.date) = ?
         GROUP BY c.id
-        ORDER BY c.type, total DESC, c.name
+        ORDER BY c.type, total DESC, c.name COLLATE NOCASE
         """,
         (month,),
     ).fetchall()
@@ -361,3 +385,98 @@ def suggest_category():
     return jsonify(
         suggestion={"id": row["id"], "name": row["name"].capitalize(), "type": row["type"]}
     )
+
+@app.route("/categories", methods=["GET", "POST"])
+def manage_categories():
+    db = get_db()
+    if request.method == "POST":
+        name = normalize_category_name(request.form.get("name", ""))
+        kind = request.form.get("type", "")
+
+        error = None
+        if not name:
+            error = "Enter a category name."
+        elif len(name) > 40:
+            error = "Category name must be at most 40 characters."
+        elif kind not in VALID_TYPES:
+            error = "Choose a type."
+        elif db.execute("SELECT 1 FROM categories WHERE name = ?", (name,)).fetchone():
+            error = "That category already exists."
+
+        if error:
+            flash(error, "error")
+            return back_to_categories()
+
+        db.execute("INSERT INTO categories (name, type) VALUES (?, ?)", (name, kind))
+        db.commit()
+        flash("Category added.", "success")
+        return redirect(url_for("manage_categories", show=kind))  # show where it landed
+
+    show = request.args.get("show", "")
+    if show not in VALID_TYPES:
+        show = ""
+    where, params = ("WHERE c.type = ?", (show,)) if show else ("", ())
+
+    rows = db.execute(
+        f"""
+        SELECT c.id, c.name, c.type, c.is_active, COUNT(e.id) AS uses
+        FROM categories c
+        LEFT JOIN expenses e ON e.category_id = c.id
+        {where}
+        GROUP BY c.id
+        ORDER BY c.is_active DESC, {TYPE_ORDER_SQL}, c.name COLLATE NOCASE
+        """,
+        params,
+    ).fetchall()
+    return render_template("categories.html", categories=rows, selected=show)
+
+@app.post("/categories/<int:category_id>/rename")
+def rename_category(category_id):
+
+    db = get_db()
+
+    # Checks whether the category exists in the database
+    category = db.execute(
+        "SELECT name FROM categories WHERE id = ?", (category_id,)
+    ).fetchone()
+
+    if category is None:
+        abort(404)
+
+    name = normalize_category_name(request.form.get("name", ""))
+
+    if not name or len(name) > 40:
+        flash("Enter a name of up to 40 characters.", "error")
+
+    elif name == category["name"]:
+        flash("The name was not changed.", "info")
+
+    elif db.execute(
+        "SELECT 1 FROM categories WHERE name = ? AND id != ?", (name, category_id)
+    ).fetchone():
+        flash("That category already exists.", "error")
+
+    else:
+        db.execute("UPDATE categories SET name = ? WHERE id = ?", (name, category_id))
+        db.commit()
+
+        flash("Category renamed.", "success")
+
+    return back_to_categories()
+
+@app.post("/categories/<int:category_id>/toggle")
+def toggle_category(category_id):
+
+    db = get_db()
+
+    cursor = db.execute(
+        "UPDATE categories SET is_active = 1 - is_active WHERE id = ?", (category_id,)
+    )
+    db.commit()
+
+    if cursor.rowcount == 0:
+        abort(404)
+
+    flash("Category updated.", "success")
+
+    return back_to_categories()

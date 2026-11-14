@@ -4,6 +4,7 @@ CREATE TABLE IF NOT EXISTS categories (
     id    INTEGER PRIMARY KEY,
     name  TEXT NOT NULL UNIQUE,
     type  TEXT NOT NULL CHECK (type IN ('needs', 'wants', 'savings'))
+    is_active  INTEGER NOT NULL DEFAULT 1 CHECK (is_active IN (0, 1))
 );
 
 CREATE TABLE IF NOT EXISTS expenses (

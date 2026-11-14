@@ -6,10 +6,11 @@ from datetime import date, datetime
 from urllib.parse import urlsplit
 
 # Imports from other files in the project
-from db import close_db, get_db
+from db import DEFAULT_DB_PATH, close_db, get_db
 from helpers import cents_to_eur, eur_to_cents
 
 app = Flask(__name__)
+app.config["DATABASE"] = DEFAULT_DB_PATH
 
 app.secret_key = os.environ.get("SECRET_KEY", "dev-only-change-me") # Temporary key
 app.teardown_appcontext(close_db) # Close connection when context finishes

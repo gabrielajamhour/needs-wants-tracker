@@ -3,16 +3,16 @@
 import sqlite3
 from pathlib import Path
 
-from flask import g # `g` is a special object provided by Flask for storing temporary information 
-                    # during the processing of a request or an application context.
+from flask import current_app, g # 'g' is a special object provided by Flask for storing temporary information 
+                                 # during the processing of a request or an application context.
 
 BASE = Path(__file__).parent
-DB = BASE / "instance" / "tracker.db"
+DEFAULT_DB_PATH = BASE / "instance" / "tracker.db"
 
 # Open connection
 def get_db():
     if "db" not in g:
-        g.db = sqlite3.connect(DB) # Establish the connection to the database
+        g.db = sqlite3.connect(current_app.config["DATABASE"]) # Establish the connection to the database
         g.db.row_factory = sqlite3.Row # Access the values ​​either by index or by column name 
                                        # (e.g. {"id": 1, "name": "Rent", "type": "needs"} instead of [(1, "Rent", "needs")])
         g.db.execute("PRAGMA foreign_keys = ON")

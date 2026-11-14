@@ -8,6 +8,73 @@
 
     <h1>Expenses</h1>
 
+    <form method="get" class="row">
+
+        <div>
+            <label for="month">Month</label>
+            <select id="month" name="month">
+                <option value="">All</option>
+
+                {% for m in months %}
+                    <option value="{{ m }}" 
+                        {% if m == filters.month %}
+                            selected
+                        {% endif %}
+                    >
+                        {{ m }}
+                    </option>
+                {% endfor %}
+
+            </select>
+        </div>
+
+        <div>
+            <label for="category_id">Category</label>
+            <select id="category_id" name="category_id">
+                <option value="">All</option>
+
+                {% for c in categories %}
+
+                <option value="{{ c['id'] }}" 
+                    {% if filters.category_id == c['id'] %}
+                        selected
+                    {% endif %}
+                >
+                    {{ c["name"] | capitalize }}
+                </option>
+
+                {% endfor %}
+
+            </select>
+        </div>
+
+        <div>
+            <label for="type">Type</label>
+            <select id="type" name="type">
+                <option value="">All</option>
+
+                {% for t in ["needs", "wants", "savings"] %}
+                <option value="{{ t }}" 
+                    {% if filters.type == t %}
+                        selected
+                    {% endif %}
+                >
+                    {{ t | capitalize }}
+                </option>
+                {% endfor %}
+
+            </select>
+        </div>
+
+        <div>
+            <label for="q">Search by name</label>
+            <input id="q" name="q" type="search" value="{{ filters.q }}" placeholder="e.g.: market">
+        </div>
+
+        <button type="submit">Filter</button>
+        <a href="{{ url_for('index') }}">Clear</a>
+    </form>
+
     {% if expenses %}
 
         <table>
@@ -43,10 +110,24 @@
             </tbody>
         </table>
 
+        <p class="num">
+                <strong>
+                    Total das linhas exibidas: {{ total | eur }}
+                </strong>
+        </p>
+
     {% else %}
+        <p>
+            {% if filters.month or filters.category_id or filters.type or filters.q %}
 
-        <p>No expenses recorded yet.</p>
+                No expenses found with these filters.
 
+            {% else %}
+
+                No expenses recorded yet. <a href="{{ url_for('new_expense') }}">Add the first one</a>.
+
+            {% endif %}
+        </p>
     {% endif %}
 
 {% endblock %}

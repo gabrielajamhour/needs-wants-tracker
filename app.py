@@ -14,13 +14,6 @@ app.secret_key = os.environ.get("SECRET_KEY", "dev-only-change-me") # Temporary 
 app.teardown_appcontext(close_db) # Close connection when context finishes
 app.add_template_filter(cents_to_eur, "eur") # Simplify function usage
 
-# 50/30/20 Rule
-SPLIT = (
-    ("needs", "Needs", 50, True),
-    ("wants", "Wants", 30, True),
-    ("savings", "Savings", 20, False),
-)
-
 # Helpers
 
 def get_categories():
@@ -56,21 +49,89 @@ def parse_expense_form(form, valid_category_ids):
 
     return (name, amount_cents, date_iso, category_id), errors
 
+def like_pattern(text):
+    """Escape LIKE wildcards so user input is matched literally."""
+    escaped = text.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_")
+    return f"%{escaped}%"
+
+# Types of expenses
+VALID_TYPES = {"needs", "wants", "savings"}
+
+# 50/30/20 Rule
+SPLIT = (
+    ("needs", "Needs", 50, True),
+    ("wants", "Wants", 30, True),
+    ("savings", "Savings", 20, False),
+)
+
 
 @app.route("/")
 def index():
+    db = get_db()
 
-    expenses = get_db().execute(
-        """
+    month = request.args.get("month", "")
+    category_id = request.args.get("category_id", type=int)
+    kind = request.args.get("type", "")
+    query = request.args.get("q", "").strip()
+
+    # Store the conditions in WHERE and the values ​​corresponding to each condition
+    conditions, params = [], []
+
+    if month:
+        try:
+            month = datetime.strptime(month, "%Y-%m").strftime("%Y-%m")
+        except ValueError:
+            month = ""
+        else:
+            conditions.append("strftime('%Y-%m', e.date) = ?")
+            params.append(month)
+
+    if category_id:
+        conditions.append("e.category_id = ?")
+        params.append(category_id)
+
+    if kind in VALID_TYPES:
+        conditions.append("c.type = ?")
+        params.append(kind)
+    else:
+        kind = ""
+
+    if query:
+        conditions.append("e.name LIKE ? ESCAPE '\\'")
+        params.append(like_pattern(query))
+
+    where = "WHERE " + " AND ".join(conditions) if conditions else ""
+
+    expenses = db.execute(
+        f""" 
         SELECT e.id, e.date, e.name, e.amount_cents,
                c.name AS category, c.type
         FROM expenses e
             JOIN categories c ON c.id = e.category_id
+        {where}
         ORDER BY e.date DESC, e.id DESC
-        """
+        """,
+        params,
     ).fetchall()
+    # 'f' allows you to insert the 'where' variable into the query
 
-    return render_template("index.html", expenses=expenses)
+    # Store months for which there are recorded expenses
+    months = [
+        row["month"]
+        for row in db.execute(
+            "SELECT DISTINCT strftime('%Y-%m', date) AS month "
+            "FROM expenses ORDER BY month DESC"
+        )
+    ]
+
+    return render_template(
+        "index.html",
+        expenses=expenses,
+        total=sum(e["amount_cents"] for e in expenses),
+        categories=get_categories(),
+        months=months,
+        filters={"month": month, "category_id": category_id, "type": kind, "q": query},
+    )
 
 @app.route("/expenses/new", methods=["GET", "POST"])
 def new_expense():

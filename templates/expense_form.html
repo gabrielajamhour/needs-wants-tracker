@@ -58,11 +58,13 @@
 
                 {% for c in items %}
 
-                    <!-- The expenses table does not store the category name, but rather the category_id -->
+                    {# The expenses table does not store the category name, but rather the category_id #}
                     <option value="{{ c['id'] }}" 
                         {% if form.get('category_id') | int == c['id'] %}
                             selected
-                        {% endif %}> <!-- Maintain the selected category when the form needs to be displayed again following an error -->
+                        {% endif %}
+                    >
+                        {# Maintain the selected category when the form needs to be displayed again following an error #}
                         {{ c["name"] }}
                     </option>
 

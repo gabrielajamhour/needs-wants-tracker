@@ -55,7 +55,7 @@ def new_expense():
             errors.append("Enter a name.")
 
         if amount_cents is None or amount_cents <= 0:
-            errors.append("Enter a value greater than zero, using a comma for the cents (e.g., 12,50).")
+            errors.append("Enter an amount greater than zero, using a comma for the cents (e.g., 12,50).")
 
         if category_id not in {c["id"] for c in categories}:
                     errors.append("Choose a category.")

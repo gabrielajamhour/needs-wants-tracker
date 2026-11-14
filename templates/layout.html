@@ -23,7 +23,7 @@
     </header>
     <main>
         {% for category, message in get_flashed_messages(with_categories=true) %}
-        <!-- Function returns a list of tuples e.g. [("success", "Expense added successfully!"), ("error", "Invalid amount.")] -->
+        {# get_flashed_messages returns a list of (category, message) tuples #}
 
             <p class="flash {{ category }}" role="status">
                 {{ message }}

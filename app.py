@@ -5,9 +5,9 @@ from urllib.parse import urlsplit
 from flask import Flask, abort, flash, jsonify, redirect, render_template, request, url_for
 
 # Imports from other files in the project
+from budget import build_cards
 from db import DEFAULT_DB_PATH, close_db, get_db
 from helpers import cents_to_eur, eur_to_cents
-from budget import build_cards
 
 app = Flask(__name__)
 app.config["DATABASE"] = os.environ.get("TRACKER_DB", DEFAULT_DB_PATH)

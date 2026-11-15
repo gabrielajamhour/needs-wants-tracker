@@ -1,0 +1,111 @@
+import pytest
+
+
+def count_categories(db_rows):
+    return db_rows("SELECT COUNT(*) AS n FROM categories")[0]["n"]
+
+
+def test_create_category_is_normalized(client, db_rows):
+    response = client.post("/categories", data={"name": "  Streaming  ", "type": "wants"})
+    assert response.status_code == 302
+    assert response.headers["Location"] == "/categories?show=wants"
+    row = db_rows("SELECT name, type, is_active FROM categories WHERE name = 'streaming'")[0]
+    assert tuple(row) == ("streaming", "wants", 1)
+
+
+def test_duplicate_category_is_rejected_ignoring_case(client, db_rows):
+    before = count_categories(db_rows)
+    response = client.post("/categories", data={"name": "GROCERIES", "type": "needs"},
+                           follow_redirects=True)
+    assert b"That category already exists." in response.data
+    assert count_categories(db_rows) == before
+
+
+@pytest.mark.parametrize(
+    "data",
+    [
+        {"name": "", "type": "wants"},
+        {"name": "ok", "type": "invalid"},
+        {"name": "x" * 41, "type": "wants"},
+    ],
+)
+def test_invalid_category_is_rejected(client, db_rows, data):
+    before = count_categories(db_rows)
+    client.post("/categories", data=data)
+    assert count_categories(db_rows) == before
+
+
+def test_rename_keeps_expenses(client, add_expense, category_id, db_rows):
+    add_expense(category="groceries")
+    cid = category_id("groceries")
+    client.post(f"/categories/{cid}/rename", data={"name": "Supermarket"})
+    assert db_rows("SELECT name FROM categories WHERE id = ?", (cid,))[0]["name"] == "supermarket"
+    assert db_rows("SELECT category_id FROM expenses")[0]["category_id"] == cid
+
+
+def test_rename_to_same_name_reports_no_change(client, category_id, db_rows):
+    cid = category_id("groceries")
+    response = client.post(f"/categories/{cid}/rename", data={"name": "Groceries"},
+                           follow_redirects=True)
+    assert b"The name was not changed." in response.data
+    assert b"Category renamed." not in response.data
+
+
+def test_rename_to_existing_name_is_rejected(client, category_id, db_rows):
+    cid = category_id("groceries")
+
+    original_name = db_rows(
+        "SELECT name FROM categories WHERE id = ?", (cid,)
+    )[0]["name"]
+
+    response = client.post(
+        f"/categories/{cid}/rename",
+        data={"name": "housing"},
+        follow_redirects=True
+    )
+
+    assert b"That category already exists." in response.data
+
+    assert db_rows(
+        "SELECT name FROM categories WHERE id = ?", (cid,)
+    )[0]["name"] == original_name
+
+
+def test_toggle_archives_and_restores(client, category_id, db_rows):
+    cid = category_id("groceries")
+
+    def is_active():
+        return db_rows("SELECT is_active FROM categories WHERE id = ?", (cid,))[0]["is_active"]
+
+    client.post(f"/categories/{cid}/toggle")
+    assert is_active() == 0
+    client.post(f"/categories/{cid}/toggle")
+    assert is_active() == 1
+
+
+def test_archived_category_hidden_for_new_but_kept_for_existing(
+    client, add_expense, category_id, db_rows
+):
+    add_expense(category="groceries")
+    cid = category_id("groceries")
+    client.post(f"/categories/{cid}/toggle")
+
+    new_page = client.get("/expenses/new").data.decode()
+    assert f'value="{cid}"' not in new_page
+
+    expense_id = db_rows("SELECT id FROM expenses")[0]["id"]
+    edit_page = client.get(f"/expenses/{expense_id}/edit").data.decode()
+    assert f'value="{cid}"' in edit_page
+
+
+def test_type_filter_on_categories_page(client):
+    page = client.get("/categories?show=savings").data.decode()
+    assert "Emergency fund" in page
+    assert "Housing" not in page
+
+
+def test_archived_categories_are_listed_last_in_their_group(client, category_id):
+    cid = category_id("education")  # first alphabetically among needs
+    client.post(f"/categories/{cid}/toggle")
+    page = client.get("/categories?show=needs").data.decode()
+    assert page.index("Education") > page.index("Utilities")

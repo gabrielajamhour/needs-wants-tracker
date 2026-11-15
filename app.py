@@ -425,7 +425,7 @@ def manage_categories():
             error = "Category name must be at most 40 characters."
         elif kind not in VALID_TYPES:
             error = "Choose a type."
-        elif db.execute("SELECT 1 FROM categories WHERE name = ?", (name,)).fetchone():
+        elif db.execute("SELECT 1 FROM categories WHERE name = ? COLLATE NOCASE", (name,)).fetchone():
             error = "That category already exists."
 
         if error:
@@ -473,11 +473,11 @@ def rename_category(category_id):
     if not name or len(name) > 40:
         flash("Enter a name of up to 40 characters.", "error")
 
-    elif name == category["name"]:
+    elif name.casefold() == category["name"].casefold():
         flash("The name was not changed.", "info")
 
     elif db.execute(
-        "SELECT 1 FROM categories WHERE name = ? AND id != ?", (name, category_id)
+        "SELECT 1 FROM categories WHERE name = ? COLLATE NOCASE AND id != ?", (name, category_id)
     ).fetchone():
         flash("That category already exists.", "error")
 

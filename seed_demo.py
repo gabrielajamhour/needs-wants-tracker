@@ -52,8 +52,7 @@ def create_demo_db(path=DEFAULT_PATH):
         conn.executescript((ROOT / "schema.sql").read_text(encoding="utf-8"))
         conn.executescript((ROOT / "seed.sql").read_text(encoding="utf-8"))
         ids = {
-            name.casefold(): cid
-            for cid, name in conn.execute("SELECT id, name FROM categories")
+            name.casefold(): cid for cid, name in conn.execute("SELECT id, name FROM categories")
         }
 
         for month in MONTHS:

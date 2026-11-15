@@ -2,6 +2,7 @@ import pytest
 
 from helpers import cents_to_eur, eur_to_cents
 
+
 @pytest.mark.parametrize(
     "cents, expected",
     [
@@ -14,6 +15,7 @@ from helpers import cents_to_eur, eur_to_cents
 )
 def test_cents_to_eur(cents, expected):
     assert cents_to_eur(cents) == expected
+
 
 @pytest.mark.parametrize("bad", ["12", 1.5, True, None])
 def test_cents_to_eur_rejects_non_integers(bad):
@@ -30,7 +32,7 @@ def test_cents_to_eur_rejects_non_integers(bad):
         ("0,5", 50),
         (" 12,34 € ", 1234),
         ("1.234", 123400),  # valid European thousands separator
-        ("1,005", 101),     # half-up rounding: 100.5 cents -> 101
+        ("1,005", 101),  # half-up rounding: 100.5 cents -> 101
     ],
 )
 def test_eur_to_cents_valid(text, expected):

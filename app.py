@@ -1,9 +1,8 @@
 import os
-
-from flask import Flask, abort, flash, jsonify, redirect, render_template, request, url_for
-
 from datetime import date, datetime
 from urllib.parse import urlsplit
+
+from flask import Flask, abort, flash, jsonify, redirect, render_template, request, url_for
 
 # Imports from other files in the project
 from db import DEFAULT_DB_PATH, close_db, get_db
@@ -13,8 +12,8 @@ app = Flask(__name__)
 app.config["DATABASE"] = os.environ.get("TRACKER_DB", DEFAULT_DB_PATH)
 
 app.secret_key = os.environ.get("SECRET_KEY") or os.urandom(32).hex()
-app.teardown_appcontext(close_db) # Close connection when context finishes
-app.add_template_filter(cents_to_eur, "eur") # Simplify function usage
+app.teardown_appcontext(close_db)  # Close connection when context finishes
+app.add_template_filter(cents_to_eur, "eur")  # Simplify function usage
 
 # Types of expenses
 VALID_TYPES = {"needs", "wants", "savings"}
@@ -34,6 +33,7 @@ MAX_NAME_LENGTH = 100
 
 # Helpers
 
+
 def get_categories(include_archived=False, keep_id=None):
     """Active categories; optionally all, or active plus one specific id."""
 
@@ -41,12 +41,15 @@ def get_categories(include_archived=False, keep_id=None):
 
     params = []
 
-    if not include_archived: # Since it is False by default, the 'not' makes it True, and the block executes
+    if not include_archived:
+        # Since it is False by default, the 'not' makes it True, and the block executes
         sql += " WHERE is_active = 1 OR id = ?"
         params.append(keep_id if keep_id is not None else -1)
     # In practice, it returns only the active categories (id = -1, which acts as an impossible ID)
 
-    sql += f" ORDER BY is_active DESC, {TYPE_ORDER_SQL.replace('c.type', 'type')}, name COLLATE NOCASE"
+    sql += f""" ORDER BY is_active DESC, 
+                {TYPE_ORDER_SQL.replace("c.type", "type")}, 
+                name COLLATE NOCASE"""
 
     return get_db().execute(sql, params).fetchall()
 
@@ -61,7 +64,7 @@ def parse_expense_form(form, valid_category_ids):
     # Created an empty list to store ALL the errors encountered during validation
     errors = []
 
-    if not name: # In Python, an empty string "" is considered false
+    if not name:  # In Python, an empty string "" is considered false
         errors.append("Enter a name.")
     elif len(name) > MAX_NAME_LENGTH:
         errors.append(f"Name must be at most {MAX_NAME_LENGTH} characters.")
@@ -82,14 +85,17 @@ def parse_expense_form(form, valid_category_ids):
 
     return (name, amount_cents, date_iso, category_id), errors
 
+
 def like_pattern(text):
     """Escape LIKE wildcards so user input is matched literally."""
     escaped = text.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_")
     return f"%{escaped}%"
 
+
 def normalize_category_name(raw):
     """Trim, collapse inner spaces and lowercase: '  Dining   OUT ' -> 'dining out'."""
     return " ".join(raw.lower().split())
+
 
 def back_to_categories():
     """Redirect to the categories page, keeping the type filter if it is valid."""
@@ -97,22 +103,26 @@ def back_to_categories():
 
     return redirect(url_for("manage_categories", show=show if show in VALID_TYPES else None))
 
+
 def safe_next(target):
-    """Return target only if it is a local link to the expense list; otherwise the plain list URL."""
+    """Return target only if it is a local link to the expense list;
+    otherwise the plain list URL."""
 
     default = url_for("index")
 
-    if not target: # url
+    if not target:  # url
         return default
 
     # Split the URL into components
     parts = urlsplit(target)
 
     if parts.scheme or parts.netloc or parts.path != default:
-    # scheme: HTTP protocol (https or http); netloc: domain (e.g., google.com); path: site path (e.g., /expenses)
-    # parts.netloc rejects URLs that specify a domain, and parts.scheme rejects URLs that specify a protocol
+        # scheme: HTTP protocol (https or http);
+        # netloc: domain (e.g., google.com);
+        # path: site path (e.g., /expenses)
+        # parts.netloc rejects URLs that specify a domain, and parts.scheme that specify a protocol
         return default
-    
+
     return target
 
 
@@ -170,8 +180,7 @@ def index():
     months = [
         row["month"]
         for row in db.execute(
-            "SELECT DISTINCT strftime('%Y-%m', date) AS month "
-            "FROM expenses ORDER BY month DESC"
+            "SELECT DISTINCT strftime('%Y-%m', date) AS month FROM expenses ORDER BY month DESC"
         )
     ]
 
@@ -184,41 +193,44 @@ def index():
         filters={"month": month, "category_id": category_id, "type": kind, "q": query},
     )
 
+
 @app.route("/expenses/new", methods=["GET", "POST"])
 def new_expense():
 
     categories = get_categories()
 
     if request.method == "POST":
-
         values, errors = parse_expense_form(request.form, {c["id"] for c in categories})
 
-        if not errors: # In Python, an empty list is considered false
+        if not errors:  # In Python, an empty list is considered false
             db = get_db()
             db.execute(
-                "INSERT INTO expenses (name, amount_cents, date, category_id) "
-                "VALUES (?, ?, ?, ?)",
+                "INSERT INTO expenses (name, amount_cents, date, category_id) VALUES (?, ?, ?, ?)",
                 values,
-            ) # No need for .fetchall() since INSERT does not return records
+            )  # No need for .fetchall() since INSERT does not return records
             db.commit()
 
-            flash("Expense added.", "success") # Flask's temporary messaging system
+            flash("Expense added.", "success")  # Flask's temporary messaging system
 
             return redirect(url_for("index"))
-        
+
         for message in errors:
             flash(message, "error")
 
         return render_template(
-            "expense_form.html", heading="New expense",
-            categories=categories, form=request.form,
+            "expense_form.html",
+            heading="New expense",
+            categories=categories,
+            form=request.form,
             back_url=url_for("index"),
         ), 400
 
     # request.method == "GET"
     return render_template(
-        "expense_form.html", heading="New expense",
-        categories=categories, form={"date": date.today().isoformat()},
+        "expense_form.html",
+        heading="New expense",
+        categories=categories,
+        form={"date": date.today().isoformat()},
         back_url=url_for("index"),
     )
 
@@ -233,14 +245,15 @@ def edit_expense(expense_id):
     ).fetchone()
 
     if expense is None:
-        abort(404) # Helper function used in web frameworks to halt the execution and return an HTTP 404 (Not Found) error
+        abort(404)
+        # Helper function used in web frameworks to halt the execution
+        # and return an HTTP 404 (Not Found) error
 
     back_url = safe_next(request.args.get("next"))
 
     categories = get_categories(keep_id=expense["category_id"])
 
     if request.method == "POST":
-
         values, errors = parse_expense_form(request.form, {c["id"] for c in categories})
 
         if not errors:
@@ -254,29 +267,35 @@ def edit_expense(expense_id):
             flash("Expense updated.", "success")
 
             return redirect(back_url)
-        
+
         for message in errors:
             flash(message, "error")
 
         return render_template(
-            "expense_form.html", heading="Edit expense",
-            categories=categories, form=request.form,
+            "expense_form.html",
+            heading="Edit expense",
+            categories=categories,
+            form=request.form,
             back_url=back_url,
         ), 400
 
     # request.method == "GET"
     form = {
         "name": expense["name"],
-        "amount": cents_to_eur(expense["amount_cents"]).removesuffix(" €"), # Saving without changing anyting doesn't change the amount
+        "amount": cents_to_eur(expense["amount_cents"]).removesuffix(" €"),
+        # Saving without changing anyting doesn't change the amount
         "date": expense["date"],
         "category_id": expense["category_id"],
     }
 
     return render_template(
-        "expense_form.html", heading="Edit expense",
-        categories=categories, form=form,
+        "expense_form.html",
+        heading="Edit expense",
+        categories=categories,
+        form=form,
         back_url=back_url,
     )
+
 
 @app.post("/expenses/<int:expense_id>/delete")
 def delete_expense(expense_id):
@@ -292,6 +311,7 @@ def delete_expense(expense_id):
 
     return redirect(safe_next(request.args.get("next")))
 
+
 @app.route("/summary", methods=["GET", "POST"])
 def summary():
 
@@ -302,12 +322,12 @@ def summary():
     month = request.values.get("month") or date.today().strftime("%Y-%m")
 
     try:
-        month = datetime.strptime(month, "%Y-%m").strftime("%Y-%m") # ensuring that the received month has a valid format
+        month = datetime.strptime(month, "%Y-%m").strftime("%Y-%m")
+        # ensuring that the received month has a valid format
     except ValueError:
         abort(400)
 
     if request.method == "POST":
-
         income_cents = eur_to_cents(request.form.get("income", ""))
 
         if income_cents is None or not 0 <= income_cents <= MAX_AMOUNT_CENTS:
@@ -316,11 +336,12 @@ def summary():
         else:
             db.execute(
                 "INSERT INTO budgets (month, income_cents) VALUES (?, ?) "
-                "ON CONFLICT(month) DO UPDATE " 
-                    "SET income_cents = excluded.income_cents",
+                "ON CONFLICT(month) DO UPDATE "
+                "SET income_cents = excluded.income_cents",
                 (month, income_cents),
             )
-            # 'excluded' is a special SQLite reference to the value that was attempted to be inserted but could not be, due to a conflict
+            # 'excluded' is a special SQLite reference to the value that
+            # was attempted to be inserted but could not be, due to a conflict
 
             db.commit()
 
@@ -330,7 +351,8 @@ def summary():
 
     # request.method == "GET"
     budget = db.execute(
-        "SELECT income_cents FROM budgets WHERE month = ?", (month,) # single-value tuple
+        "SELECT income_cents FROM budgets WHERE month = ?",
+        (month,),  # single-value tuple
     ).fetchone()
 
     income = budget["income_cents"] if budget else None
@@ -347,7 +369,8 @@ def summary():
         (month,),
     ).fetchall()
     # Use LEFT JOIN to also get categories without expenses
-    # Use COALESCE to substitute NULL values to 0, as a category with no expenses returns NULL when attempting to do the SUM
+    # Use COALESCE to substitute NULL values to 0,
+    # as a category with no expenses returns NULL when attempting to do the SUM
 
     # Store the total spent by category type (needs/wants)
     spent = {}
@@ -360,21 +383,24 @@ def summary():
     # Budget cards
     cards = []
 
-    for kind, label, pct, is_cap in SPLIT: # type identifier, name to be displayed on the card, percentage allocated to that type
+    for kind, label, pct, is_cap in SPLIT:
+        # type identifier, name to be displayed on the card, percentage allocated to that type
 
         limit = income * pct // 100 if income is not None else None
 
         total = spent.get(kind, 0)
 
-        cards.append({
-            "label": label,
-            "pct": pct,
-            "limit": limit,
-            "spent": total,
-            "is_cap": is_cap,
-            "used": round(total * 100 / limit) if limit else None,
-            "over": is_cap and bool(limit) and total > limit,
-    })
+        cards.append(
+            {
+                "label": label,
+                "pct": pct,
+                "limit": limit,
+                "spent": total,
+                "is_cap": is_cap,
+                "used": round(total * 100 / limit) if limit else None,
+                "over": is_cap and bool(limit) and total > limit,
+            }
+        )
 
     return render_template(
         "summary.html",
@@ -383,8 +409,10 @@ def summary():
         income_value=(cents_to_eur(income).removesuffix(" €") if income is not None else ""),
         cards=cards,
         total_spent=total_spent,
-        breakdown=[r for r in rows if r["total"] > 0], # So as to not display categories with zero spending
+        breakdown=[r for r in rows if r["total"] > 0],
+        # So as to not display categories with zero spending
     )
+
 
 @app.get("/suggest-category")
 def suggest_category():
@@ -395,8 +423,10 @@ def suggest_category():
     if not name:
         return jsonify(suggestion=None)
 
-    row = get_db().execute(
-        """
+    row = (
+        get_db()
+        .execute(
+            """
         SELECT c.id, c.name, c.type
         FROM expenses e
             JOIN categories c ON c.id = e.category_id
@@ -405,18 +435,22 @@ def suggest_category():
         ORDER BY COUNT(*) DESC, MAX(e.date) DESC
         LIMIT 1
         """,
-        (name,),
-    ).fetchone()
+            (name,),
+        )
+        .fetchone()
+    )
     # ORDER BY COUNT(*) causes the most frequently used category to appear as a suggestion
-    # If two categories have the exact same number of occurrences, they are sorted by the most recent date (MAX(e.date))
+    # If two categories have the exact same number of occurrences,
+    # they are sorted by the most recent date (MAX(e.date))
     # LIMIT 1 ensures that only one suggestion is returned
 
     if row is None:
         return jsonify(suggestion=None)
-    
+
     return jsonify(
         suggestion={"id": row["id"], "name": row["name"].capitalize(), "type": row["type"]}
     )
+
 
 @app.route("/categories", methods=["GET", "POST"])
 def manage_categories():
@@ -432,7 +466,9 @@ def manage_categories():
             error = "Category name must be at most 40 characters."
         elif kind not in VALID_TYPES:
             error = "Choose a type."
-        elif db.execute("SELECT 1 FROM categories WHERE name = ? COLLATE NOCASE", (name,)).fetchone():
+        elif db.execute(
+            "SELECT 1 FROM categories WHERE name = ? COLLATE NOCASE", (name,)
+        ).fetchone():
             error = "That category already exists."
 
         if error:
@@ -462,15 +498,14 @@ def manage_categories():
     ).fetchall()
     return render_template("categories.html", categories=rows, selected=show)
 
+
 @app.post("/categories/<int:category_id>/rename")
 def rename_category(category_id):
 
     db = get_db()
 
     # Checks whether the category exists in the database
-    category = db.execute(
-        "SELECT name FROM categories WHERE id = ?", (category_id,)
-    ).fetchone()
+    category = db.execute("SELECT name FROM categories WHERE id = ?", (category_id,)).fetchone()
 
     if category is None:
         abort(404)
@@ -496,6 +531,7 @@ def rename_category(category_id):
 
     return back_to_categories()
 
+
 @app.post("/categories/<int:category_id>/toggle")
 def toggle_category(category_id):
 
@@ -513,12 +549,13 @@ def toggle_category(category_id):
 
     return back_to_categories()
 
+
 @app.after_request
 def set_security_headers(response):
-    response.headers.setdefault("X-Content-Type-Options", "nosniff") 
+    response.headers.setdefault("X-Content-Type-Options", "nosniff")
     # prevents the browser from “guessing” a content type different from the one declared
-    response.headers.setdefault("X-Frame-Options", "DENY") 
-    # prevents another site from placing your app inside an <iframe> in order to trick the user into clicking
+    response.headers.setdefault("X-Frame-Options", "DENY")
+    # prevents another site from placing your app and trick the user into clicking
     response.headers.setdefault("Referrer-Policy", "same-origin")
     # only sends the source address when navigating within the site itself
     return response

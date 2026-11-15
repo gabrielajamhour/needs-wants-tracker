@@ -40,7 +40,7 @@ def test_name_length_limit(add_expense, db_rows):
         ("2028-02-29", 302),  # leap year
         ("2026-02-29", 400),  # not a leap year
         ("2026-04-31", 400),
-        ("2026-2-5", 302),    # accepted and normalized
+        ("2026-2-5", 302),  # accepted and normalized
     ],
 )
 def test_dates_at_month_ends(add_expense, date, expected_status):
@@ -101,7 +101,10 @@ def test_unicode_names_round_trip(client, add_expense):
     assert "Coffee" in client.get("/?q=Coffee").data.decode()
 
 
-@pytest.mark.xfail(reason="LIKE ignores case only for ASCII; accent-insensitive search is in the backlog")
+@pytest.mark.xfail(
+    reason="LIKE ignores case only for ASCII; "
+    "                           accent-insensitive search is in the backlog"
+)
 def test_search_ignores_case_of_accented_letters(client, add_expense):
     add_expense(name="Café")
     assert "Café" in client.get("/?q=CAFÉ").data.decode()

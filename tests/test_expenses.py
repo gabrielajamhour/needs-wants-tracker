@@ -61,8 +61,7 @@ def test_edit_expense(client, add_expense, category_id, db_rows):
     new_category = category_id("dining out")
     response = client.post(
         f"/expenses/{expense_id}/edit",
-        data={"name": "Lidl", "amount": "10,00", "date": "2026-11-12",
-              "category_id": new_category},
+        data={"name": "Lidl", "amount": "10,00", "date": "2026-11-12", "category_id": new_category},
     )
     assert response.status_code == 302
     row = db_rows("SELECT name, amount_cents, date, category_id FROM expenses")[0]
@@ -72,19 +71,24 @@ def test_edit_expense(client, add_expense, category_id, db_rows):
 def test_edit_and_delete_follow_safe_next(client, add_expense, category_id, db_rows):
     add_expense()
     expense_id = first_expense_id(db_rows)
-    data = {"name": "Lidl", "amount": "10,00", "date": "2026-11-12",
-            "category_id": category_id("groceries")}
+    data = {
+        "name": "Lidl",
+        "amount": "10,00",
+        "date": "2026-11-12",
+        "category_id": category_id("groceries"),
+    }
 
-    good = client.post(f"/expenses/{expense_id}/edit", data=data,
-                       query_string={"next": "/?month=2026-11"})
+    good = client.post(
+        f"/expenses/{expense_id}/edit", data=data, query_string={"next": "/?month=2026-11"}
+    )
     assert good.headers["Location"] == "/?month=2026-11"
 
-    bad = client.post(f"/expenses/{expense_id}/edit", data=data,
-                      query_string={"next": "https://example.com"})
+    bad = client.post(
+        f"/expenses/{expense_id}/edit", data=data, query_string={"next": "https://example.com"}
+    )
     assert bad.headers["Location"] == "/"
 
-    deleted = client.post(f"/expenses/{expense_id}/delete",
-                          query_string={"next": "/?q=lidl"})
+    deleted = client.post(f"/expenses/{expense_id}/delete", query_string={"next": "/?q=lidl"})
     assert deleted.headers["Location"] == "/?q=lidl"
 
 

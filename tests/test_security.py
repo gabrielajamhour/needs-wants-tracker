@@ -57,6 +57,7 @@ def test_security_headers(client, url):
     assert response.headers["X-Frame-Options"] == "DENY"
     assert response.headers["Referrer-Policy"] == "same-origin"
 
+
 def test_secret_key_is_not_hard_coded(app):
     assert app.secret_key
     assert app.secret_key != "dev-only-change-me"

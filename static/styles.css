@@ -1,3 +1,14 @@
+/* Apply border-box sizing to all elements and their pseudo-elements */
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
+/* Prevent inputs and select elements from exceeding their container width */
+input, select {
+    max-width: 100%;
+    min-width: 0;
+}
+
 /* Page body */
 body {
     margin: 0;

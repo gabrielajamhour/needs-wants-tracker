@@ -15,8 +15,9 @@ def test_create_category_is_normalized(client, db_rows):
 
 def test_duplicate_category_is_rejected_ignoring_case(client, db_rows):
     before = count_categories(db_rows)
-    response = client.post("/categories", data={"name": "GROCERIES", "type": "needs"},
-                           follow_redirects=True)
+    response = client.post(
+        "/categories", data={"name": "GROCERIES", "type": "needs"}, follow_redirects=True
+    )
     assert b"That category already exists." in response.data
     assert count_categories(db_rows) == before
 
@@ -45,8 +46,9 @@ def test_rename_keeps_expenses(client, add_expense, category_id, db_rows):
 
 def test_rename_to_same_name_reports_no_change(client, category_id, db_rows):
     cid = category_id("groceries")
-    response = client.post(f"/categories/{cid}/rename", data={"name": "Groceries"},
-                           follow_redirects=True)
+    response = client.post(
+        f"/categories/{cid}/rename", data={"name": "Groceries"}, follow_redirects=True
+    )
     assert b"The name was not changed." in response.data
     assert b"Category renamed." not in response.data
 
@@ -54,21 +56,15 @@ def test_rename_to_same_name_reports_no_change(client, category_id, db_rows):
 def test_rename_to_existing_name_is_rejected(client, category_id, db_rows):
     cid = category_id("groceries")
 
-    original_name = db_rows(
-        "SELECT name FROM categories WHERE id = ?", (cid,)
-    )[0]["name"]
+    original_name = db_rows("SELECT name FROM categories WHERE id = ?", (cid,))[0]["name"]
 
     response = client.post(
-        f"/categories/{cid}/rename",
-        data={"name": "housing"},
-        follow_redirects=True
+        f"/categories/{cid}/rename", data={"name": "housing"}, follow_redirects=True
     )
 
     assert b"That category already exists." in response.data
 
-    assert db_rows(
-        "SELECT name FROM categories WHERE id = ?", (cid,)
-    )[0]["name"] == original_name
+    assert db_rows("SELECT name FROM categories WHERE id = ?", (cid,))[0]["name"] == original_name
 
 
 def test_toggle_archives_and_restores(client, category_id, db_rows):

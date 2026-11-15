@@ -7,6 +7,7 @@ from flask import Flask, abort, flash, jsonify, redirect, render_template, reque
 # Imports from other files in the project
 from db import DEFAULT_DB_PATH, close_db, get_db
 from helpers import cents_to_eur, eur_to_cents
+from budget import build_cards
 
 app = Flask(__name__)
 app.config["DATABASE"] = os.environ.get("TRACKER_DB", DEFAULT_DB_PATH)
@@ -17,13 +18,6 @@ app.add_template_filter(cents_to_eur, "eur")  # Simplify function usage
 
 # Types of expenses
 VALID_TYPES = {"needs", "wants", "savings"}
-
-# 50/30/20 Rule
-SPLIT = (
-    ("needs", "Needs", 50, True),
-    ("wants", "Wants", 30, True),
-    ("savings", "Savings", 20, False),
-)
 
 # Custom order for category types
 TYPE_ORDER_SQL = "CASE c.type WHEN 'needs' THEN 1 WHEN 'wants' THEN 2 ELSE 3 END"
@@ -381,26 +375,7 @@ def summary():
     total_spent = sum(spent.values())
 
     # Budget cards
-    cards = []
-
-    for kind, label, pct, is_cap in SPLIT:
-        # type identifier, name to be displayed on the card, percentage allocated to that type
-
-        limit = income * pct // 100 if income is not None else None
-
-        total = spent.get(kind, 0)
-
-        cards.append(
-            {
-                "label": label,
-                "pct": pct,
-                "limit": limit,
-                "spent": total,
-                "is_cap": is_cap,
-                "used": round(total * 100 / limit) if limit else None,
-                "over": is_cap and bool(limit) and total > limit,
-            }
-        )
+    cards = build_cards(income, spent)
 
     return render_template(
         "summary.html",

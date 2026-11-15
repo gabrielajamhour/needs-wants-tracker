@@ -512,3 +512,13 @@ def toggle_category(category_id):
     flash("Category updated.", "success")
 
     return back_to_categories()
+
+@app.after_request
+def set_security_headers(response):
+    response.headers.setdefault("X-Content-Type-Options", "nosniff") 
+    # prevents the browser from “guessing” a content type different from the one declared
+    response.headers.setdefault("X-Frame-Options", "DENY") 
+    # prevents another site from placing your app inside an <iframe> in order to trick the user into clicking
+    response.headers.setdefault("Referrer-Policy", "same-origin")
+    # only sends the source address when navigating within the site itself
+    return response

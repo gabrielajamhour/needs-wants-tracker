@@ -29,6 +29,9 @@ SPLIT = (
 # Custom order for category types
 TYPE_ORDER_SQL = "CASE c.type WHEN 'needs' THEN 1 WHEN 'wants' THEN 2 ELSE 3 END"
 
+MAX_AMOUNT_CENTS = 1_000_000_000  # 10,000,000.00 €
+MAX_NAME_LENGTH = 100
+
 # Helpers
 
 def get_categories(include_archived=False, keep_id=None):
@@ -60,9 +63,13 @@ def parse_expense_form(form, valid_category_ids):
 
     if not name: # In Python, an empty string "" is considered false
         errors.append("Enter a name.")
+    elif len(name) > MAX_NAME_LENGTH:
+        errors.append(f"Name must be at most {MAX_NAME_LENGTH} characters.")
 
     if amount_cents is None or amount_cents <= 0:
         errors.append("Enter an amount greater than zero, using a comma for cents (e.g. 12,50).")
+    elif amount_cents > MAX_AMOUNT_CENTS:
+        errors.append("Amount is too large.")
 
     if category_id not in valid_category_ids:
         errors.append("Choose a category.")
@@ -303,7 +310,7 @@ def summary():
 
         income_cents = eur_to_cents(request.form.get("income", ""))
 
-        if income_cents is None or income_cents < 0:
+        if income_cents is None or not 0 <= income_cents <= MAX_AMOUNT_CENTS:
             flash("Enter a valid income (e.g. 1.000,00).", "error")
 
         else:

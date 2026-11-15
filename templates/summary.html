@@ -73,22 +73,24 @@
     {% if breakdown %}
 
         {% for type, items in breakdown | groupby("type") %}
-        <table>
-            <thead>
-                <tr>
-                    <th>{{ type | capitalize }}</th>
-                    <th class="num">Spent</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for r in items %}
-                <tr>
-                    <td>{{ r["name"] | capitalize }}</td>
-                    <td class="num">{{ r["total"] | eur }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>{{ type | capitalize }}</th>
+                        <th class="num">Spent</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for r in items %}
+                    <tr>
+                        <td>{{ r["name"] | capitalize }}</td>
+                        <td class="num">{{ r["total"] | eur }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
         {% endfor %}
 
     {% else %}

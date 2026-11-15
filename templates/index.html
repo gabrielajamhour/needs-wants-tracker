@@ -80,42 +80,44 @@
 
     {% if expenses %}
 
-        <table>
-            <thead>
-                <tr>
-                    <th>Date</th>
-                    <th>Name</th>
-                    <th>Category</th>
-                    <th>Type</th>
-                    <th class="num">Amount</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Name</th>
+                        <th>Category</th>
+                        <th>Type</th>
+                        <th class="num">Amount</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
 
-                {% for e in expenses %}
-                <tr>
-                    <td>{{ e["date"] }}</td>
-                    <td>{{ e["name"] | capitalize }}</td>
-                    <td>{{ e["category"] | capitalize }}</td>
-                    <td>{{ e["type"] | capitalize }}</td>
-                    <td class="num">{{ e["amount_cents"] | eur }}</td>
-                    <td>
-                        <a href="{{ url_for('edit_expense', expense_id=e['id'], next=back) }}">Edit</a>
-                        <form 
-                            method="post" 
-                            action="{{ url_for('delete_expense', expense_id=e['id'], next=back) }}"
-                            class="inline" 
-                            onsubmit="return confirm('Delete this expense?')"
-                        >
-                            <button type="submit" class="link-button">Delete</button>
-                        </form>
-                    </td>
-                </tr>
-                {% endfor %}
+                    {% for e in expenses %}
+                    <tr>
+                        <td>{{ e["date"] }}</td>
+                        <td>{{ e["name"] | capitalize }}</td>
+                        <td>{{ e["category"] | capitalize }}</td>
+                        <td>{{ e["type"] | capitalize }}</td>
+                        <td class="num">{{ e["amount_cents"] | eur }}</td>
+                        <td>
+                            <a href="{{ url_for('edit_expense', expense_id=e['id'], next=back) }}">Edit</a>
+                            <form 
+                                method="post" 
+                                action="{{ url_for('delete_expense', expense_id=e['id'], next=back) }}"
+                                class="inline" 
+                                onsubmit="return confirm('Delete this expense?')"
+                            >
+                                <button type="submit" class="link-button">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
 
-            </tbody>
-        </table>
+                </tbody>
+            </table>
+        </div>
 
         <p class="num">
                 <strong>

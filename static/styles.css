@@ -238,3 +238,30 @@ td form.inline input {
     border-color: #1f6f6b;
     color: #fff;
 }
+
+/* Allow header items to wrap onto multiple lines when needed */
+header {
+    flex-wrap: wrap;
+}
+
+/* Enable horizontal scrolling when the table exceeds its container width */
+.table-wrap {
+    overflow-x: auto;
+}
+
+/* Set a minimum width for tables inside the table wrapper */
+.table-wrap table {
+    min-width: 560px;
+}
+
+/* Responsive adjustments for screens up to 600px wide */
+@media (max-width: 600px) {
+    main { padding: 16px; }
+    h1 { font-size: 1.5rem; }
+    .row > div, .row input, .row select, .row button { width: 100%; }
+}
+
+/* Increase clickable area of links and buttons on touch devices */
+@media (pointer: coarse) {
+    td a, .link-button { display: inline-block; padding: 10px 8px; }
+}

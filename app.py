@@ -12,7 +12,7 @@ from helpers import cents_to_eur, eur_to_cents
 app = Flask(__name__)
 app.config["DATABASE"] = os.environ.get("TRACKER_DB", DEFAULT_DB_PATH)
 
-app.secret_key = os.environ.get("SECRET_KEY", "dev-only-change-me") # Temporary key
+app.secret_key = os.environ.get("SECRET_KEY") or os.urandom(32).hex()
 app.teardown_appcontext(close_db) # Close connection when context finishes
 app.add_template_filter(cents_to_eur, "eur") # Simplify function usage
 

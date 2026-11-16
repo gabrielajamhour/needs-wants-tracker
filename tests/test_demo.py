@@ -4,6 +4,7 @@ from seed_demo import MONTHS, create_demo_db
 
 
 def test_demo_db_is_consistent(tmp_path):
+    """Verify that the demo database contains consistent sample data for all months."""
     path = create_demo_db(tmp_path / "demo.db")
     conn = sqlite3.connect(path)
     try:
@@ -16,6 +17,7 @@ def test_demo_db_is_consistent(tmp_path):
 
 
 def test_demo_summary_flags_only_november(app, client, tmp_path):
+    """Verify that only November's demo summary displays an above-limit warning."""
     app.config["DATABASE"] = create_demo_db(tmp_path / "demo.db")
     assert "Above the limit" in client.get("/summary?month=2026-11").data.decode()
     assert "Above the limit" not in client.get("/summary?month=2026-09").data.decode()

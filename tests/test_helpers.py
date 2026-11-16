@@ -14,11 +14,13 @@ from helpers import cents_to_eur, eur_to_cents
     ],
 )
 def test_cents_to_eur(cents, expected):
+    """Verify that integer cents are formatted as European euro amounts."""
     assert cents_to_eur(cents) == expected
 
 
 @pytest.mark.parametrize("bad", ["12", 1.5, True, None])
 def test_cents_to_eur_rejects_non_integers(bad):
+    """Verify that non-integer inputs raise a TypeError."""
     with pytest.raises(TypeError):
         cents_to_eur(bad)
 
@@ -36,6 +38,7 @@ def test_cents_to_eur_rejects_non_integers(bad):
     ],
 )
 def test_eur_to_cents_valid(text, expected):
+    """Verify that valid European euro amounts are converted to integer cents."""
     assert eur_to_cents(text) == expected
 
 
@@ -44,9 +47,11 @@ def test_eur_to_cents_valid(text, expected):
     ["1,234.56", "12.5", "abc", "", ",50", "12,", "1.23", "1..234,56", None, 12],
 )
 def test_eur_to_cents_invalid(bad):
+    """Verify that invalid euro amount strings return None."""
     assert eur_to_cents(bad) is None
 
 
 @pytest.mark.parametrize("cents", [0, 1, 99, 100, 123456])
 def test_round_trip(cents):
+    """Verify that converting cents to euros and back preserves the original amount."""
     assert eur_to_cents(cents_to_eur(cents)) == cents

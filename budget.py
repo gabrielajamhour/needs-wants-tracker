@@ -9,7 +9,7 @@ SPLIT = (
 
 
 def build_cards(income_cents, spent_by_type):
-    """Return one dict per budget part with limit, spent, percent used and over-cap flag."""
+    """Build budget cards with spending limits, usage and over-cap status."""
     cards = []
     for kind, label, pct, is_cap in SPLIT:
         limit = income_cents * pct // 100 if income_cents is not None else None

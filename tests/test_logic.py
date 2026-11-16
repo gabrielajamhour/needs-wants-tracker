@@ -18,6 +18,8 @@ from app import normalize_category_name, safe_next
     ],
 )
 def test_safe_next(app, target, expected):
+    """Verify that only safe local redirect destinations are accepted."""
+
     with app.test_request_context():
         assert safe_next(target) == expected
 
@@ -32,4 +34,5 @@ def test_safe_next(app, target, expected):
     ],
 )
 def test_normalize_category_name(raw, expected):
+    """Verify that category names are trimmed, lowercased and normalized."""
     assert normalize_category_name(raw) == expected

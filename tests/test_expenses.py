@@ -2,14 +2,17 @@ import pytest
 
 
 def count_expenses(db_rows):
+    """Return the total number of expenses in the database."""
     return db_rows("SELECT COUNT(*) AS n FROM expenses")[0]["n"]
 
 
 def first_expense_id(db_rows):
+    """Return the ID of the first expense in the database."""
     return db_rows("SELECT id FROM expenses")[0]["id"]
 
 
 def test_add_expense_stores_cents(add_expense, db_rows):
+    """Verify that expense amounts are stored as integer cents."""
     response = add_expense(amount="3,58")
     assert response.status_code == 302
     rows = db_rows("SELECT name, amount_cents, date FROM expenses")
@@ -30,12 +33,14 @@ def test_add_expense_stores_cents(add_expense, db_rows):
     ],
 )
 def test_add_expense_rejects_invalid_input(add_expense, db_rows, overrides):
+    """Verify that invalid expense form data is rejected."""
     response = add_expense(**overrides)
     assert response.status_code == 400
     assert count_expenses(db_rows) == 0
 
 
 def test_add_expense_rejects_unknown_category(client, db_rows):
+    """Verify that expenses cannot be created with an unknown category."""
     response = client.post(
         "/expenses/new",
         data={"name": "x", "amount": "1,00", "date": "2026-11-11", "category_id": "9999"},
@@ -45,17 +50,20 @@ def test_add_expense_rejects_unknown_category(client, db_rows):
 
 
 def test_invalid_form_shows_error_message(add_expense):
+    """Verify that invalid expense forms display an error message."""
     response = add_expense(name="")
     assert b"Enter a name." in response.data
 
 
 def test_edit_form_is_prefilled(client, add_expense, db_rows):
+    """Verify that the edit form is prefilled with the expense data."""
     add_expense(amount="3,58")
     response = client.get(f"/expenses/{first_expense_id(db_rows)}/edit")
     assert b'value="3,58"' in response.data
 
 
 def test_edit_expense(client, add_expense, category_id, db_rows):
+    """Verify that an existing expense can be updated."""
     add_expense()
     expense_id = first_expense_id(db_rows)
     new_category = category_id("dining out")
@@ -69,6 +77,7 @@ def test_edit_expense(client, add_expense, category_id, db_rows):
 
 
 def test_edit_and_delete_follow_safe_next(client, add_expense, category_id, db_rows):
+    """Verify that edit and delete redirects use only safe destinations."""
     add_expense()
     expense_id = first_expense_id(db_rows)
     data = {
@@ -93,6 +102,7 @@ def test_edit_and_delete_follow_safe_next(client, add_expense, category_id, db_r
 
 
 def test_delete_expense(client, add_expense, db_rows):
+    """Verify that an expense can be deleted."""
     add_expense()
     response = client.post(f"/expenses/{first_expense_id(db_rows)}/delete")
     assert response.status_code == 302
@@ -100,6 +110,7 @@ def test_delete_expense(client, add_expense, db_rows):
 
 
 def test_delete_requires_post(client, add_expense, db_rows):
+    """Verify that deleting an expense requires a POST request."""
     add_expense()
     response = client.get(f"/expenses/{first_expense_id(db_rows)}/delete")
     assert response.status_code == 405
@@ -107,14 +118,17 @@ def test_delete_requires_post(client, add_expense, db_rows):
 
 
 def test_delete_unknown_expense_returns_404(client):
+    """Verify that deleting a nonexistent expense returns a 404 response."""
     assert client.post("/expenses/999/delete").status_code == 404
 
 
 def test_list_filters(client, add_expense):
+    """Verify that expense list filters return the expected results."""
     add_expense(name="Mercado", date="2026-11-11", category="groceries")
     add_expense(name="Cinema", amount="9,00", date="2026-10-05", category="entertainment")
 
     def page(query):
+        """Return the rendered expense list for the given query string."""
         return client.get(f"/{query}").data.decode()
 
     assert "Mercado" in page("") and "Cinema" in page("")
@@ -127,6 +141,7 @@ def test_list_filters(client, add_expense):
 
 
 def test_empty_result_keeps_filter_form(client, add_expense):
+    """Verify that the filter form remains visible when no expenses match."""
     add_expense()
     response = client.get("/?q=zzzz")
     assert response.status_code == 200

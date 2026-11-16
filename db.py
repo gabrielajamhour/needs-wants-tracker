@@ -14,6 +14,7 @@ DEFAULT_DB_PATH = BASE / "instance" / "tracker.db"
 
 # Open connection
 def get_db():
+    """Open and return the SQLite connection for the current application context."""
     if "db" not in g:
         g.db = sqlite3.connect(current_app.config["DATABASE"])  # Establish the connection to the db
         g.db.row_factory = sqlite3.Row  # Access the values ​​either by index or by column name
@@ -25,6 +26,7 @@ def get_db():
 
 # Close connection
 def close_db(error=None):
+    """Close the SQLite connection when the application context ends."""
     db = g.pop("db", None)  # Look for a property called db within g;
     # if it doesn't exist, return None
     if db is not None:  # If it exists, close connection

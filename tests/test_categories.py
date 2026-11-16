@@ -2,10 +2,12 @@ import pytest
 
 
 def count_categories(db_rows):
+    """Return the total number of categories in the database."""
     return db_rows("SELECT COUNT(*) AS n FROM categories")[0]["n"]
 
 
 def test_create_category_is_normalized(client, db_rows):
+    """Verify that new category names are normalized before being stored."""
     response = client.post("/categories", data={"name": "  Streaming  ", "type": "wants"})
     assert response.status_code == 302
     assert response.headers["Location"] == "/categories?show=wants"
@@ -14,6 +16,7 @@ def test_create_category_is_normalized(client, db_rows):
 
 
 def test_duplicate_category_is_rejected_ignoring_case(client, db_rows):
+    """Verify that duplicate category names are rejected regardless of case."""
     before = count_categories(db_rows)
     response = client.post(
         "/categories", data={"name": "GROCERIES", "type": "needs"}, follow_redirects=True
@@ -31,12 +34,14 @@ def test_duplicate_category_is_rejected_ignoring_case(client, db_rows):
     ],
 )
 def test_invalid_category_is_rejected(client, db_rows, data):
+    """Verify that categories with invalid names or types cannot be created."""
     before = count_categories(db_rows)
     client.post("/categories", data=data)
     assert count_categories(db_rows) == before
 
 
 def test_rename_keeps_expenses(client, add_expense, category_id, db_rows):
+    """Verify that renaming a category preserves its associated expenses."""
     add_expense(category="groceries")
     cid = category_id("groceries")
     client.post(f"/categories/{cid}/rename", data={"name": "Supermarket"})
@@ -45,6 +50,7 @@ def test_rename_keeps_expenses(client, add_expense, category_id, db_rows):
 
 
 def test_rename_to_same_name_reports_no_change(client, category_id, db_rows):
+    """Verify that submitting the existing category name reports no change."""
     cid = category_id("groceries")
     response = client.post(
         f"/categories/{cid}/rename", data={"name": "Groceries"}, follow_redirects=True
@@ -54,6 +60,7 @@ def test_rename_to_same_name_reports_no_change(client, category_id, db_rows):
 
 
 def test_rename_to_existing_name_is_rejected(client, category_id, db_rows):
+    """Verify that a category cannot be renamed to another category's name."""
     cid = category_id("groceries")
 
     original_name = db_rows("SELECT name FROM categories WHERE id = ?", (cid,))[0]["name"]
@@ -68,9 +75,11 @@ def test_rename_to_existing_name_is_rejected(client, category_id, db_rows):
 
 
 def test_toggle_archives_and_restores(client, category_id, db_rows):
+    """Verify that a category can be archived and restored."""
     cid = category_id("groceries")
 
     def is_active():
+        """Return the current activation status of the category."""
         return db_rows("SELECT is_active FROM categories WHERE id = ?", (cid,))[0]["is_active"]
 
     client.post(f"/categories/{cid}/toggle")
@@ -82,6 +91,7 @@ def test_toggle_archives_and_restores(client, category_id, db_rows):
 def test_archived_category_hidden_for_new_but_kept_for_existing(
     client, add_expense, category_id, db_rows
 ):
+    """Check archived category visibility for new and existing expenses."""
     add_expense(category="groceries")
     cid = category_id("groceries")
     client.post(f"/categories/{cid}/toggle")
@@ -95,12 +105,14 @@ def test_archived_category_hidden_for_new_but_kept_for_existing(
 
 
 def test_type_filter_on_categories_page(client):
+    """Verify that the category page displays only the selected type."""
     page = client.get("/categories?show=savings").data.decode()
     assert "Emergency fund" in page
     assert "Housing" not in page
 
 
 def test_archived_categories_are_listed_last_in_their_group(client, category_id):
+    """Verify that archived categories appear after active categories within their type."""
     cid = category_id("education")  # first alphabetically among needs
     client.post(f"/categories/{cid}/toggle")
     page = client.get("/categories?show=needs").data.decode()

@@ -11,7 +11,7 @@ ROOT = Path(__file__).resolve().parent.parent
 
 @pytest.fixture
 def app(tmp_path):
-    """The Flask app pointed at a fresh temporary database for each test."""
+    """Configure the Flask app with a fresh temporary database for each test."""
 
     db_path = tmp_path / "test.db"
 
@@ -29,6 +29,7 @@ def app(tmp_path):
 
 @pytest.fixture
 def client(app):
+    """Create a test client for the Flask application."""
     return app.test_client()
 
 
@@ -37,6 +38,7 @@ def db_rows(app):
     """Run a query against the test database and return the rows."""
 
     def run(sql, params=()):
+        """Execute a SQL query and return all matching rows."""
         with app.app_context():
             return get_db().execute(sql, params).fetchall()
 
@@ -45,8 +47,14 @@ def db_rows(app):
 
 @pytest.fixture
 def category_id(db_rows):
+    """Provide a helper to retrieve category IDs by name."""
+
     def find(name):
-        return db_rows("SELECT id FROM categories WHERE name = ? COLLATE NOCASE", (name,))[0]["id"]
+        """Return the ID of a category matching the given name."""
+        return db_rows(
+            "SELECT id FROM categories WHERE name = ? COLLATE NOCASE",
+            (name,)
+        )[0]["id"]
 
     return find
 
@@ -56,6 +64,7 @@ def add_expense(client, category_id):
     """Create an expense through the real form route."""
 
     def add(name="Mercado", amount="3,58", date="2026-11-11", category="groceries"):
+        """Submit an expense using the provided form data."""
         return client.post(
             "/expenses/new",
             data={

@@ -23,13 +23,14 @@ VALID_TYPES = {"needs", "wants", "savings"}
 TYPE_ORDER_SQL = "CASE c.type WHEN 'needs' THEN 1 WHEN 'wants' THEN 2 ELSE 3 END"
 
 MAX_AMOUNT_CENTS = 1_000_000_000  # 10,000,000.00 €
+MAX_CATEGORY_NAME_LENGTH = 40
 MAX_NAME_LENGTH = 100
 
 # Helpers
 
 
 def get_categories(include_archived=False, keep_id=None):
-    """Active categories; optionally all, or active plus one specific id."""
+    """Retrieve active categories, optionally including archived categories."""
 
     sql = "SELECT id, name, type, is_active FROM categories"
 
@@ -49,11 +50,11 @@ def get_categories(include_archived=False, keep_id=None):
 
 
 def parse_expense_form(form, valid_category_ids):
-    """Validate the expense form; return ((name, cents, date, category_id), errors)."""
-    name = request.form.get("name", "").strip()
-    amount_cents = eur_to_cents(request.form.get("amount", ""))
-    category_id = request.form.get("category_id", type=int)
-    date_text = request.form.get("date", "")
+    """Validate expense form data and return the parsed values and errors."""
+    name = form.get("name", "").strip()
+    amount_cents = eur_to_cents(form.get("amount", ""))
+    category_id = form.get("category_id", type=int)
+    date_text = form.get("date", "")
 
     # Created an empty list to store ALL the errors encountered during validation
     errors = []
@@ -81,26 +82,25 @@ def parse_expense_form(form, valid_category_ids):
 
 
 def like_pattern(text):
-    """Escape LIKE wildcards so user input is matched literally."""
+    """Escape SQL LIKE wildcards and build a partial-match pattern."""
     escaped = text.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_")
     return f"%{escaped}%"
 
 
 def normalize_category_name(raw):
-    """Trim, collapse inner spaces and lowercase: '  Dining   OUT ' -> 'dining out'."""
+    """Normalize a category name by trimming and collapsing whitespace."""
     return " ".join(raw.lower().split())
 
 
 def back_to_categories():
-    """Redirect to the categories page, keeping the type filter if it is valid."""
+    """Redirect to the categories page while preserving a valid type filter."""
     show = request.form.get("show", "")
 
     return redirect(url_for("manage_categories", show=show if show in VALID_TYPES else None))
 
 
 def safe_next(target):
-    """Return target only if it is a local link to the expense list;
-    otherwise the plain list URL."""
+    """Validate a redirect target and prevent external redirects."""
 
     default = url_for("index")
 
@@ -119,17 +119,21 @@ def safe_next(target):
 
     return target
 
+@app.context_processor
+def inject_constants():
+    """Make application constants available to all templates."""
+    return {"MAX_CATEGORY_NAME_LENGTH": MAX_CATEGORY_NAME_LENGTH}
 
 @app.route("/")
 def index():
+    """Display expenses with the selected filters and totals."""
     db = get_db()
 
     month = request.args.get("month", "")
     category_id = request.args.get("category_id", type=int)
-    kind = request.args.get("type", "")
-    query = request.args.get("q", "").strip()
+    category_type = request.args.get("type", "")
+    search_query = request.args.get("q", "").strip()
 
-    # Store the conditions in WHERE and the values ​​corresponding to each condition
     conditions, params = [], []
 
     if month:
@@ -145,15 +149,15 @@ def index():
         conditions.append("e.category_id = ?")
         params.append(category_id)
 
-    if kind in VALID_TYPES:
+    if category_type in VALID_TYPES:
         conditions.append("c.type = ?")
-        params.append(kind)
+        params.append(category_type)
     else:
-        kind = ""
+        category_type = ""
 
-    if query:
+    if search_query:
         conditions.append("e.name LIKE ? ESCAPE '\\'")
-        params.append(like_pattern(query))
+        params.append(like_pattern(search_query))
 
     where = "WHERE " + " AND ".join(conditions) if conditions else ""
 
@@ -184,12 +188,18 @@ def index():
         total=sum(e["amount_cents"] for e in expenses),
         categories=get_categories(include_archived=True),
         months=months,
-        filters={"month": month, "category_id": category_id, "type": kind, "q": query},
+        filters={
+            "month": month, 
+            "category_id": category_id, 
+            "type": category_type, 
+            "q": search_query
+        },
     )
 
 
 @app.route("/expenses/new", methods=["GET", "POST"])
 def new_expense():
+    """Display the expense form or create a new expense."""
 
     categories = get_categories()
 
@@ -219,7 +229,6 @@ def new_expense():
             back_url=url_for("index"),
         ), 400
 
-    # request.method == "GET"
     return render_template(
         "expense_form.html",
         heading="New expense",
@@ -231,6 +240,7 @@ def new_expense():
 
 @app.route("/expenses/<int:expense_id>/edit", methods=["GET", "POST"])
 def edit_expense(expense_id):
+    """Display the expense form or update an existing expense."""
 
     db = get_db()
     expense = db.execute(
@@ -273,11 +283,9 @@ def edit_expense(expense_id):
             back_url=back_url,
         ), 400
 
-    # request.method == "GET"
     form = {
         "name": expense["name"],
         "amount": cents_to_eur(expense["amount_cents"]).removesuffix(" €"),
-        # Saving without changing anyting doesn't change the amount
         "date": expense["date"],
         "category_id": expense["category_id"],
     }
@@ -293,6 +301,7 @@ def edit_expense(expense_id):
 
 @app.post("/expenses/<int:expense_id>/delete")
 def delete_expense(expense_id):
+    """Delete an expense and redirect to the previous page."""
 
     db = get_db()
     cursor = db.execute("DELETE FROM expenses WHERE id = ?", (expense_id,))
@@ -308,6 +317,7 @@ def delete_expense(expense_id):
 
 @app.route("/summary", methods=["GET", "POST"])
 def summary():
+    """Display the monthly spending summary and manage income."""
 
     db = get_db()
 
@@ -343,7 +353,6 @@ def summary():
 
         return redirect(url_for("summary", month=month))
 
-    # request.method == "GET"
     budget = db.execute(
         "SELECT income_cents FROM budgets WHERE month = ?",
         (month,),  # single-value tuple
@@ -351,7 +360,7 @@ def summary():
 
     income = budget["income_cents"] if budget else None
 
-    rows = db.execute(
+    category_totals = db.execute(
         """
         SELECT c.name, c.type, COALESCE(SUM(e.amount_cents), 0) AS total
         FROM categories c
@@ -369,7 +378,7 @@ def summary():
     # Store the total spent by category type (needs/wants)
     spent = {}
 
-    for row in rows:
+    for row in category_totals:
         spent[row["type"]] = spent.get(row["type"], 0) + row["total"]
 
     total_spent = sum(spent.values())
@@ -384,7 +393,7 @@ def summary():
         income_value=(cents_to_eur(income).removesuffix(" €") if income is not None else ""),
         cards=cards,
         total_spent=total_spent,
-        breakdown=[r for r in rows if r["total"] > 0],
+        breakdown=[r for r in category_totals if r["total"] > 0],
         # So as to not display categories with zero spending
     )
 
@@ -398,7 +407,7 @@ def suggest_category():
     if not name:
         return jsonify(suggestion=None)
 
-    row = (
+    category_row = (
         get_db()
         .execute(
             """
@@ -419,27 +428,32 @@ def suggest_category():
     # they are sorted by the most recent date (MAX(e.date))
     # LIMIT 1 ensures that only one suggestion is returned
 
-    if row is None:
+    if category_row is None:
         return jsonify(suggestion=None)
 
     return jsonify(
-        suggestion={"id": row["id"], "name": row["name"].capitalize(), "type": row["type"]}
+        suggestion={
+            "id": category_row["id"], 
+            "name": category_row["name"].capitalize(), 
+            "type": category_row["type"]
+        }
     )
 
 
 @app.route("/categories", methods=["GET", "POST"])
 def manage_categories():
+    """Display categories or create a new category."""
     db = get_db()
     if request.method == "POST":
         name = normalize_category_name(request.form.get("name", ""))
-        kind = request.form.get("type", "")
+        category_type = request.form.get("type", "")
 
         error = None
         if not name:
             error = "Enter a category name."
-        elif len(name) > 40:
+        elif len(name) > MAX_CATEGORY_NAME_LENGTH:
             error = "Category name must be at most 40 characters."
-        elif kind not in VALID_TYPES:
+        elif category_type not in VALID_TYPES:
             error = "Choose a type."
         elif db.execute(
             "SELECT 1 FROM categories WHERE name = ? COLLATE NOCASE", (name,)
@@ -450,17 +464,17 @@ def manage_categories():
             flash(error, "error")
             return back_to_categories()
 
-        db.execute("INSERT INTO categories (name, type) VALUES (?, ?)", (name, kind))
+        db.execute("INSERT INTO categories (name, type) VALUES (?, ?)", (name, category_type))
         db.commit()
         flash("Category added.", "success")
-        return redirect(url_for("manage_categories", show=kind))  # show where it landed
+        return redirect(url_for("manage_categories", show=category_type))  # show where it landed
 
     show = request.args.get("show", "")
     if show not in VALID_TYPES:
         show = ""
     where, params = ("WHERE c.type = ?", (show,)) if show else ("", ())
 
-    rows = db.execute(
+    categories = db.execute(
         f"""
         SELECT c.id, c.name, c.type, c.is_active, COUNT(e.id) AS uses
         FROM categories c
@@ -471,15 +485,15 @@ def manage_categories():
         """,
         params,
     ).fetchall()
-    return render_template("categories.html", categories=rows, selected=show)
+    return render_template("categories.html", categories=categories, selected=show)
 
 
 @app.post("/categories/<int:category_id>/rename")
 def rename_category(category_id):
+    """Rename an existing category after validating the new name."""
 
     db = get_db()
 
-    # Checks whether the category exists in the database
     category = db.execute("SELECT name FROM categories WHERE id = ?", (category_id,)).fetchone()
 
     if category is None:
@@ -487,7 +501,7 @@ def rename_category(category_id):
 
     name = normalize_category_name(request.form.get("name", ""))
 
-    if not name or len(name) > 40:
+    if not name or len(name) > MAX_CATEGORY_NAME_LENGTH:
         flash("Enter a name of up to 40 characters.", "error")
 
     elif name.casefold() == category["name"].casefold():
@@ -509,6 +523,7 @@ def rename_category(category_id):
 
 @app.post("/categories/<int:category_id>/toggle")
 def toggle_category(category_id):
+    """Activate or archive a category."""
 
     db = get_db()
 
@@ -527,6 +542,7 @@ def toggle_category(category_id):
 
 @app.after_request
 def set_security_headers(response):
+    """Add security-related HTTP headers to every response."""
     response.headers.setdefault("X-Content-Type-Options", "nosniff")
     # prevents the browser from “guessing” a content type different from the one declared
     response.headers.setdefault("X-Frame-Options", "DENY")

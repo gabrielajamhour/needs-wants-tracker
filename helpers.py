@@ -9,6 +9,7 @@ from decimal import (  # Class used for working with decimal numbers with precis
 
 
 def cents_to_eur(cents: int) -> str:  # Receives an integer and returns a string
+    """Convert an integer amount in cents to a formatted euro string."""
     # 1234 -> '12,34 €'; 123456 -> '1.234,56 €'
 
     if not isinstance(cents, int) or isinstance(cents, bool):
@@ -22,6 +23,7 @@ def cents_to_eur(cents: int) -> str:  # Receives an integer and returns a string
 
 
 def eur_to_cents(text: str) -> int | None:
+    """Convert a European-formatted euro amount to integer cents."""
     # '12,34' -> 1234; '1.234,56' -> 123456
 
     if not isinstance(text, str):

@@ -1,18 +1,22 @@
 def set_income(client, month, income):
+    """Submit the income form for the specified month."""
     return client.post("/summary", data={"month": month, "income": income})
 
 
 def test_summary_without_income_prompts_for_it(client):
+    """Verify that the summary prompts users to enter missing monthly income."""
     response = client.get("/summary?month=2026-11")
     assert response.status_code == 200
     assert b"Set this month's income" in response.data
 
 
 def test_invalid_month_returns_400(client):
+    """Verify that invalid month values return a 400 response."""
     assert client.get("/summary?month=abc").status_code == 400
 
 
 def test_income_is_saved_and_updated_not_duplicated(client, db_rows):
+    """Verify that monthly income is updated instead of duplicated."""
     set_income(client, "2026-11", "1.000,00")
     set_income(client, "2026-11", "2.000,00")
     rows = db_rows("SELECT income_cents FROM budgets WHERE month = '2026-11'")
@@ -20,6 +24,7 @@ def test_income_is_saved_and_updated_not_duplicated(client, db_rows):
 
 
 def test_invalid_income_is_rejected(client, db_rows):
+    """Verify that invalid income values are not saved."""
     response = set_income(client, "2026-11", "1,234.56")
     assert response.status_code == 302
     assert db_rows("SELECT COUNT(*) AS n FROM budgets")[0]["n"] == 0
@@ -30,6 +35,7 @@ def test_invalid_income_is_rejected(client, db_rows):
 
 
 def test_limits_remaining_and_over_cap(client, add_expense):
+    """Verify that budget limits, remaining income and overspending are calculated correctly."""
     set_income(client, "2026-11", "1.000,00")
     add_expense(name="Rent", amount="100,00", date="2026-11-02", category="groceries")
     add_expense(name="Dinner", amount="350,00", date="2026-11-03", category="dining out")
@@ -45,6 +51,7 @@ def test_limits_remaining_and_over_cap(client, add_expense):
 
 
 def test_savings_above_goal_is_not_flagged(client, add_expense):
+    """Verify that exceeding the savings goal does not trigger an overspending warning."""
     set_income(client, "2026-11", "1.000,00")
     add_expense(name="Transfer", amount="300,00", date="2026-11-05", category="emergency fund")
     page = client.get("/summary?month=2026-11").data.decode()

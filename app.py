@@ -7,7 +7,7 @@ from flask import Flask, abort, flash, jsonify, redirect, render_template, reque
 # Imports from other files in the project
 from budget import build_cards
 from db import DEFAULT_DB_PATH, close_db, get_db
-from helpers import cents_to_eur, eur_to_cents
+from helpers import DEFAULT_EMOJI, cents_to_eur, eur_to_cents, is_valid_emoji
 
 app = Flask(__name__)
 app.config["DATABASE"] = os.environ.get("TRACKER_DB", DEFAULT_DB_PATH)
@@ -32,7 +32,7 @@ MAX_NAME_LENGTH = 100
 def get_categories(include_archived=False, keep_id=None):
     """Retrieve active categories, optionally including archived categories."""
 
-    sql = "SELECT id, name, type, is_active FROM categories"
+    sql = "SELECT id, name, type, emoji, is_active FROM categories"
 
     params = []
 
@@ -119,10 +119,21 @@ def safe_next(target):
 
     return target
 
+
+def category_name_exists(db, name, exclude_id=None):
+    """Check whether another category uses this name (case-insensitive)."""
+    row = db.execute(
+        "SELECT 1 FROM categories WHERE name = ? COLLATE NOCASE AND id != ?",
+        (name, exclude_id or -1),
+    ).fetchone()
+    return row is not None
+
+
 @app.context_processor
 def inject_constants():
     """Make application constants available to all templates."""
     return {"MAX_CATEGORY_NAME_LENGTH": MAX_CATEGORY_NAME_LENGTH}
+
 
 @app.route("/")
 def index():
@@ -164,7 +175,7 @@ def index():
     expenses = db.execute(
         f""" 
         SELECT e.id, e.date, e.name, e.amount_cents,
-               c.name AS category, c.type
+               c.name AS category, c.emoji AS emoji, c.type
         FROM expenses e
             JOIN categories c ON c.id = e.category_id
         {where}
@@ -189,10 +200,10 @@ def index():
         categories=get_categories(include_archived=True),
         months=months,
         filters={
-            "month": month, 
-            "category_id": category_id, 
-            "type": category_type, 
-            "q": search_query
+            "month": month,
+            "category_id": category_id,
+            "type": category_type,
+            "q": search_query,
         },
     )
 
@@ -362,7 +373,7 @@ def summary():
 
     category_totals = db.execute(
         """
-        SELECT c.name, c.type, COALESCE(SUM(e.amount_cents), 0) AS total
+        SELECT c.name, c.emoji, c.type, COALESCE(SUM(e.amount_cents), 0) AS total
         FROM categories c
         LEFT JOIN expenses e 
                ON e.category_id = c.id AND strftime('%Y-%m', e.date) = ?
@@ -411,7 +422,7 @@ def suggest_category():
         get_db()
         .execute(
             """
-        SELECT c.id, c.name, c.type
+        SELECT c.id, c.name, c.emoji, c.type
         FROM expenses e
             JOIN categories c ON c.id = e.category_id
         WHERE lower(e.name) = lower(?)
@@ -433,9 +444,10 @@ def suggest_category():
 
     return jsonify(
         suggestion={
-            "id": category_row["id"], 
-            "name": category_row["name"].capitalize(), 
-            "type": category_row["type"]
+            "id": category_row["id"],
+            "name": category_row["name"].capitalize(),
+            "emoji": category_row["emoji"],
+            "type": category_row["type"],
         }
     )
 
@@ -447,6 +459,7 @@ def manage_categories():
     if request.method == "POST":
         name = normalize_category_name(request.form.get("name", ""))
         category_type = request.form.get("type", "")
+        emoji = request.form.get("emoji", "").strip() or DEFAULT_EMOJI
 
         error = None
         if not name:
@@ -455,16 +468,19 @@ def manage_categories():
             error = "Category name must be at most 40 characters."
         elif category_type not in VALID_TYPES:
             error = "Choose a type."
-        elif db.execute(
-            "SELECT 1 FROM categories WHERE name = ? COLLATE NOCASE", (name,)
-        ).fetchone():
+        elif not is_valid_emoji(emoji):
+            error = "Choose a single emoji."
+        elif category_name_exists(db, name):
             error = "That category already exists."
 
         if error:
             flash(error, "error")
             return back_to_categories()
 
-        db.execute("INSERT INTO categories (name, type) VALUES (?, ?)", (name, category_type))
+        db.execute(
+            "INSERT INTO categories (name, type, emoji) VALUES (?, ?, ?)",
+            (name, category_type, emoji),
+        )
         db.commit()
         flash("Category added.", "success")
         return redirect(url_for("manage_categories", show=category_type))  # show where it landed
@@ -476,7 +492,7 @@ def manage_categories():
 
     categories = db.execute(
         f"""
-        SELECT c.id, c.name, c.type, c.is_active, COUNT(e.id) AS uses
+        SELECT c.id, c.name, c.emoji, c.type, c.is_active, COUNT(e.id) AS uses
         FROM categories c
         LEFT JOIN expenses e ON e.category_id = c.id
         {where}
@@ -494,29 +510,37 @@ def rename_category(category_id):
 
     db = get_db()
 
-    category = db.execute("SELECT name FROM categories WHERE id = ?", (category_id,)).fetchone()
+    category = db.execute(
+        "SELECT name, emoji FROM categories WHERE id = ?", (category_id,)
+    ).fetchone()
 
     if category is None:
         abort(404)
 
     name = normalize_category_name(request.form.get("name", ""))
+    emoji = request.form.get("emoji", "").strip() or category["emoji"]
 
     if not name or len(name) > MAX_CATEGORY_NAME_LENGTH:
         flash("Enter a name of up to 40 characters.", "error")
 
-    elif name.casefold() == category["name"].casefold():
-        flash("The name was not changed.", "info")
+    elif not is_valid_emoji(emoji):
+        flash("Choose a single emoji.", "error")
 
-    elif db.execute(
-        "SELECT 1 FROM categories WHERE name = ? COLLATE NOCASE AND id != ?", (name, category_id)
-    ).fetchone():
+    elif name.casefold() == category["name"].casefold() and emoji == category["emoji"]:
+        flash("No changes to save.", "info")
+
+    elif name.casefold() != category["name"].casefold() and category_name_exists(
+        db, name, category_id
+    ):
         flash("That category already exists.", "error")
 
     else:
-        db.execute("UPDATE categories SET name = ? WHERE id = ?", (name, category_id))
+        db.execute(
+            "UPDATE categories SET name = ?, emoji = ? WHERE id = ?", (name, emoji, category_id)
+        )
         db.commit()
 
-        flash("Category renamed.", "success")
+        flash("Category updated.", "success")
 
     return back_to_categories()
 

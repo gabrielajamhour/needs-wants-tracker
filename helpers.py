@@ -1,11 +1,27 @@
 # Convert monetary values ​​between euros and cents to ensure an user-friendly environment
 
 import re
+import unicodedata
 from decimal import (  # Class used for working with decimal numbers with precision
     ROUND_HALF_UP,
     Decimal,
     InvalidOperation,
 )
+
+DEFAULT_EMOJI = "🏷️"
+MAX_EMOJI_LENGTH = 12
+_ZERO_WIDTH_JOINER = "\u200d"
+_EMOJI_CATEGORIES = {"So", "Sk", "Mn", "Me"}
+
+
+def is_valid_emoji(text):
+    """Check for emoji-like characters, including joined sequences, flags, and skin tones."""
+    if not text or len(text) > MAX_EMOJI_LENGTH:
+        return False
+    if not all(ord(ch) > 127 for ch in text):
+        return False
+    categories = {unicodedata.category(ch) for ch in text if ch != _ZERO_WIDTH_JOINER}
+    return categories <= _EMOJI_CATEGORIES and "So" in categories
 
 
 def cents_to_eur(cents: int) -> str:  # Receives an integer and returns a string

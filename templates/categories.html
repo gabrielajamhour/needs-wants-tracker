@@ -13,7 +13,10 @@
             <label for="name">New category</label>
             <input id="name" name="name" type="text" maxlength="{{ MAX_CATEGORY_NAME_LENGTH }}" required placeholder="e.g.: subscriptions">
         </div>
-
+        <div>
+            <label for="emoji">Emoji</label>
+            <input id="emoji" name="emoji" type="text" size="4" autocomplete="off" placeholder="🏷️">
+        </div>
         <div>
             <label for="type">Type</label>
             <select id="type" name="type" required>
@@ -61,6 +64,10 @@
 
                     {% for c in categories %}
                         <tr class="{{ '' if c['is_active'] else 'archived' }}"> <!-- Apply class only to archived categories -->
+                            <td>
+                                <span aria-hidden="true">{{ c["emoji"] }}</span>
+                                 {{ c["name"] | capitalize }}
+                            </td>
                             <td>{{ c["name"] | capitalize }}</td>
                             <td>{{ c["type"] | capitalize }}</td>
                             <td>{{ c["uses"] }}</td>
@@ -68,6 +75,13 @@
 
                             <td>
                                 <form method="post" action="{{ url_for('rename_category', category_id=c['id']) }}" class="inline">
+                                    <input
+                                        name="emoji"
+                                        type="text"
+                                        size="3"
+                                        value="{{ c['emoji'] }}"
+                                        aria-label="{{ c['name'] | capitalize }} emoji"
+                                    >
                                     <input 
                                         name="name" 
                                         type="text" 

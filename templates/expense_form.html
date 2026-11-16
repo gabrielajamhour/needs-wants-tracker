@@ -72,6 +72,7 @@
                                 {% endif %}
                             >
                                 {# Maintain the selected category when the form needs to be displayed again following an error #}
+                                {{ c["emoji"] | capitalize }}
                                 {{ c["name"] | capitalize }}
                             </option>
 
@@ -136,7 +137,7 @@
                 }
 
                 current = data.suggestion;
-                label.textContent = current.name + " (" + current.type + ")";
+                label.textContent = current.emoji + " " + current.name + " (" + current.type + ")";
                 box.hidden = false;
             } catch (error) {
                 hide();

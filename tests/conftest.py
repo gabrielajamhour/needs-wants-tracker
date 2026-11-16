@@ -51,10 +51,7 @@ def category_id(db_rows):
 
     def find(name):
         """Return the ID of a category matching the given name."""
-        return db_rows(
-            "SELECT id FROM categories WHERE name = ? COLLATE NOCASE",
-            (name,)
-        )[0]["id"]
+        return db_rows("SELECT id FROM categories WHERE name = ? COLLATE NOCASE", (name,))[0]["id"]
 
     return find
 

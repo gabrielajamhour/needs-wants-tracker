@@ -276,3 +276,9 @@ header {
 @media (pointer: coarse) {
     td a, .link-button { display: inline-block; padding: 10px 8px; }
 }
+
+/* Keep emoji inputs compact and centered in category tables */
+td form.inline input[name="emoji"] {
+    width: 64px;
+    text-align: center;
+}

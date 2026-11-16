@@ -55,8 +55,8 @@ def test_rename_to_same_name_reports_no_change(client, category_id, db_rows):
     response = client.post(
         f"/categories/{cid}/rename", data={"name": "Groceries"}, follow_redirects=True
     )
-    assert b"The name was not changed." in response.data
-    assert b"Category renamed." not in response.data
+    assert b"No changes to save." in response.data
+    assert b"Category updated." not in response.data
 
 
 def test_rename_to_existing_name_is_rejected(client, category_id, db_rows):

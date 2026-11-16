@@ -98,7 +98,10 @@
                     <tr>
                         <td>{{ e["date"] }}</td>
                         <td>{{ e["name"] | capitalize }}</td>
-                        <td>{{ e["category"] | capitalize }}</td>
+                        <td>
+                            <span aria-hidden="true">{{ e["emoji"] }}</span>
+                                {{ e["category"] | capitalize }}
+                        </td>
                         <td>{{ e["type"] | capitalize }}</td>
                         <td class="num">{{ e["amount_cents"] | eur }}</td>
                         <td>

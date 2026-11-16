@@ -84,7 +84,10 @@
                 <tbody>
                     {% for r in items %}
                     <tr>
-                        <td>{{ r["name"] | capitalize }}</td>
+                        <td>
+                            <span aria-hidden="true">{{ r["emoji"] }}</span>
+                            {{ r["name"] | capitalize }}
+                        </td>
                         <td class="num">{{ r["total"] | eur }}</td>
                     </tr>
                     {% endfor %}

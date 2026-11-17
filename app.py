@@ -7,7 +7,7 @@ from flask import Flask, abort, flash, jsonify, redirect, render_template, reque
 # Imports from other files in the project
 from budget import build_cards
 from db import DEFAULT_DB_PATH, close_db, get_db
-from helpers import DEFAULT_EMOJI, cents_to_eur, emoji_error, eur_to_cents
+from helpers import DEFAULT_EMOJI, cents_to_eur, emoji_error, eur_to_cents, month_label, shift_month
 
 app = Flask(__name__)
 app.config["DATABASE"] = os.environ.get("TRACKER_DB", DEFAULT_DB_PATH)
@@ -15,6 +15,7 @@ app.config["DATABASE"] = os.environ.get("TRACKER_DB", DEFAULT_DB_PATH)
 app.secret_key = os.environ.get("SECRET_KEY") or os.urandom(32).hex()
 app.teardown_appcontext(close_db)  # Close connection when context finishes
 app.add_template_filter(cents_to_eur, "eur")  # Simplify function usage
+app.add_template_filter(month_label, "month_label")
 
 # Types of expenses
 VALID_TYPES = {"needs", "wants", "savings"}
@@ -181,6 +182,24 @@ def index():
         conditions.append("e.name LIKE ? ESCAPE '\\'")
         params.append(like_pattern(search_query))
 
+    month_links = None
+
+    if month:
+        keep = {
+            key: value
+            for key, value in (
+                ("category_id", category_id),
+                ("type", category_type),
+                ("q", search_query),
+            )
+            if value
+        }
+        month_links = {
+            "month": month,
+            "prev_url": url_for("index", month=shift_month(month, -1), **keep),
+            "next_url": url_for("index", month=shift_month(month, 1), **keep),
+        }
+
     where = "WHERE " + " AND ".join(conditions) if conditions else ""
 
     expenses = db.execute(
@@ -220,6 +239,7 @@ def index():
             "type": category_type,
             "q": search_query,
         },
+        month_links=month_links,
     )
 
 
@@ -412,6 +432,12 @@ def summary():
     # Budget cards
     cards = build_cards(income, spent)
 
+    month_links = {
+        "month": month,
+        "prev_url": url_for("summary", month=shift_month(month, -1)),
+        "next_url": url_for("summary", month=shift_month(month, 1)),
+    }
+
     return render_template(
         "summary.html",
         month=month,
@@ -421,6 +447,7 @@ def summary():
         total_spent=total_spent,
         breakdown=[r for r in category_totals if r["total"] > 0],
         # So as to not display categories with zero spending
+        month_links=month_links,
     )
 
 

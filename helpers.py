@@ -11,6 +11,21 @@ import emoji
 
 DEFAULT_EMOJI = "🏷️"
 
+MONTH_NAMES = [
+    "january",
+    "february",
+    "march",
+    "april",
+    "may",
+    "june",
+    "july",
+    "august",
+    "september",
+    "october",
+    "november",
+    "december",
+]
+
 
 def emoji_error(text):
     """Return an error message if text is not exactly one emoji, otherwise None."""
@@ -22,6 +37,19 @@ def emoji_error(text):
     if found[0]["match_start"] != 0 or found[0]["match_end"] != len(text):
         return "Use only the emoji, without other characters."
     return None
+
+
+def shift_month(month, delta):
+    """Move a 'YYYY-MM' month by delta months: shift_month('2026-12', 1) -> '2027-01'."""
+    year, number = map(int, month.split("-"))
+    index = year * 12 + (number - 1) + delta
+    return f"{index // 12:04d}-{index % 12 + 1:02d}"
+
+
+def month_label(month):
+    """'2026-11' -> 'November 2026'."""
+    year, number = month.split("-")
+    return f"{MONTH_NAMES[int(number) - 1].capitalize()} {year}"
 
 
 def cents_to_eur(cents: int) -> str:  # Receives an integer and returns a string

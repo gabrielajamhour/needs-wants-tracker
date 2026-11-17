@@ -57,3 +57,29 @@ def test_categories_page_has_the_emoji_picker(client):
 def test_emoji_picker_script_is_served(client):
     """Check that the emoji picker script is served successfully."""
     assert client.get("/static/emoji-picker.js").status_code == 200
+
+
+def test_list_has_month_arrows_that_keep_other_filters(client):
+    """Check that the expense list month arrows link to adjacent months and keep other filters."""
+    page = client.get("/?month=2026-12&type=wants").data.decode()
+    assert "month=2026-11" in page and "month=2027-01" in page
+    assert "type=wants" in page
+
+
+def test_default_list_has_arrows_around_the_current_month(client):
+    """Check that the default expense list shows arrows around the current month."""
+    page = client.get("/").data.decode()
+    assert "month=2026-10" in page and "month=2026-12" in page
+    assert "November 2026" in page
+
+
+def test_no_month_arrows_when_all_months_are_shown(client):
+    """Check that month arrows are hidden when all months are shown."""
+    assert 'class="month-nav"' not in client.get("/?month=all").data.decode()
+
+
+def test_summary_has_month_arrows_across_the_year(client):
+    """Check that the summary page month arrows cross year boundaries."""
+    page = client.get("/summary?month=2026-12").data.decode()
+    assert "month=2026-11" in page and "month=2027-01" in page
+    assert "December 2026" in page

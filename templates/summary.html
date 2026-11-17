@@ -1,5 +1,7 @@
 {% extends "layout.html" %}
 
+{% from "_month_nav.html" import month_nav %}
+
 {% block title %}
     Summary
 {% endblock %}
@@ -7,6 +9,8 @@
 {% block content %}
 
     <h1>Monthly summary</h1>
+
+    {{ month_nav(month_links) }}
 
     <form method="get" class="row">
         <label for="month">Month</label>

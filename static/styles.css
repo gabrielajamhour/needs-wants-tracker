@@ -73,15 +73,18 @@ th {
     background: #fff;
 }
 
-.flash.success { 
+/* Success flash messages */
+.flash.success {
     border-color: #1f6f6b;
 }
 
+/* Error flash messages */
 .flash.error {
     border-color: #b42318;
     color: #b42318;
 }
 
+/* Informational flash messages */
 .flash.info {
     border-color: #8a929c;
 }
@@ -347,4 +350,33 @@ dialog::backdrop {
 emoji-picker {
     width: min(360px, 80vw);
     height: 380px;
+}
+
+/* Center the month navigation bar with arrows on each side. */
+.month-nav {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    margin: 16px 0;
+}
+
+/* Style the previous/next month arrows as large, touch-friendly buttons. */
+.month-arrow {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 44px;
+    min-height: 44px;
+    border: 1px solid #8a929c;
+    border-radius: 6px;
+    background: #fff;
+    color: #1f2328;
+    text-decoration: none;
+    font-size: 1.4rem;
+}
+
+/* Highlight month arrows on hover. */
+.month-arrow:hover {
+    background: #eef1f4;
 }

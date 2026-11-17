@@ -1,5 +1,7 @@
 {% extends "layout.html" %}
 
+{% from "_month_nav.html" import month_nav %}
+
 {% block title %}
     Expenses
 {% endblock %}
@@ -10,6 +12,10 @@
     {% set back = request.full_path.rstrip('?') %}
 
     <h1>Expenses</h1>
+
+    {% if month_links %}
+        {{ month_nav(month_links) }}
+    {% endif %}
 
     <form method="get" class="row">
 
@@ -31,7 +37,7 @@
                             selected
                         {% endif %}
                     >
-                        {{ m }}
+                        {{ m | month_label }}
                     </option>
                 {% endfor %}
 

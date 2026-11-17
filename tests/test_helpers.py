@@ -1,6 +1,6 @@
 import pytest
 
-from helpers import cents_to_eur, eur_to_cents
+from helpers import cents_to_eur, eur_to_cents, month_label, shift_month
 
 
 @pytest.mark.parametrize(
@@ -55,3 +55,28 @@ def test_eur_to_cents_invalid(bad):
 def test_round_trip(cents):
     """Verify that converting cents to euros and back preserves the original amount."""
     assert eur_to_cents(cents_to_eur(cents)) == cents
+
+
+@pytest.mark.parametrize(
+    "month, delta, expected",
+    [
+        ("2026-11", 1, "2026-12"),
+        ("2026-12", 1, "2027-01"),
+        ("2026-01", -1, "2025-12"),
+        ("2026-11", 0, "2026-11"),
+        ("2026-11", 14, "2028-01"),
+        ("2026-03", -15, "2024-12"),
+    ],
+)
+def test_shift_month(month, delta, expected):
+    """Verify that months are shifted forward and backward across year boundaries."""
+    assert shift_month(month, delta) == expected
+
+
+@pytest.mark.parametrize(
+    "month, label",
+    [("2026-11", "November 2026"), ("2027-01", "January 2027"), ("2026-03", "March 2026")],
+)
+def test_month_label(month, label):
+    """Verify that YYYY-MM months are formatted as month labels."""
+    assert month_label(month) == label

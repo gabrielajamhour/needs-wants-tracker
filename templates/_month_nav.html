@@ -1,0 +1,9 @@
+{% macro month_nav(links) %}
+
+<nav class="month-nav" aria-label="Month navigation">
+    <a class="month-arrow" href="{{ links.prev_url }}" aria-label="Previous month">‹</a>
+    <strong>{{ links.month | month_label }}</strong>
+    <a class="month-arrow" href="{{ links.next_url }}" aria-label="Following month">›</a>
+</nav>
+
+{% endmacro %}

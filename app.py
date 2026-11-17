@@ -29,6 +29,11 @@ MAX_NAME_LENGTH = 100
 # Helpers
 
 
+def today():
+    """Today's date; a function so tests can freeze it."""
+    return date.today()
+
+
 def get_categories(include_archived=False, keep_id=None):
     """Retrieve active categories, optionally including archived categories."""
 
@@ -140,21 +145,27 @@ def index():
     """Display expenses with the selected filters and totals."""
     db = get_db()
 
-    month = request.args.get("month", "")
+    current_month = today().strftime("%Y-%m")
+    month = request.args.get("month")
     category_id = request.args.get("category_id", type=int)
     category_type = request.args.get("type", "")
     search_query = request.args.get("q", "").strip()
 
     conditions, params = [], []
 
-    if month:
+    if month is None:
+        month = current_month
+    elif month in ("", "all"):
+        month = ""
+    else:
         try:
             month = datetime.strptime(month, "%Y-%m").strftime("%Y-%m")
         except ValueError:
-            month = ""
-        else:
-            conditions.append("strftime('%Y-%m', e.date) = ?")
-            params.append(month)
+            month = current_month
+
+    if month:
+        conditions.append("strftime('%Y-%m', e.date) = ?")
+        params.append(month)
 
     if category_id:
         conditions.append("e.category_id = ?")
@@ -192,6 +203,10 @@ def index():
             "SELECT DISTINCT strftime('%Y-%m', date) AS month FROM expenses ORDER BY month DESC"
         )
     ]
+
+    if current_month not in months:
+        months.insert(0, current_month)
+        months.sort(reverse=True)
 
     return render_template(
         "index.html",
@@ -244,7 +259,7 @@ def new_expense():
         "expense_form.html",
         heading="New expense",
         categories=categories,
-        form={"date": date.today().isoformat()},
+        form={"date": today().isoformat()},
         back_url=url_for("index"),
     )
 
@@ -334,7 +349,7 @@ def summary():
 
     # The user can choose which month they wish to view
     # If none is selected, the system automatically displays the current month
-    month = request.values.get("month") or date.today().strftime("%Y-%m")
+    month = request.values.get("month") or today().strftime("%Y-%m")
 
     try:
         month = datetime.strptime(month, "%Y-%m").strftime("%Y-%m")

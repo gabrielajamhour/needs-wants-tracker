@@ -16,7 +16,14 @@
         <div>
             <label for="month">Month</label>
             <select id="month" name="month">
-                <option value="">All</option>
+                <option 
+                    value="all" 
+                    {% if not filters.month %}
+                        selected
+                    {% endif %}
+                >
+                    All months
+                </option>
 
                 {% for m in months %}
                     <option value="{{ m }}" 
@@ -126,7 +133,7 @@
 
         <p class="num">
                 <strong>
-                    Total das linhas exibidas: {{ total | eur }}
+                    Total of rows displayed: {{ total | eur }}
                 </strong>
         </p>
 

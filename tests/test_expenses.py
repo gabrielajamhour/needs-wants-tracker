@@ -122,24 +122,6 @@ def test_delete_unknown_expense_returns_404(client):
     assert client.post("/expenses/999/delete").status_code == 404
 
 
-def test_list_filters(client, add_expense):
-    """Verify that expense list filters return the expected results."""
-    add_expense(name="Mercado", date="2026-11-11", category="groceries")
-    add_expense(name="Cinema", amount="9,00", date="2026-10-05", category="entertainment")
-
-    def page(query):
-        """Return the rendered expense list for the given query string."""
-        return client.get(f"/{query}").data.decode()
-
-    assert "Mercado" in page("") and "Cinema" in page("")
-    assert "Cinema" not in page("?month=2026-11")
-    assert "Mercado" not in page("?type=wants")
-    assert "Mercado" in page("?q=merc") and "Cinema" not in page("?q=merc")
-    # invalid month and type are ignored, so everything is listed
-    everything = page("?month=abc&type=xyz")
-    assert "Mercado" in everything and "Cinema" in everything
-
-
 def test_empty_result_keeps_filter_form(client, add_expense):
     """Verify that the filter form remains visible when no expenses match."""
     add_expense()
@@ -147,3 +129,40 @@ def test_empty_result_keeps_filter_form(client, add_expense):
     assert response.status_code == 200
     assert b'name="q"' in response.data
     assert b"Mercado" not in response.data
+
+
+def test_list_filters(client, add_expense):
+    """Verify that the expense list is filtered by month, type and search query."""
+    add_expense(name="Mercado", date="2026-11-11", category="groceries")
+    add_expense(name="Cinema", amount="9,00", date="2026-10-05", category="entertainment")
+
+    def page(query):
+        """Return the decoded HTML of the expense list for the given query string."""
+        return client.get(f"/{query}").data.decode()
+
+    assert "Mercado" in page("?month=all") and "Cinema" in page("?month=all")
+    assert "Cinema" not in page("?month=2026-11")
+    assert "Mercado" not in page("?month=all&type=wants")
+    assert "Mercado" in page("?month=all&q=merc") and "Cinema" not in page("?month=all&q=merc")
+    # an invalid month falls back to the current month, an invalid type is ignored
+    fallback = page("?month=abc&type=xyz")
+    assert "Mercado" in fallback and "Cinema" not in fallback
+
+
+def test_list_defaults_to_the_current_month(client, add_expense):
+    """Verify that the expense list shows only the current month by default."""
+    add_expense(name="Current", date="2026-11-11")
+    add_expense(name="Older", date="2026-10-05")
+    page = client.get("/").data.decode()
+    assert "Current" in page and "Older" not in page
+
+
+def test_month_menu_always_offers_the_current_month(client):
+    """Verify that the month menu includes the current month and the 'all' option."""
+    page = client.get("/").data.decode()
+    assert 'value="2026-11"' in page and 'value="all"' in page
+
+
+def test_new_expense_form_defaults_to_today(client):
+    """Verify that the new expense form defaults the date to today."""
+    assert 'value="2026-11-15"' in client.get("/expenses/new").data.decode()

@@ -1,4 +1,5 @@
 import sqlite3
+from datetime import date
 from pathlib import Path
 
 import pytest
@@ -73,3 +74,9 @@ def add_expense(client, category_id):
         )
 
     return add
+
+
+@pytest.fixture(autouse=True)
+def fixed_today(monkeypatch):
+    """Freeze 'today' so tests do not depend on the real date."""
+    monkeypatch.setattr("app.today", lambda: date(2026, 11, 15))

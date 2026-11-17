@@ -98,3 +98,9 @@ def eur_to_cents(text: str) -> int | None:
             rounding=ROUND_HALF_UP,  # 2 decimal places for cents
         )
     )
+
+
+def format_date(iso_date):
+    """'2026-11-27' -> '27/11/2026'."""
+    year, month, day = iso_date.split("-")
+    return f"{day}/{month}/{year}"

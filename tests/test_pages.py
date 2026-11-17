@@ -214,3 +214,15 @@ def test_stylesheet_shrinks_the_actions_column(client):
 def test_stylesheet_keeps_row_actions_on_one_line_on_wide_screens(client):
     css = client.get("/static/styles.css").data.decode()
     assert "td.actions .actions-group" in css
+
+
+def test_list_shows_dates_as_day_month_year(client, add_expense):
+    add_expense(date="2026-11-11")
+    page = client.get("/").data.decode()
+    assert "11/11/2026" in page
+
+
+def test_stylesheet_centers_titles_and_draws_the_table_grid(client):
+    css = client.get("/static/styles.css").data.decode()
+    assert "text-align: center" in css
+    assert ".table-cards th," in css

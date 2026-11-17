@@ -1,6 +1,6 @@
 import pytest
 
-from helpers import cents_to_eur, eur_to_cents, month_label, shift_month
+from helpers import cents_to_eur, eur_to_cents, format_date, month_label, shift_month
 
 
 @pytest.mark.parametrize(
@@ -80,3 +80,11 @@ def test_shift_month(month, delta, expected):
 def test_month_label(month, label):
     """Verify that YYYY-MM months are formatted as month labels."""
     assert month_label(month) == label
+
+
+@pytest.mark.parametrize(
+    "iso, label",
+    [("2026-11-27", "27/11/2026"), ("2026-01-05", "05/01/2026"), ("2027-12-31", "31/12/2027")],
+)
+def test_format_date(iso, label):
+    assert format_date(iso) == label

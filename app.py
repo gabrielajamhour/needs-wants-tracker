@@ -7,7 +7,15 @@ from flask import Flask, abort, flash, jsonify, redirect, render_template, reque
 # Imports from other files in the project
 from budget import build_cards
 from db import DEFAULT_DB_PATH, close_db, get_db
-from helpers import DEFAULT_EMOJI, cents_to_eur, emoji_error, eur_to_cents, month_label, shift_month
+from helpers import (
+    DEFAULT_EMOJI,
+    cents_to_eur,
+    emoji_error,
+    eur_to_cents,
+    format_date,
+    month_label,
+    shift_month,
+)
 
 app = Flask(__name__)
 app.config["DATABASE"] = os.environ.get("TRACKER_DB", DEFAULT_DB_PATH)
@@ -16,6 +24,7 @@ app.secret_key = os.environ.get("SECRET_KEY") or os.urandom(32).hex()
 app.teardown_appcontext(close_db)  # Close connection when context finishes
 app.add_template_filter(cents_to_eur, "eur")  # Simplify function usage
 app.add_template_filter(month_label, "month_label")
+app.add_template_filter(format_date, "date_label")
 
 # Types of expenses
 VALID_TYPES = {"needs", "wants", "savings"}

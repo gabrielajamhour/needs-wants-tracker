@@ -734,3 +734,38 @@ td form.inline input {
     }
 }
 
+/* Page titles, filter rows and chips are centered */
+h1 {
+    text-align: center;
+}
+
+.row,
+.chips {
+    justify-content: center;
+}
+
+/* Wide screens: list tables get a full grid, a soft header and centered content.
+   On small screens the tables become cards, so none of this applies there. */
+@media (min-width: 601px) {
+    .table-cards th,
+    .table-cards td {
+        border: 1px solid var(--color-border);
+        text-align: center;
+    }
+
+    .table-cards th {
+        background: #eef1f4;
+        color: var(--color-text);
+    }
+
+    .table-cards tbody tr:hover {
+        background: #f6f9f9;
+    }
+}
+
+/* The emoji sits in a fixed-width box, so category names start at the same position in every row */
+.cell-value .emoji {
+    display: inline-block;
+    width: 1.25em;
+    text-align: left;
+}

@@ -61,7 +61,7 @@
         </section>
         {% endfor %}
 
-        <section class="card">
+        <section class="card card-wide">
             <h2>Remainder</h2>
             <p class="big">
                 {% if income is not none %}
@@ -76,28 +76,28 @@
 
     {% if breakdown %}
 
-        {% for type, items in breakdown | groupby("type") %}
-        <div class="table-wrap">
-            <table>
-                <thead>
-                    <tr>
-                        <th>{{ type | capitalize }}</th>
-                        <th class="num">Spent</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for r in items %}
-                    <tr>
-                        <td>
-                            <span aria-hidden="true">{{ r["emoji"] }}</span>
-                            {{ r["name"] | capitalize }}
-                        </td>
-                        <td class="num">{{ r["total"] | eur }}</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
+        {% for kind in ["needs", "wants", "savings"] %}
+            {% set items = breakdown | selectattr("type", "equalto", kind) | list %}
+            {% if items %}
+            <div class="table-wrap">
+                <table class="type-{{ kind }}">
+                    <thead>
+                        <tr class="type-heading">
+                            <th>{{ kind | capitalize }}</th>
+                            <th class="num">Spent</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for r in items %}
+                        <tr>
+                            <td><span aria-hidden="true">{{ r["emoji"] }}</span> {{ r["name"] | capitalize }}</td>
+                            <td class="num">{{ r["total"] | eur }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% endif %}
         {% endfor %}
 
     {% else %}

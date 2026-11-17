@@ -83,3 +83,21 @@ def test_summary_has_month_arrows_across_the_year(client):
     page = client.get("/summary?month=2026-12").data.decode()
     assert "month=2026-11" in page and "month=2027-01" in page
     assert "December 2026" in page
+
+
+def test_summary_breakdown_is_ordered_needs_wants_savings(client, add_expense):
+    """Check that the summary breakdown lists needs, then wants, then savings."""
+    add_expense(category="groceries", date="2026-11-11")
+    add_expense(name="Dinner", category="dining out", date="2026-11-12")
+    add_expense(name="Transfer", category="emergency fund", date="2026-11-13")
+    page = client.get("/summary?month=2026-11").data.decode()
+    assert (
+        page.index('class="type-needs"')
+        < page.index('class="type-wants"')
+        < page.index('class="type-savings"')
+    )
+
+
+def test_summary_remainder_card_is_full_width(client):
+    """Check that the summary remainder card spans the full width of the grid."""
+    assert 'class="card card-wide"' in client.get("/summary?month=2026-11").data.decode()

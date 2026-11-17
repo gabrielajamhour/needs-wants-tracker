@@ -27,7 +27,7 @@ header {
     border-bottom: 1px solid #c9cfd6;
 }
 
-/* Nevigation links */
+/* Navigation links */
 nav a {
     color: #1f6f6b;
     text-decoration: none;
@@ -164,9 +164,40 @@ form.inline {
 /* Card grid layout */
 .cards {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    grid-template-columns: repeat(3, 1fr); 
     gap: 16px;
     margin: 24px 0;
+}
+
+/* Cards that span the full width of the grid */
+.card-wide {
+    grid-column: 1 / -1;
+}
+
+/* Heading cells for each expense type section */
+.type-heading th {
+    color: #fff;
+    font-size: 0.95rem;
+}
+
+/* Heading color for the needs section */
+.type-needs .type-heading th {
+    background: #1f6f6b;
+}
+
+/* Heading color for the wants section */
+.type-wants .type-heading th {
+    background: #6b4fa3;
+}
+
+/* Heading color for the savings section */
+.type-savings .type-heading th {
+    background: #1f5fa8;
+}
+
+/* Stack cards in a single column on screens up to 800px wide */
+@media (max-width: 800px) {
+    .cards { grid-template-columns: 1fr; }
 }
 
 /* Summary cards */

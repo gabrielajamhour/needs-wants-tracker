@@ -302,3 +302,49 @@ td form.inline input[name="emoji"] {
     width: 64px;
     text-align: center;
 }
+
+/* Keep emoji inputs consistent in size and alignment. */
+.emoji-input {
+    width: 64px;
+    text-align: center;
+    font-size: 1.1rem;
+}
+
+/* Align category emojis and names neatly in the same row. */
+.cell-value {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 6px;
+}
+
+/* Place emojis after category names in mobile card layouts. */
+@media (max-width: 600px) {
+    .table-cards .cell-value .emoji { order: 1; }
+}
+
+/* Provide a sufficiently large, clearly visible emoji picker button. */
+.emoji-open {
+    min-width: 44px;
+    padding: 8px;
+    background: #fff;
+    border: 1px solid #8a929c;
+}
+
+/* Style the emoji picker dialog. */
+dialog {
+    border: 1px solid #c9cfd6;
+    border-radius: 12px;
+    padding: 12px;
+    max-width: 95vw;
+}
+
+/* Dim the background when the dialog is open. */
+dialog::backdrop {
+    background: rgba(0, 0, 0, 0.4);
+}
+
+/* Set the emoji picker dimensions while keeping it responsive. */
+emoji-picker {
+    width: min(360px, 80vw);
+    height: 380px;
+}

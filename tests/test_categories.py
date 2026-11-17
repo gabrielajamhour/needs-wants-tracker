@@ -44,7 +44,7 @@ def test_rename_keeps_expenses(client, add_expense, category_id, db_rows):
     """Verify that renaming a category preserves its associated expenses."""
     add_expense(category="groceries")
     cid = category_id("groceries")
-    client.post(f"/categories/{cid}/rename", data={"name": "Supermarket"})
+    client.post(f"/categories/{cid}/edit", data={"name": "Supermarket"})
     assert db_rows("SELECT name FROM categories WHERE id = ?", (cid,))[0]["name"] == "supermarket"
     assert db_rows("SELECT category_id FROM expenses")[0]["category_id"] == cid
 
@@ -53,7 +53,7 @@ def test_rename_to_same_name_reports_no_change(client, category_id, db_rows):
     """Verify that submitting the existing category name reports no change."""
     cid = category_id("groceries")
     response = client.post(
-        f"/categories/{cid}/rename", data={"name": "Groceries"}, follow_redirects=True
+        f"/categories/{cid}/edit", data={"name": "Groceries"}, follow_redirects=True
     )
     assert b"No changes to save." in response.data
     assert b"Category updated." not in response.data
@@ -66,7 +66,7 @@ def test_rename_to_existing_name_is_rejected(client, category_id, db_rows):
     original_name = db_rows("SELECT name FROM categories WHERE id = ?", (cid,))[0]["name"]
 
     response = client.post(
-        f"/categories/{cid}/rename", data={"name": "housing"}, follow_redirects=True
+        f"/categories/{cid}/edit", data={"name": "housing"}, follow_redirects=True
     )
 
     assert b"That category already exists." in response.data

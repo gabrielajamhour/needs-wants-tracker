@@ -7,7 +7,7 @@ from flask import Flask, abort, flash, jsonify, redirect, render_template, reque
 # Imports from other files in the project
 from budget import build_cards
 from db import DEFAULT_DB_PATH, close_db, get_db
-from helpers import DEFAULT_EMOJI, cents_to_eur, eur_to_cents, is_valid_emoji
+from helpers import DEFAULT_EMOJI, cents_to_eur, emoji_error, eur_to_cents
 
 app = Flask(__name__)
 app.config["DATABASE"] = os.environ.get("TRACKER_DB", DEFAULT_DB_PATH)
@@ -460,6 +460,7 @@ def manage_categories():
         name = normalize_category_name(request.form.get("name", ""))
         category_type = request.form.get("type", "")
         emoji = request.form.get("emoji", "").strip() or DEFAULT_EMOJI
+        emoji_problem = emoji_error(emoji)
 
         error = None
         if not name:
@@ -468,8 +469,8 @@ def manage_categories():
             error = "Category name must be at most 40 characters."
         elif category_type not in VALID_TYPES:
             error = "Choose a type."
-        elif not is_valid_emoji(emoji):
-            error = "Choose a single emoji."
+        elif emoji_problem:
+            error = emoji_problem
         elif category_name_exists(db, name):
             error = "That category already exists."
 
@@ -504,9 +505,9 @@ def manage_categories():
     return render_template("categories.html", categories=categories, selected=show)
 
 
-@app.post("/categories/<int:category_id>/rename")
-def rename_category(category_id):
-    """Rename an existing category after validating the new name."""
+@app.post("/categories/<int:category_id>/edit")
+def edit_category(category_id):
+    """Change a category's name and/or emoji."""
 
     db = get_db()
 
@@ -519,12 +520,10 @@ def rename_category(category_id):
 
     name = normalize_category_name(request.form.get("name", ""))
     emoji = request.form.get("emoji", "").strip() or category["emoji"]
+    emoji_problem = None if emoji == category["emoji"] else emoji_error(emoji)
 
     if not name or len(name) > MAX_CATEGORY_NAME_LENGTH:
-        flash("Enter a name of up to 40 characters.", "error")
-
-    elif not is_valid_emoji(emoji):
-        flash("Choose a single emoji.", "error")
+        flash(f"Enter a name of up to {MAX_CATEGORY_NAME_LENGTH} characters.", "error")
 
     elif name.casefold() == category["name"].casefold() and emoji == category["emoji"]:
         flash("No changes to save.", "info")
@@ -533,6 +532,9 @@ def rename_category(category_id):
         db, name, category_id
     ):
         flash("That category already exists.", "error")
+
+    elif emoji_problem:
+        flash(emoji_error(emoji), "error")
 
     else:
         db.execute(

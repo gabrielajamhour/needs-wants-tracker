@@ -11,11 +11,36 @@
     <form method="post" class="row">
         <div>
             <label for="name">New category</label>
-            <input id="name" name="name" type="text" maxlength="{{ MAX_CATEGORY_NAME_LENGTH }}" required placeholder="e.g.: subscriptions">
+            <input 
+                id="name" 
+                name="name" 
+                type="text" 
+                maxlength="{{ MAX_CATEGORY_NAME_LENGTH }}" 
+                required placeholder="e.g.: subscriptions"
+            >
         </div>
         <div>
             <label for="emoji">Emoji</label>
-            <input id="emoji" name="emoji" type="text" size="4" autocomplete="off" placeholder="🏷️">
+            <input 
+                id="emoji" 
+                name="emoji" 
+                type="text" 
+                size="4" 
+                autocomplete="off" 
+                placeholder="🏷️" 
+                class="emoji-input"
+            >
+        </div>
+        <div>
+            <button
+                type="button"
+                class="emoji-open"
+                data-for="emoji"
+                hidden
+                aria-label="Open the emoji picker"
+            >
+                😀
+            </button>
         </div>
         <div>
             <label for="type">Type</label>
@@ -65,22 +90,35 @@
                     {% for c in categories %}
                         <tr role="row" class="{{ '' if c['is_active'] else 'archived' }}"> <!-- Apply class only to archived categories -->
                             <td role="cell" data-label="Name">
-                                <span aria-hidden="true">{{ c["emoji"] }}</span>
-                                 {{ c["name"] | capitalize }}
+                                <span class="cell-value">
+                                    <span class="emoji" aria-hidden="true">{{ c["emoji"] }}</span>
+                                    <span class="cell-name">{{ c["name"] | capitalize }}</span>
+                                </span> 
                             </td>
                             <td role="cell" data-label="Type">{{ c["type"] | capitalize }}</td>
                             <td role="cell" data-label="Uses">{{ c["uses"] }}</td>
                             <td role="cell" data-label="Status">{{ "Active" if c["is_active"] else "Archived" }}</td>
 
                             <td role="cell" class="actions">
-                                <form method="post" action="{{ url_for('rename_category', category_id=c['id']) }}" class="inline">
+                                <form method="post" action="{{ url_for('edit_category', category_id=c['id']) }}" class="inline">
                                     <input
+                                        id="emoji-{{ c['id'] }}"
                                         name="emoji"
                                         type="text"
                                         size="3"
                                         value="{{ c['emoji'] }}"
+                                        class="emoji-input"
                                         aria-label="{{ c['name'] | capitalize }} emoji"
                                     >
+                                    <button
+                                        type="button"
+                                        class="emoji-open"
+                                        data-for="emoji-{{ c['id'] }}"
+                                        hidden
+                                        aria-label="Open the emoji picker of {{ c['name'] | capitalize }}"
+                                    >
+                                        😀
+                                    </button>
                                     <input 
                                         name="name" 
                                         type="text" 
@@ -113,5 +151,12 @@
         <p>No category of this type.</p>
 
     {% endif %}
+
+    <dialog id="emoji-dialog" aria-label="Choose emoji">
+        <emoji-picker></emoji-picker>
+        <form method="dialog"><button>Close</button></form>
+    </dialog>
+    <script type="module" src="https://cdn.jsdelivr.net/npm/emoji-picker-element@^1/index.js"></script>
+    <script src="{{ url_for('static', filename='emoji-picker.js') }}"></script>
 
 {% endblock %}

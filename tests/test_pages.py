@@ -160,3 +160,57 @@ def test_header_stays_on_one_row_on_small_screens(client):
     """Check that the header stays on a single row on small screens."""
     css = client.get("/static/styles.css").data.decode()
     assert "flex-wrap: nowrap" in css
+
+
+def test_row_actions_are_buttons_not_links(client, add_expense):
+    """Check that row actions are shown as buttons instead of links."""
+    add_expense(date="2026-11-11")
+    page = client.get("/").data.decode()
+    assert "button secondary small" in page  # Edit
+    assert "danger small" in page  # Delete
+    assert "Clear" in page and 'class="button secondary"' in page
+
+
+@pytest.mark.parametrize("url", ["/", "/categories", "/expenses/new", "/summary"])
+def test_no_pages_use_the_old_link_button_style(client, add_expense, url):
+    """Check that no page uses the old link button style."""
+    add_expense(date="2026-11-11")
+    assert "link-button" not in client.get(url).data.decode()
+
+
+def test_expense_form_actions_are_buttons(client):
+    """Check that the expense form actions are shown as buttons."""
+    page = client.get("/expenses/new").data.decode()
+    assert 'class="form-actions"' in page
+    assert 'class="button secondary"' in page
+
+
+def test_stylesheet_defines_the_design_tokens(client):
+    """Check that the stylesheet defines the design tokens and drops the old link button style."""
+    css = client.get("/static/styles.css").data.decode()
+    assert "--color-primary" in css and "--space-3" in css
+    assert ":where(a:visited)" in css
+    assert ".link-button" not in css
+
+
+def test_add_button_uses_an_icon_not_a_text_plus(client):
+    page = client.get("/").data.decode()
+    assert '<svg class="plus"' in page
+    assert ">+</span>" not in page
+
+
+@pytest.mark.parametrize("url", ["/", "/categories"])
+def test_actions_column_header_can_shrink_to_fit(client, add_expense, url):
+    add_expense(date="2026-11-11")
+    page = client.get(url).data.decode()
+    assert '<th role="columnheader" class="actions">Actions</th>' in page
+
+
+def test_stylesheet_shrinks_the_actions_column(client):
+    css = client.get("/static/styles.css").data.decode()
+    assert "td.actions" in css and "width: 1%" in css
+
+
+def test_stylesheet_keeps_row_actions_on_one_line_on_wide_screens(client):
+    css = client.get("/static/styles.css").data.decode()
+    assert "td.actions .actions-group" in css

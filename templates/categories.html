@@ -82,7 +82,7 @@
                         <th role="columnheader">Type</th>
                         <th role="columnheader">Uses</th>
                         <th role="columnheader">Status</th>
-                        <th role="columnheader">Actions</th>
+                        <th role="columnheader" class="actions">Actions</th>
                     </tr>
                 </thead>
                 <tbody role="rowgroup">
@@ -128,12 +128,12 @@
                                         aria-label="New name for {{ c['name'] | capitalize }}"
                                     >
                                     <input type="hidden" name="show" value="{{ selected }}">
-                                    <button type="submit">Rename</button>
+                                    <button type="submit" class="small">Edit</button>
                                 </form>
 
                                 <form method="post" action="{{ url_for('toggle_category', category_id=c['id']) }}" class="inline">
                                     <input type="hidden" name="show" value="{{ selected }}">
-                                    <button type="submit" class="link-button">
+                                    <button type="submit" class="secondary small">
                                         {{ "Archive" if c["is_active"] else "Restore" }}
                                     </button>
                                 </form>
@@ -154,7 +154,7 @@
 
     <dialog id="emoji-dialog" aria-label="Choose emoji">
         <emoji-picker></emoji-picker>
-        <form method="dialog"><button>Close</button></form>
+        <form method="dialog" class="secondary"><button>Close</button></form>
     </dialog>
     <script type="module" src="https://cdn.jsdelivr.net/npm/emoji-picker-element@^1/index.js"></script>
     <script src="{{ url_for('static', filename='emoji-picker.js') }}"></script>

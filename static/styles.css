@@ -1,3 +1,24 @@
+/* Design tokens: colors, spacing scale and border radius */
+:root {
+    --color-text: #1f2328;
+    --color-muted: #5b6470;
+    --color-border: #c9cfd6;
+    --color-border-strong: #8a929c;
+    --color-surface: #fff;
+    --color-primary: #1f6f6b;
+    --color-primary-dark: #185a57;
+    --color-danger: #b42318;
+    --color-danger-bg: #fdecea;
+
+    --space-1: 4px;
+    --space-2: 8px;
+    --space-3: 16px;
+    --space-4: 24px;
+    --space-5: 32px;
+
+    --radius: 6px;
+}
+
 /* Apply border-box sizing to all elements and their pseudo-elements */
 *, *::before, *::after {
     box-sizing: border-box;
@@ -13,7 +34,7 @@ input, select {
 body {
     margin: 0;
     font-family: system-ui, sans-serif;
-    color: #1f2328;
+    color: var(--color-text);
     background: #f6f7f9;
 }
 
@@ -35,13 +56,13 @@ table {
 th, td {
     text-align: left;
     padding: 12px;
-    border-bottom: 1px solid #c9cfd6;
+    border-bottom: 1px solid var(--color-border);
 }
 
 /* Table header cells */
 th {
     font-size: 0.85rem;
-    color: #5b6470;
+    color: var(--color-muted);
 }
 
 /* Numeric values */
@@ -53,24 +74,24 @@ th {
 .flash {
     padding: 12px;
     border-radius: 6px;
-    border: 1px solid #c9cfd6;
+    border: 1px solid var(--color-border);
     background: #fff;
 }
 
 /* Success flash messages */
 .flash.success {
-    border-color: #1f6f6b;
+    border-color: var(--color-primary);
 }
 
 /* Error flash messages */
 .flash.error {
-    border-color: #b42318;
-    color: #b42318;
+    border-color: var(--color-danger);
+    color: var(--color-danger);
 }
 
 /* Informational flash messages */
 .flash.info {
-    border-color: #8a929c;
+    border-color: var(--color-border-strong);
 }
 
 /* Form fields */
@@ -91,44 +112,15 @@ input, select {
     min-height: 44px;
     margin-top: 6px;
     padding: 10px 12px;
-    border: 1px solid #8a929c;
+    border: 1px solid var(--color-border-strong);
     border-radius: 6px;
     font: inherit;
-}
-
-/* Buttons */
-button {
-    min-height: 44px;
-    padding: 10px 18px;
-    border: 0;
-    border-radius: 6px;
-    background: #1f6f6b;
-    color: #fff;
-    font: inherit;
-    font-weight: 600;
-    cursor: pointer;
 }
 
 /* Hint text */
 .hint {
     font-size: 0.85rem;
-    color: #5b6470;
-}
-
-/* Inline forms */
-form.inline {
-    display: inline;
-    margin-left: 8px;
-}
-
-/* Link styled as a button */
-.link-button { 
-    min-height: 0;
-    padding: 0;
-    background: none;
-    color: #b42318;
-    font-weight: 400;
-    text-decoration: underline;
+    color: var(--color-muted);
 }
 
 /* Form rows */
@@ -166,7 +158,7 @@ form.inline {
 
 /* Heading color for the needs section */
 .type-needs .type-heading th {
-    background: #1f6f6b;
+    background: var(--color-primary);
 }
 
 /* Heading color for the wants section */
@@ -187,7 +179,7 @@ form.inline {
 /* Summary cards */
 .card {
     background: #fff;
-    border: 1px solid #c9cfd6;
+    border: 1px solid var(--color-border);
     border-radius: 8px;
     padding: 20px;
 }
@@ -203,18 +195,18 @@ form.inline {
 /* Progress bar fill */
 .fill {
     height: 100%;
-    background: #1f6f6b;
+    background: var(--color-primary);
     width: var(--bar-width);
 }
 
 /* Progress bar when over budget */
 .fill.over {
-    background: #b42318;
+    background: var(--color-danger);
 }
 
 /* Text indicating budget exceeded */
 .over-text {
-    color: #b42318;
+    color: var(--color-danger);
 }
 
 /* Highlighted numeric values */
@@ -224,14 +216,9 @@ form.inline {
     margin: 8px 0 0;
 }
 
-/* Spacing between consecutive tables */
-table + table {
-    margin-top: 16px;
-}
-
 /* Styling for archived category rows */
 tr.archived {
-    color: #5b6470;
+    color: var(--color-muted);
 }
 
 /* Styling for inline rename inputs inside table cells */
@@ -254,17 +241,17 @@ td form.inline input {
 /* Styling for individual category filter chips */
 .chip {
     padding: 8px 16px;
-    border: 1px solid #8a929c;
+    border: 1px solid var(--color-border-strong);
     border-radius: 999px;
     background: #fff;
-    color: #1f2328;
+    color: var(--color-text);
     text-decoration: none;
 }
 
 /* Styling for the currently active category filter chip */
 .chip.active {
-    background: #1f6f6b;
-    border-color: #1f6f6b;
+    background: var(--color-primary);
+    border-color: var(--color-primary);
     color: #fff;
 }
 
@@ -287,7 +274,7 @@ td form.inline input {
     }
     .table-cards, .table-cards tbody, .table-cards tr, .table-cards td { display: block; }
     .table-cards tr {
-        background: #fff; border: 1px solid #c9cfd6; border-radius: 8px;
+        background: #fff; border: 1px solid var(--color-border); border-radius: 8px;
         margin-bottom: 12px; padding: 8px 12px;
     }
     .table-cards td {
@@ -296,24 +283,12 @@ td form.inline input {
     }
     .table-cards td::before {
         content: attr(data-label); flex-shrink: 0;
-        font-size: 0.85rem; color: #5b6470; text-align: left;
+        font-size: 0.85rem; color: var(--color-muted); text-align: left;
     }
     .table-cards td.actions {
         flex-direction: column; align-items: stretch; text-align: left;
     }
     .table-cards td.actions::before { content: none; }
-}
-
-
-/* Increase clickable area of links and buttons on touch devices */
-@media (pointer: coarse) {
-    td a, .link-button { display: inline-block; padding: 10px 8px; }
-}
-
-/* Keep emoji inputs compact and centered in category tables */
-td form.inline input[name="emoji"] {
-    width: 64px;
-    text-align: center;
 }
 
 /* Keep emoji inputs consistent in size and alignment. */
@@ -335,17 +310,9 @@ td form.inline input[name="emoji"] {
     .table-cards .cell-value .emoji { order: 1; }
 }
 
-/* Provide a sufficiently large, clearly visible emoji picker button. */
-.emoji-open {
-    min-width: 44px;
-    padding: 8px;
-    background: #fff;
-    border: 1px solid #8a929c;
-}
-
 /* Style the emoji picker dialog. */
 dialog {
-    border: 1px solid #c9cfd6;
+    border: 1px solid var(--color-border);
     border-radius: 12px;
     padding: 12px;
     max-width: 95vw;
@@ -378,10 +345,10 @@ emoji-picker {
     justify-content: center;
     min-width: 44px;
     min-height: 44px;
-    border: 1px solid #8a929c;
+    border: 1px solid var(--color-border-strong);
     border-radius: 6px;
     background: #fff;
-    color: #1f2328;
+    color: var(--color-text);
     text-decoration: none;
     font-size: 1.4rem;
 }
@@ -393,7 +360,7 @@ emoji-picker {
 
 /* Muted color for hint links */
 .hint-link {
-    color: #5b6470;
+    color: var(--color-muted);
 }
 
 /* Hint links shown below form fields */
@@ -418,7 +385,7 @@ input:focus-visible, select:focus-visible {
 /* Header: full-width bar whose content shares the container of <main> */
 .site-header {
     background: #fff;
-    border-bottom: 1px solid #c9cfd6;
+    border-bottom: 1px solid var(--color-border);
 }
 
 /* Lay out the header content in a centered row */
@@ -471,34 +438,14 @@ input:focus-visible, select:focus-visible {
 /* Highlight the link of the current page */
 .main-nav a[aria-current="page"], .menu-list a[aria-current="page"] {
     background: #e3f0ef;
-    color: #1f6f6b;
+    color: var(--color-primary);
     font-weight: 600;
-}
-
-/* Links that look like buttons */
-.button {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 44px;
-    padding: 0 18px;
-    border: 1px solid transparent;
-    border-radius: 6px;
-    font: inherit;
-    font-weight: 600;
-    text-decoration: none;
-    cursor: pointer;
 }
 
 /* Primary buttons */
 .button.primary {
-    background: #1f6f6b;
+    background: var(--color-primary);
     color: #fff;
-}
-
-/* Darken primary buttons on hover */
-.button.primary:hover {
-    background: #185a57;
 }
 
 /* Pushes the add button and the menu to the right of the header */
@@ -518,7 +465,7 @@ input:focus-visible, select:focus-visible {
     justify-content: center;
     width: 44px;
     height: 44px;
-    border: 1px solid #8a929c;
+    border: 1px solid var(--color-border-strong);
     border-radius: 6px;
     background: #fff;
     font-size: 1.3rem;
@@ -547,7 +494,7 @@ input:focus-visible, select:focus-visible {
     padding: 8px;
     list-style: none;
     background: #fff;
-    border: 1px solid #c9cfd6;
+    border: 1px solid var(--color-border);
     border-radius: 8px;
     box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
 }
@@ -580,3 +527,210 @@ input:focus-visible, select:focus-visible {
         flex-wrap: wrap;
     }
 }
+
+/* Links: one color, no browser "visited" purple. :where() keeps specificity at zero,
+   so component styles (nav, chips, buttons) always win regardless of order. */
+:where(a) { color: var(--color-primary); text-underline-offset: 3px; }
+:where(a:visited) { color: var(--color-primary); }
+:where(a:hover) { color: var(--color-primary-dark); }
+
+/* Buttons: one base; <button> is primary by default */
+button, .button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    min-height: 44px;
+    padding: 0 18px;
+    border: 1px solid var(--color-primary);
+    border-radius: var(--radius);
+    background: var(--color-primary);
+    color: #fff;
+    font: inherit;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+/* Darken buttons on hover */
+button:hover, .button:hover {
+    background: var(--color-primary-dark);
+    border-color: var(--color-primary-dark);
+}
+
+/* Secondary: neutral actions (Edit, Cancel, Clear, Archive) */
+.secondary {
+    background: var(--color-surface);
+    border-color: var(--color-border-strong);
+    color: var(--color-text);
+}
+
+/* Highlight secondary buttons on hover */
+.secondary:hover {
+    background: #eef1f4;
+    border-color: var(--color-border-strong);
+}
+
+/* Destructive: only for actions that cannot be undone (Delete) */
+.danger {
+    background: var(--color-surface);
+    border-color: var(--color-danger);
+    color: var(--color-danger);
+}
+
+/* Tint destructive buttons on hover */
+.danger:hover {
+    background: var(--color-danger-bg);
+    border-color: var(--color-danger);
+}
+
+/* Smaller buttons for table rows; touch screens keep the full 44px target */
+.small {
+    min-height: 36px;
+    padding: 0 12px;
+    font-size: 0.9rem;
+}
+
+/* Keep small buttons touch-friendly on touch screens */
+@media (pointer: coarse) {
+    .small { min-height: 44px; }
+}
+
+/* Groups of actions */
+.actions-group,
+.form-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+}
+
+/* Space between the form fields and the form actions */
+.form-actions {
+    margin-top: var(--space-3);
+}
+
+/* Inline forms sit next to other actions without extra spacing */
+form.inline {
+    display: inline-flex;
+    margin: 0;
+}
+
+/* The emoji picker button looks like a secondary button */
+.emoji-open {
+    min-width: 44px;
+    padding: 8px;
+    background: var(--color-surface);
+    border-color: var(--color-border-strong);
+    color: var(--color-text);
+}
+
+/* Highlight the emoji picker button on hover */
+.emoji-open:hover {
+    background: #eef1f4;
+    border-color: var(--color-border-strong);
+}
+
+/* Spacing scale applied to the main page elements */
+h1 {
+    margin: var(--space-4) 0 var(--space-3);
+    font-size: 1.75rem;
+    line-height: 1.2;
+}
+
+h2 {
+    margin: 0 0 var(--space-2);
+    font-size: 1.2rem;
+}
+
+main {
+    padding: var(--space-4);
+}
+
+.card {
+    padding: var(--space-3);
+}
+
+.cards {
+    gap: var(--space-3);
+    margin: var(--space-4) 0;
+}
+
+.row,
+.month-nav {
+    margin-bottom: var(--space-3);
+}
+
+/* Tables are wrapped in .table-wrap, so spacing goes between the wrappers */
+.table-wrap + .table-wrap {
+    margin-top: var(--space-4);
+}
+
+/* Tighter page padding and full-width row actions on small screens */
+@media (max-width: 600px) {
+    main { padding: var(--space-3); }
+
+    /* Row actions share the width of the card equally */
+    .table-cards .actions-group > a,
+    .table-cards .actions-group > form {
+        flex: 1;
+    }
+
+    .table-cards .actions-group > form button {
+        width: 100%;
+    }
+}
+
+/* Row proportions: slightly taller small buttons, slightly tighter rows */
+th, td {
+    padding: 10px 12px;
+    vertical-align: middle;
+}
+
+.small {
+    min-height: 40px;
+    padding: 0 14px;
+}
+
+/* Keep controls inside inline forms aligned and the same height as the buttons */
+form.inline {
+    align-items: center;
+    gap: 6px;
+}
+
+td form.inline input {
+    min-height: 40px;
+}
+
+/* The plus icon scales with the text and inherits its color */
+.add-button {
+    gap: 8px;
+}
+
+.add-button .plus {
+    width: 1.1em;
+    height: 1.1em;
+    flex-shrink: 0;
+}
+
+/* On small screens only the icon is shown, so it can be a bit larger */
+@media (max-width: 600px) {
+    .add-button .plus {
+        width: 1.3em;
+        height: 1.3em;
+    }
+}
+
+/* Wide screens: the Actions column shrinks to fit its buttons side by side,
+   so the other columns take the leftover width. */
+@media (min-width: 601px) {
+    th.actions,
+    td.actions {
+        width: 1%;
+        white-space: nowrap;
+    }
+
+    td.actions .actions-group {
+        flex-wrap: nowrap;
+    }
+}
+

@@ -17,22 +17,6 @@ body {
     background: #f6f7f9;
 }
 
-/* Page header */
-header {
-    display: flex;
-    gap: 24px;
-    align-items: center;
-    padding: 16px 24px;
-    background: #fff;
-    border-bottom: 1px solid #c9cfd6;
-}
-
-/* Navigation links */
-nav a {
-    color: #1f6f6b;
-    text-decoration: none;
-}
-
 /* Main content area */
 main {
     max-width: 1000px;
@@ -284,11 +268,6 @@ td form.inline input {
     color: #fff;
 }
 
-/* Allow header items to wrap onto multiple lines when needed */
-header {
-    flex-wrap: wrap;
-}
-
 /* Enable horizontal scrolling when the table exceeds its container width */
 .table-wrap {
     overflow-x: auto;
@@ -412,17 +391,8 @@ emoji-picker {
     background: #eef1f4;
 }
 
-/* Center the site footer below the main content */
-.site-footer {
-    max-width: 1000px;
-    margin: 32px auto 24px;
-    padding: 0 24px;
-    text-align: center;
-    font-size: 0.9rem;
-}
-
-/* Muted color for footer links and hint links */
-.site-footer a, .hint-link {
+/* Muted color for hint links */
+.hint-link {
     color: #5b6470;
 }
 
@@ -431,4 +401,182 @@ emoji-picker {
     display: inline-block;
     margin-top: 6px;
     font-size: 0.9rem;
+}
+
+/* Keep the page width stable whether or not the scrollbar is visible */
+html {
+    scrollbar-gutter: stable;
+}
+
+/* Keyboard focus must always be visible */
+a:focus-visible, button:focus-visible, summary:focus-visible,
+input:focus-visible, select:focus-visible {
+    outline: 3px solid #1f5fa8;
+    outline-offset: 2px;
+}
+
+/* Header: full-width bar whose content shares the container of <main> */
+.site-header {
+    background: #fff;
+    border-bottom: 1px solid #c9cfd6;
+}
+
+/* Lay out the header content in a centered row */
+.header-inner {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 16px;
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 12px 24px;
+}
+
+/* Brand link with the logo that leads to the home page */
+.brand {
+    display: inline-flex;
+    align-items: center;
+    line-height: 0;
+}
+
+/* Logo image size inside the brand link */
+.brand img {
+    display: block;
+    width: 40px;
+    height: 40px;
+}
+
+/* Main navigation and menu links share the same look */
+.main-nav {
+    display: flex;
+    gap: 4px;
+}
+
+/* Navigation and menu links with a touch-friendly height */
+.main-nav a, .menu-list a {
+    display: flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 0 14px;
+    border-radius: 6px;
+    color: #3d4550;
+    text-decoration: none;
+}
+
+/* Highlight navigation and menu links on hover */
+.main-nav a:hover, .menu-list a:hover {
+    background: #eef1f4;
+}
+
+/* Highlight the link of the current page */
+.main-nav a[aria-current="page"], .menu-list a[aria-current="page"] {
+    background: #e3f0ef;
+    color: #1f6f6b;
+    font-weight: 600;
+}
+
+/* Links that look like buttons */
+.button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
+    padding: 0 18px;
+    border: 1px solid transparent;
+    border-radius: 6px;
+    font: inherit;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+/* Primary buttons */
+.button.primary {
+    background: #1f6f6b;
+    color: #fff;
+}
+
+/* Darken primary buttons on hover */
+.button.primary:hover {
+    background: #185a57;
+}
+
+/* Pushes the add button and the menu to the right of the header */
+.add-button {
+    margin-left: auto;
+}
+
+/* Menu: a <details> element that works without JavaScript */
+.menu {
+    position: relative;
+}
+
+/* Menu toggle button */
+.menu summary {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border: 1px solid #8a929c;
+    border-radius: 6px;
+    background: #fff;
+    font-size: 1.3rem;
+    list-style: none;
+    cursor: pointer;
+}
+
+/* Hide the default disclosure marker in WebKit browsers */
+.menu summary::-webkit-details-marker {
+    display: none;
+}
+
+/* Highlight the menu toggle while the menu is open */
+.menu[open] summary {
+    background: #eef1f4;
+}
+
+/* Dropdown list shown below the menu toggle */
+.menu-list {
+    position: absolute;
+    right: 0;
+    top: calc(100% + 8px);
+    z-index: 10;
+    min-width: 200px;
+    margin: 0;
+    padding: 8px;
+    list-style: none;
+    background: #fff;
+    border: 1px solid #c9cfd6;
+    border-radius: 8px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+}
+
+/* Small screens: logo, navigation, add button and menu all fit on one row */
+@media (max-width: 600px) {
+    .header-inner {
+        flex-wrap: nowrap;
+        gap: 6px;
+        padding: 10px 16px;
+    }
+
+    .main-nav a {
+        padding: 0 10px;
+    }
+
+    .add-button {
+        min-width: 44px;
+        padding: 0;
+    }
+
+    .add-text {
+        display: none;
+    }
+}
+
+/* Very narrow screens: let the header wrap instead of overflowing */
+@media (max-width: 359px) {
+    .header-inner {
+        flex-wrap: wrap;
+    }
 }

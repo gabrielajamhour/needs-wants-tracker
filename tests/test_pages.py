@@ -98,27 +98,65 @@ def test_summary_breakdown_is_ordered_needs_wants_savings(client, add_expense):
     )
 
 
-def test_summary_remainder_card_is_full_width(client):
-    """Check that the summary remainder card spans the full width of the grid."""
+def test_summary_remaining_card_is_full_width(client):
+    """Check that the summary remaining card spans the full width of the grid."""
     assert 'class="card card-wide"' in client.get("/summary?month=2026-11").data.decode()
-
-
-@pytest.mark.parametrize("url", ["/", "/summary", "/expenses/new", "/categories"])
-def test_every_page_has_the_categories_link_in_the_footer(client, url):
-    """Check that every page links to the categories page in the footer."""
-    page = client.get(url).data.decode()
-    assert 'class="site-footer"' in page
-    footer = page.split('class="site-footer"')[1]
-    assert 'href="/categories"' in footer
-
-
-def test_categories_link_is_not_in_the_main_menu(client):
-    """Check that the categories link is not shown in the main menu."""
-    page = client.get("/").data.decode()
-    menu = page.split("<main")[0]
-    assert 'href="/categories"' not in menu
 
 
 def test_expense_form_links_to_the_categories_page(client):
     """Check that the expense form links to the categories page."""
     assert 'id="manage-categories-link"' in client.get("/expenses/new").data.decode()
+
+
+def main_nav(page):
+    """Return the HTML inside the main navigation bar."""
+    return page.split('class="main-nav"')[1].split("</nav>")[0]
+
+
+@pytest.mark.parametrize("url", ["/", "/summary", "/expenses/new", "/categories"])
+def test_every_page_has_the_menu_with_categories(client, url):
+    """Check that every page has the menu with a link to the categories page."""
+    page = client.get(url).data.decode()
+    menu = page.split('class="menu"')[1].split("</details>")[0]
+    assert 'href="/categories"' in menu
+
+
+def test_categories_is_not_in_the_visible_navigation(client):
+    """Check that the categories link is not shown in the visible navigation."""
+    assert "/categories" not in main_nav(client.get("/").data.decode())
+
+
+@pytest.mark.parametrize("url, label", [("/", "Expenses"), ("/summary", "Summary")])
+def test_current_page_is_marked_in_the_navigation(client, url, label):
+    """Check that the navigation marks the current page."""
+    nav = main_nav(client.get(url).data.decode())
+    current = nav.split('aria-current="page"')[1].split("</a>")[0]
+    assert label in current
+
+
+def test_header_has_the_add_button_and_a_brand_link(client):
+    """Check that the header has the add expense button and a brand link to the home page."""
+    page = client.get("/").data.decode()
+    assert 'class="button primary add-button" href="/expenses/new"' in page
+    assert 'class="brand" href="/"' in page
+
+
+def test_menu_script_is_served(client):
+    """Check that the menu script is served successfully."""
+    assert client.get("/static/menu.js").status_code == 200
+
+
+def test_logo_is_served_and_used_as_brand_and_icon(client):
+    """Check that the logo is served and used as the brand link and page icon."""
+    response = client.get("/static/logo.svg")
+    assert response.status_code == 200
+    assert "svg" in response.content_type
+    page = client.get("/").data.decode()
+    assert 'aria-label="Needs/Wants Tracker, home"' in page
+    assert 'rel="icon"' in page
+
+
+def test_header_stays_on_one_row_on_small_screens(client):
+    """Check that the header stays on a single row on small screens."""
+    css = client.get("/static/styles.css").data.decode()
+    assert "flex-wrap: nowrap" in css

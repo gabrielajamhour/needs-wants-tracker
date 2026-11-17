@@ -55,6 +55,10 @@
         <label for="category_id">Category</label>
         <select id="category_id" name="category_id" required>
 
+            <a id="manage-categories-link" class="hint-link" href="{{ url_for('manage_categories') }}">
+                Can't find the category? Manage categories
+            </a>
+
             <option value="">Choose...</option>
 
             {% for type in ["needs", "wants", "savings"] %}

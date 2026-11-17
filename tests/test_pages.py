@@ -101,3 +101,24 @@ def test_summary_breakdown_is_ordered_needs_wants_savings(client, add_expense):
 def test_summary_remainder_card_is_full_width(client):
     """Check that the summary remainder card spans the full width of the grid."""
     assert 'class="card card-wide"' in client.get("/summary?month=2026-11").data.decode()
+
+
+@pytest.mark.parametrize("url", ["/", "/summary", "/expenses/new", "/categories"])
+def test_every_page_has_the_categories_link_in_the_footer(client, url):
+    """Check that every page links to the categories page in the footer."""
+    page = client.get(url).data.decode()
+    assert 'class="site-footer"' in page
+    footer = page.split('class="site-footer"')[1]
+    assert 'href="/categories"' in footer
+
+
+def test_categories_link_is_not_in_the_main_menu(client):
+    """Check that the categories link is not shown in the main menu."""
+    page = client.get("/").data.decode()
+    menu = page.split("<main")[0]
+    assert 'href="/categories"' not in menu
+
+
+def test_expense_form_links_to_the_categories_page(client):
+    """Check that the expense form links to the categories page."""
+    assert 'id="manage-categories-link"' in client.get("/expenses/new").data.decode()

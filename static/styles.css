@@ -411,3 +411,24 @@ emoji-picker {
 .month-arrow:hover {
     background: #eef1f4;
 }
+
+/* Center the site footer below the main content */
+.site-footer {
+    max-width: 1000px;
+    margin: 32px auto 24px;
+    padding: 0 24px;
+    text-align: center;
+    font-size: 0.9rem;
+}
+
+/* Muted color for footer links and hint links */
+.site-footer a, .hint-link {
+    color: #5b6470;
+}
+
+/* Hint links shown below form fields */
+.hint-link {
+    display: inline-block;
+    margin-top: 6px;
+    font-size: 0.9rem;
+}

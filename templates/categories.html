@@ -50,30 +50,29 @@
     {% if categories %}
 
         <div class="table-wrap">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Name</th>
-                        <th>Type</th>
-                        <th>Uses</th>
-                        <th>Status</th>
-                        <th>Actions</th>
+            <table class="table-cards" role="table">
+                <thead role="rowgroup">
+                    <tr role="row">
+                        <th role="columnheader">Name</th>
+                        <th role="columnheader">Type</th>
+                        <th role="columnheader">Uses</th>
+                        <th role="columnheader">Status</th>
+                        <th role="columnheader">Actions</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody role="rowgroup">
 
                     {% for c in categories %}
-                        <tr class="{{ '' if c['is_active'] else 'archived' }}"> <!-- Apply class only to archived categories -->
-                            <td>
+                        <tr role="row" class="{{ '' if c['is_active'] else 'archived' }}"> <!-- Apply class only to archived categories -->
+                            <td role="cell" data-label="Name">
                                 <span aria-hidden="true">{{ c["emoji"] }}</span>
                                  {{ c["name"] | capitalize }}
                             </td>
-                            <td>{{ c["name"] | capitalize }}</td>
-                            <td>{{ c["type"] | capitalize }}</td>
-                            <td>{{ c["uses"] }}</td>
-                            <td>{{ "Active" if c["is_active"] else "Archived" }}</td>
+                            <td role="cell" data-label="Type">{{ c["type"] | capitalize }}</td>
+                            <td role="cell" data-label="Uses">{{ c["uses"] }}</td>
+                            <td role="cell" data-label="Status">{{ "Active" if c["is_active"] else "Archived" }}</td>
 
-                            <td>
+                            <td role="cell" class="actions">
                                 <form method="post" action="{{ url_for('rename_category', category_id=c['id']) }}" class="inline">
                                     <input
                                         name="emoji"

@@ -28,3 +28,18 @@ def test_tables_are_scrollable_on_small_screens(client, add_expense, url):
 def test_stylesheet_uses_border_box(client):
     """Verify that the stylesheet applies border-box sizing."""
     assert b"box-sizing: border-box" in client.get("/static/styles.css").data
+
+
+@pytest.mark.parametrize(
+    "url, labels",
+    [
+        ("/", ["Date", "Name", "Category", "Type", "Amount"]),
+        ("/categories", ["Name", "Type", "Uses", "Status"]),
+    ],
+)
+def test_wide_tables_have_card_labels(client, add_expense, url, labels):
+    add_expense(date="2026-11-11")
+    page = client.get(url).data.decode()
+    assert 'class="table-cards"' in page
+    for label in labels:
+        assert f'data-label="{label}"' in page

@@ -81,30 +81,30 @@
     {% if expenses %}
 
         <div class="table-wrap">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Date</th>
-                        <th>Name</th>
-                        <th>Category</th>
-                        <th>Type</th>
-                        <th class="num">Amount</th>
-                        <th>Actions</th>
+            <table class="table-cards" role="table">
+                <thead role="rowgroup">
+                    <tr role="row">
+                        <th role="columnheader">Date</th>
+                        <th role="columnheader">Name</th>
+                        <th role="columnheader">Category</th>
+                        <th role="columnheader">Type</th>
+                        <th role="columnheader" class="num">Amount</th>
+                        <th role="columnheader">Actions</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody role="rowgroup">
 
                     {% for e in expenses %}
-                    <tr>
-                        <td>{{ e["date"] }}</td>
-                        <td>{{ e["name"] | capitalize }}</td>
-                        <td>
+                    <tr role="row">
+                        <td role="cell" data-label="Date">{{ e["date"] }}</td>
+                        <td role="cell" data-label="Name">{{ e["name"] | capitalize }}</td>
+                        <td role="cell" data-label="Category">
                             <span aria-hidden="true">{{ e["emoji"] }}</span>
                                 {{ e["category"] | capitalize }}
                         </td>
-                        <td>{{ e["type"] | capitalize }}</td>
-                        <td class="num">{{ e["amount_cents"] | eur }}</td>
-                        <td>
+                        <td role="cell" data-label="Type">{{ e["type"] | capitalize }}</td>
+                        <td role="cell" data-label="Amount" class="num">{{ e["amount_cents"] | eur }}</td>
+                        <td role="cell" class="actions">
                             <a href="{{ url_for('edit_expense', expense_id=e['id'], next=back) }}">Edit</a>
                             <form 
                                 method="post" 

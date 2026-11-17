@@ -260,17 +260,37 @@ header {
     overflow-x: auto;
 }
 
-/* Set a minimum width for tables inside the table wrapper */
-.table-wrap table {
+/* Set the minimum width for category tables before converting them to cards on mobile. */
+.table-cards {
     min-width: 560px;
 }
 
 /* Responsive adjustments for screens up to 600px wide */
 @media (max-width: 600px) {
-    main { padding: 16px; }
-    h1 { font-size: 1.5rem; }
-    .row > div, .row input, .row select, .row button { width: 100%; }
+    .table-cards { min-width: 0; }
+    .table-cards thead {
+        position: absolute; width: 1px; height: 1px;
+        overflow: hidden; clip: rect(0 0 0 0);
+    }
+    .table-cards, .table-cards tbody, .table-cards tr, .table-cards td { display: block; }
+    .table-cards tr {
+        background: #fff; border: 1px solid #c9cfd6; border-radius: 8px;
+        margin-bottom: 12px; padding: 8px 12px;
+    }
+    .table-cards td {
+        display: flex; justify-content: space-between; align-items: center;
+        gap: 12px; padding: 8px 0; border-bottom: 0; text-align: right;
+    }
+    .table-cards td::before {
+        content: attr(data-label); flex-shrink: 0;
+        font-size: 0.85rem; color: #5b6470; text-align: left;
+    }
+    .table-cards td.actions {
+        flex-direction: column; align-items: stretch; text-align: left;
+    }
+    .table-cards td.actions::before { content: none; }
 }
+
 
 /* Increase clickable area of links and buttons on touch devices */
 @media (pointer: coarse) {

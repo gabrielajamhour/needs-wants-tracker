@@ -7,3 +7,12 @@ instance/
 *.db
 .env
 .pytest_cache/
+
+# Playwright CLI output
+.playwright-cli/
+# Claude Code local tooling
+.claude/
+# Design references (not part of the app)
+DESIGN.md
+airtable/
+nerdwallet/

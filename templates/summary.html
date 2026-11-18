@@ -10,18 +10,10 @@
 
     <h1 class="sr-only">Monthly summary</h1>
 
-    {{ month_nav(month_links) }}
+    <div class="summary-toolbar">
+        {{ month_nav(month_links, picker_action=url_for('summary')) }}
 
-    <div class="summary-controls">
-        <form method="get" class="control-form">
-            <div class="field">
-                <label for="month">Month</label>
-                <input id="month" name="month" type="month" value="{{ month }}">
-            </div>
-            <button type="submit" class="secondary">View</button>
-        </form>
-
-        <form method="post" class="control-form">
+        <form method="post" class="control-form income-form">
             <input type="hidden" name="month" value="{{ month }}">
             <div class="field">
                 <label for="income">Monthly income (€)</label>
@@ -110,5 +102,7 @@
         <p>No expenses this month.</p>
 
     {% endif %}
+
+    <script src="{{ url_for('static', filename='month-picker.js') }}" defer></script>
 
 {% endblock %}

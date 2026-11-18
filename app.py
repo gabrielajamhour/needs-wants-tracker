@@ -127,8 +127,8 @@ def safe_next(target):
 
     if parts.scheme or parts.netloc or parts.path != default:
         # scheme: HTTP protocol (https or http);
-        # netloc: domain (e.g., google.com);
-        # path: site path (e.g., /expenses)
+        # netloc: domain (e.g.: google.com);
+        # path: site path (e.g.: /expenses)
         # parts.netloc rejects URLs that specify a domain, and parts.scheme that specify a protocol
         return default
 

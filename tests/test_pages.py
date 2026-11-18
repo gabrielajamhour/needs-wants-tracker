@@ -228,14 +228,47 @@ def test_stylesheet_centers_titles_and_draws_the_table_grid(client):
     assert ".table-cards th," in css
 
 
-def test_summary_controls_are_side_by_side(client):
-    page = client.get("/summary?month=2026-11").data.decode()  # use "/" after the home page change
-    assert 'class="summary-controls"' in page
-    controls = page.split('class="summary-controls"')[1]
-    assert controls.index('name="month"') < controls.index('name="income"')
+def test_month_picker_lives_in_the_month_navigation(client):
+    page = client.get("/summary?month=2026-11").data.decode()
+    nav = page.split('class="month-nav"')[1].split("</nav>")[0]
+    assert 'type="month"' in nav and 'name="month"' in nav
+    assert 'aria-label="Choose month"' in nav
+
+
+def test_summary_has_no_view_button_and_a_separate_income_form(client):
+    page = client.get("/summary?month=2026-11").data.decode()
+    assert ">View<" not in page
+    income = page.split('class="control-form income-form"')[1]
+    assert 'name="income"' in income
+
+
+def test_expense_list_navigation_has_no_month_picker(client):
+    page = client.get("/").data.decode()  # "/expenses" after the home page change
+    assert 'class="month-picker"' not in page
+
+
+def test_month_picker_script_is_served(client):
+    assert client.get("/static/month-picker.js").status_code == 200
 
 
 def test_main_pages_keep_a_hidden_title(client):
     for url, title in [("/", "Expenses"), ("/summary?month=2026-11", "Monthly summary")]:
         page = client.get(url).data.decode()
         assert f'<h1 class="sr-only">{title}</h1>' in page
+
+
+def test_summary_toolbar_has_month_navigation_before_income(client):
+    page = client.get("/summary?month=2026-11").data.decode()
+    assert 'class="summary-toolbar"' in page
+    assert page.index('class="month-nav"') < page.index('class="control-form income-form"')
+
+
+def test_filter_form_uses_the_full_width_bar(client):
+    page = client.get("/").data.decode()  # "/expenses" after the home page change
+    assert 'class="row filter-bar"' in page
+    assert 'class="grow"' in page
+
+
+def test_stylesheet_lets_the_summary_month_navigation_grow(client):
+    css = client.get("/static/styles.css").data.decode()
+    assert ".summary-toolbar .month-nav strong" in css

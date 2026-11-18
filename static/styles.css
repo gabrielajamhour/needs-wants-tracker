@@ -770,14 +770,101 @@ h1 {
     text-align: left;
 }
 
-/* Month and income controls sit side by side and wrap on narrow screens */
-.summary-controls {
+/* Month picker: sits next to the arrows, opens the native picker from an icon button */
+.month-picker {
+    position: relative;
+    display: inline-flex;
+    margin-left: var(--space-1);
+}
+
+.month-arrow.month-calendar {
+    padding: 0;
+    background: var(--color-surface);
+    border-color: var(--color-border-strong);
+    color: var(--color-text);
+    cursor: pointer;
+}
+
+.month-arrow.month-calendar:hover {
+    background: #eef1f4;
+    border-color: var(--color-border-strong);
+}
+
+/* With JavaScript, the real input is invisible and anchored behind the button */
+.month-picker.is-enhanced .month-input {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 1px;
+    height: 1px;
+    min-height: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* One centered toolbar: month navigation on the left, income on the right.
+   Items align at the bottom so the arrows sit on the same line as the income field. */
+.summary-toolbar {
     display: flex;
     flex-wrap: wrap;
-    justify-content: center;
+    justify-content: space-between;
     align-items: flex-end;
-    gap: var(--space-4);
-    margin-bottom: var(--space-3);
+    gap: var(--space-3) var(--space-4);
+    margin: var(--space-4) 0 var(--space-3);
+}
+
+/* Summary: the month navigation grows to fill the space next to the income form,
+   and the month name becomes a wide box with the same look as the income field */
+.summary-toolbar .month-nav {
+    flex: 1 1 360px;
+    gap: var(--space-2);
+    justify-content: flex-start;
+}
+
+/* The month name is plain text: no border or fill, so it does not look clickable */
+.summary-toolbar .month-nav strong {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
+    padding: 0 var(--space-3);
+    font-size: 1.1rem;
+}
+
+.summary-toolbar .income-form {
+    flex: 0 0 auto;
+}
+
+/* Medium widths: the two blocks may wrap, so center them instead of pushing to the edges */
+@media (max-width: 900px) {
+    .summary-toolbar {
+        justify-content: center;
+    }
+}
+
+.summary-toolbar .month-nav,
+.summary-toolbar .income-form {
+    margin: 0;
+}
+
+/* Small screens: the two blocks stack, each centered or full width */
+@media (max-width: 600px) {
+    .summary-toolbar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .summary-toolbar .month-nav {
+        justify-content: center;
+    }
+
+    .summary-toolbar .month-nav {
+        flex: 0 0 auto;
+    }
 }
 
 .control-form {
@@ -815,4 +902,22 @@ h1 {
 
 .month-nav {
     margin-top: var(--space-4);
+}
+
+/* Filters stretch across the same width as the table below */
+.filter-bar {
+    justify-content: flex-start;
+}
+
+.filter-bar > div {
+    flex: 1 1 140px;
+}
+
+.filter-bar > div.grow {
+    flex: 2 1 200px;
+}
+
+.filter-bar select,
+.filter-bar input {
+    width: 100%;
 }

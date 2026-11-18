@@ -51,6 +51,7 @@
     --header-height: 68px;
     --control-height: 44px;
     --control-height-small: 36px;
+    --gutter: 40px;
 }
 
 /* Apply border-box sizing to all elements and their pseudo-elements */
@@ -74,11 +75,11 @@ body {
     background: var(--color-paper);
 }
 
-/* Main content area */
+/* Main content area: shares the container of the header */
 main {
-    max-width: 1000px;
+    max-width: var(--container);
     margin: 0 auto;
-    padding: 24px;
+    padding: var(--space-5) var(--gutter);
 }
 
 /* Tables */
@@ -422,62 +423,76 @@ input:focus-visible, select:focus-visible {
 
 /* Header: full-width bar whose content shares the container of <main> */
 .site-header {
-    background: #fff;
+    background: var(--color-paper);
     border-bottom: 1px solid var(--color-hairline);
 }
 
-/* Lay out the header content in a centered row */
+/* One row of fixed height: brand, tabs and the add button */
 .header-inner {
     display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 8px 16px;
-    max-width: 1000px;
+    flex-wrap: nowrap;
+    align-items: stretch;
+    gap: var(--space-6);
+    max-width: var(--container);
+    height: var(--header-height);
     margin: 0 auto;
-    padding: 12px 24px;
+    padding: 0 var(--gutter);
 }
 
-/* Brand link with the logo that leads to the home page */
+/* Brand link: the 50/30/20 bar and the wordmark */
 .brand {
     display: inline-flex;
     align-items: center;
-    line-height: 0;
+    gap: var(--space-2);
+    color: var(--color-ink);
+    font-size: 17px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    text-decoration: none;
 }
 
 /* Logo image size inside the brand link */
 .brand img {
     display: block;
-    width: 40px;
-    height: 40px;
+    width: 28px;
+    height: 28px;
 }
 
-/* Main navigation and menu links share the same look */
+/* Main navigation: three text tabs */
 .main-nav {
     display: flex;
-    gap: 4px;
+    gap: var(--space-5);
 }
 
-/* Navigation and menu links with a touch-friendly height */
-.main-nav a, .menu-list a {
+/* Tabs fill the header height so the underline can sit on its border */
+.main-nav a {
+    position: relative;
     display: flex;
     align-items: center;
-    min-height: 44px;
-    padding: 0 14px;
-    border-radius: 6px;
-    color: #3d4550;
+    color: var(--color-muted);
     text-decoration: none;
 }
 
-/* Highlight navigation and menu links on hover */
-.main-nav a:hover, .menu-list a:hover {
-    background: #eef1f4;
+/* Inactive tabs darken on hover */
+.main-nav a:hover {
+    color: var(--color-ink);
 }
 
-/* Highlight the link of the current page */
-.main-nav a[aria-current="page"], .menu-list a[aria-current="page"] {
-    background: #e3f0ef;
+/* The tab of the current page */
+.main-nav a[aria-current="page"] {
     color: var(--color-ink);
     font-weight: 600;
+}
+
+/* Underline of the current tab, drawn over the header's bottom border */
+.main-nav a[aria-current="page"]::after {
+    content: "";
+    position: absolute;
+    right: 0;
+    bottom: -1px;
+    left: 0;
+    height: 2px;
+    background: var(--color-ink);
 }
 
 /* Primary buttons */
@@ -486,67 +501,28 @@ input:focus-visible, select:focus-visible {
     color: #fff;
 }
 
-/* Pushes the add button and the menu to the right of the header */
+/* Pushes the add button to the right and keeps it at its own height */
 .add-button {
+    align-self: center;
     margin-left: auto;
 }
 
-/* Menu: a <details> element that works without JavaScript */
-.menu {
-    position: relative;
-}
-
-/* Menu toggle button */
-.menu summary {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 44px;
-    height: 44px;
-    border: 1px solid var(--color-border);
-    border-radius: 6px;
-    background: #fff;
-    font-size: 1.3rem;
-    list-style: none;
-    cursor: pointer;
-}
-
-/* Hide the default disclosure marker in WebKit browsers */
-.menu summary::-webkit-details-marker {
-    display: none;
-}
-
-/* Highlight the menu toggle while the menu is open */
-.menu[open] summary {
-    background: #eef1f4;
-}
-
-/* Dropdown list shown below the menu toggle */
-.menu-list {
-    position: absolute;
-    right: 0;
-    top: calc(100% + 8px);
-    z-index: 10;
-    min-width: 200px;
-    margin: 0;
-    padding: 8px;
-    list-style: none;
-    background: #fff;
-    border: 1px solid var(--color-hairline);
-    border-radius: 8px;
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
-}
-
-/* Small screens: logo, navigation, add button and menu all fit on one row */
+/* Small screens: logo mark only, tighter tabs and an icon-only add button */
 @media (max-width: 600px) {
-    .header-inner {
-        flex-wrap: nowrap;
-        gap: 6px;
-        padding: 10px 16px;
+    :root {
+        --gutter: 16px;
     }
 
-    .main-nav a {
-        padding: 0 10px;
+    .header-inner {
+        gap: var(--space-3);
+    }
+
+    .brand-name {
+        display: none;
+    }
+
+    .main-nav {
+        gap: var(--space-3);
     }
 
     .add-button {
@@ -556,13 +532,6 @@ input:focus-visible, select:focus-visible {
 
     .add-text {
         display: none;
-    }
-}
-
-/* Very narrow screens: let the header wrap instead of overflowing */
-@media (max-width: 359px) {
-    .header-inner {
-        flex-wrap: wrap;
     }
 }
 
@@ -680,10 +649,6 @@ h2 {
     font-size: 1.2rem;
 }
 
-main {
-    padding: var(--space-5);
-}
-
 .card {
     padding: var(--space-4);
 }
@@ -705,7 +670,7 @@ main {
 
 /* Tighter page padding and full-width row actions on small screens */
 @media (max-width: 600px) {
-    main { padding: var(--space-4); }
+    main { padding-block: var(--space-4); }
 
     /* Row actions share the width of the card equally */
     .table-cards .actions-group > a,

@@ -23,32 +23,30 @@
         <a href="{{ url_for(target) }}"{% if active %} aria-current="page"{% endif %}>{{ label }}</a>
     {% endmacro %}
 
-    <header class="site-header">
-        <div class="header-inner">
-            <a class="brand" href="{{ url_for('summary') }}" aria-label="Needs/Wants Tracker, home">
-                <img src="{{ url_for('static', filename='logo.svg') }}" alt="" width="40" height="40">
-            </a>
+        <header class="site-header">
+            <div class="header-inner">
+                <a class="brand" href="{{ url_for('summary') }}" aria-label="Needs/Wants Tracker, home">
+                    <img src="{{ url_for('static', filename='logo.svg') }}" alt="" width="28" height="28">
+                    <span class="brand-name">Needs/Wants</span>
+                </a>
 
-            <nav class="main-nav" aria-label="Main">
-                {{ nav_link("Summary", "summary", request.endpoint == "summary") }}
-                {{ nav_link("Expenses", "list_expenses", request.endpoint in ("list_expenses", "edit_expense")) }}
-            </nav>
+                <nav class="main-nav" aria-label="Main">
+                    {{ nav_link("Summary", "summary", request.endpoint == "summary") }}
+                    {{ nav_link("Expenses", "list_expenses", request.endpoint in ("list_expenses", "edit_expense")) }}
+                    {{ nav_link("Categories", "manage_categories", request.endpoint == "manage_categories") }}
+                </nav>
 
-            <a class="button primary add-button" href="{{ url_for('new_expense') }}" aria-label="New expense">
-                <svg class="plus" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                    <path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
-                </svg>
-                <span class="add-text">New expense</span>
-            </a>
-
-            <details class="menu">
-                <summary aria-label="Menu"><span aria-hidden="true">☰</span></summary>
-                <ul class="menu-list">
-                    <li>{{ nav_link("Categories", "manage_categories", request.endpoint == "manage_categories") }}</li>
-                </ul>
-            </details>
-        </div>
-    </header>
+                {# The add button is hidden on the page it leads to #}
+                {% if request.endpoint != "new_expense" %}
+                    <a class="button primary add-button" href="{{ url_for('new_expense') }}" aria-label="New expense">
+                        <svg class="plus" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                            <path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+                        </svg>
+                        <span class="add-text">New expense</span>
+                    </a>
+                {% endif %}
+            </div>
+        </header>
 
     <main>
         {% for category, message in get_flashed_messages(with_categories=true) %}
@@ -65,7 +63,6 @@
         {% endblock %}
     </main>
 
-    <script src="{{ url_for('static', filename='menu.js') }}" defer></script>
 </body>
 
 </html>

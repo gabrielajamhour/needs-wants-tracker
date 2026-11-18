@@ -114,19 +114,31 @@ def main_nav(page):
 
 
 @pytest.mark.parametrize("url", ["/expenses", "/", "/expenses/new", "/categories"])
-def test_every_page_has_the_menu_with_categories(client, url):
-    """Check that every page has the menu with a link to the categories page."""
-    page = client.get(url).data.decode()
-    menu = page.split('class="menu"')[1].split("</details>")[0]
-    assert 'href="/categories"' in menu
+def test_every_page_has_the_three_tabs(client, url):
+    """Check that every page shows the Summary, Expenses and Categories tabs."""
+    nav = main_nav(client.get(url).data.decode())
+    for href in ('href="/"', 'href="/expenses"', 'href="/categories"'):
+        assert href in nav
 
 
-def test_categories_is_not_in_the_visible_navigation(client):
-    """Check that the categories link is not shown in the visible navigation."""
-    assert "/categories" not in main_nav(client.get("/expenses").data.decode())
+def test_header_has_no_menu(client):
+    """Check that the old hamburger menu and its script are gone."""
+    page = client.get("/expenses").data.decode()
+    assert 'class="menu"' not in page
+    assert "menu.js" not in page
+    assert client.get("/static/menu.js").status_code == 404
 
 
-@pytest.mark.parametrize("url, label", [("/expenses", "Expenses"), ("/", "Summary")])
+def test_add_button_is_hidden_on_the_new_expense_page(client):
+    """Check that the add button is not shown on the page it leads to."""
+    page = client.get("/expenses/new").data.decode()
+    assert 'class="button primary add-button"' not in page
+
+
+@pytest.mark.parametrize(
+    "url, label",
+    [("/expenses", "Expenses"), ("/", "Summary"), ("/categories", "Categories")],
+)
 def test_current_page_is_marked_in_the_navigation(client, url, label):
     """Check that the navigation marks the current page."""
     nav = main_nav(client.get(url).data.decode())
@@ -141,11 +153,6 @@ def test_header_has_the_add_button_and_a_brand_link(client):
     assert 'class="brand" href="/"' in page
 
 
-def test_menu_script_is_served(client):
-    """Check that the menu script is served successfully."""
-    assert client.get("/static/menu.js").status_code == 200
-
-
 def test_logo_is_served_and_used_as_brand_and_icon(client):
     """Check that the logo is served and used as the brand link and page icon."""
     response = client.get("/static/logo.svg")
@@ -154,6 +161,7 @@ def test_logo_is_served_and_used_as_brand_and_icon(client):
     page = client.get("/expenses").data.decode()
     assert 'aria-label="Needs/Wants Tracker, home"' in page
     assert 'rel="icon"' in page
+    assert '<span class="brand-name">Needs/Wants</span>' in page
 
 
 def test_header_stays_on_one_row_on_small_screens(client):

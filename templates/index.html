@@ -11,6 +11,8 @@
     {# Save the current URL #}
     {% set back = request.full_path.rstrip('?') %}
 
+    <h1 class="sr-only">Expenses</h1>
+
     {% if month_links %}
         {{ month_nav(month_links) }}
     {% endif %}

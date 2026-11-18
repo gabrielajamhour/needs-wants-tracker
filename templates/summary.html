@@ -8,21 +8,29 @@
 
 {% block content %}
 
+    <h1 class="sr-only">Monthly summary</h1>
+
     {{ month_nav(month_links) }}
 
-    <form method="get" class="row">
-        <label for="month">Month</label>
-        <input id="month" name="month" type="month" value="{{ month }}">
-        <button type="submit">View</button>
-    </form>
+    <div class="summary-controls">
+        <form method="get" class="control-form">
+            <div class="field">
+                <label for="month">Month</label>
+                <input id="month" name="month" type="month" value="{{ month }}">
+            </div>
+            <button type="submit" class="secondary">View</button>
+        </form>
 
-    <form method="post" class="row">
-        <input type="hidden" name="month" value="{{ month }}">
-        <label for="income">Monthly income (€)</label>
-        <input id="income" name="income" type="text" inputmode="decimal"
-            value="{{ income_value }}" placeholder="0,00">
-        <button type="submit">Save income</button>
-    </form>
+        <form method="post" class="control-form">
+            <input type="hidden" name="month" value="{{ month }}">
+            <div class="field">
+                <label for="income">Monthly income (€)</label>
+                <input id="income" name="income" type="text" inputmode="decimal"
+                    value="{{ income_value }}" placeholder="0,00">
+            </div>
+            <button type="submit">Save income</button>
+        </form>
+    </div>
 
     {% if income is none %}
         <p>Set this month's income to see the limits.</p>

@@ -769,3 +769,50 @@ h1 {
     width: 1.25em;
     text-align: left;
 }
+
+/* Month and income controls sit side by side and wrap on narrow screens */
+.summary-controls {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: flex-end;
+    gap: var(--space-4);
+    margin-bottom: var(--space-3);
+}
+
+.control-form {
+    display: flex;
+    align-items: flex-end;
+    gap: var(--space-2);
+}
+
+.control-form .field {
+    margin: 0;
+}
+
+@media (max-width: 600px) {
+    .control-form {
+        width: 100%;
+    }
+
+    .control-form .field {
+        flex: 1;
+    }
+}
+
+/* Visible to screen readers only */
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+.month-nav {
+    margin-top: var(--space-4);
+}

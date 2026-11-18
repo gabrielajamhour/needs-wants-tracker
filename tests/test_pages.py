@@ -226,3 +226,16 @@ def test_stylesheet_centers_titles_and_draws_the_table_grid(client):
     css = client.get("/static/styles.css").data.decode()
     assert "text-align: center" in css
     assert ".table-cards th," in css
+
+
+def test_summary_controls_are_side_by_side(client):
+    page = client.get("/summary?month=2026-11").data.decode()  # use "/" after the home page change
+    assert 'class="summary-controls"' in page
+    controls = page.split('class="summary-controls"')[1]
+    assert controls.index('name="month"') < controls.index('name="income"')
+
+
+def test_main_pages_keep_a_hidden_title(client):
+    for url, title in [("/", "Expenses"), ("/summary?month=2026-11", "Monthly summary")]:
+        page = client.get(url).data.decode()
+        assert f'<h1 class="sr-only">{title}</h1>' in page

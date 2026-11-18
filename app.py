@@ -117,7 +117,7 @@ def back_to_categories():
 def safe_next(target):
     """Validate a redirect target and prevent external redirects."""
 
-    default = url_for("index")
+    default = url_for("list_expenses")
 
     if not target:  # url
         return default
@@ -150,8 +150,8 @@ def inject_constants():
     return {"MAX_CATEGORY_NAME_LENGTH": MAX_CATEGORY_NAME_LENGTH}
 
 
-@app.route("/")
-def index():
+@app.route("/expenses")
+def list_expenses():
     """Display expenses with the selected filters and totals."""
     db = get_db()
 
@@ -205,8 +205,8 @@ def index():
         }
         month_links = {
             "month": month,
-            "prev_url": url_for("index", month=shift_month(month, -1), **keep),
-            "next_url": url_for("index", month=shift_month(month, 1), **keep),
+            "prev_url": url_for("list_expenses", month=shift_month(month, -1), **keep),
+            "next_url": url_for("list_expenses", month=shift_month(month, 1), **keep),
         }
 
     where = "WHERE " + " AND ".join(conditions) if conditions else ""
@@ -271,7 +271,7 @@ def new_expense():
 
             flash("Expense added.", "success")  # Flask's temporary messaging system
 
-            return redirect(url_for("index"))
+            return redirect(url_for("list_expenses"))
 
         for message in errors:
             flash(message, "error")
@@ -281,7 +281,7 @@ def new_expense():
             heading="New expense",
             categories=categories,
             form=request.form,
-            back_url=url_for("index"),
+            back_url=url_for("list_expenses"),
         ), 400
 
     return render_template(
@@ -289,7 +289,7 @@ def new_expense():
         heading="New expense",
         categories=categories,
         form={"date": today().isoformat()},
-        back_url=url_for("index"),
+        back_url=url_for("list_expenses"),
     )
 
 
@@ -370,7 +370,7 @@ def delete_expense(expense_id):
     return redirect(safe_next(request.args.get("next")))
 
 
-@app.route("/summary", methods=["GET", "POST"])
+@app.route("/", methods=["GET", "POST"])
 def summary():
     """Display the monthly spending summary and manage income."""
 
@@ -458,6 +458,12 @@ def summary():
         # So as to not display categories with zero spending
         month_links=month_links,
     )
+
+
+@app.get("/summary")
+def summary_legacy():
+    """Old URL of the summary; it moved to the home page."""
+    return redirect(url_for("summary", **request.args.to_dict()), code=301)
 
 
 @app.get("/suggest-category")

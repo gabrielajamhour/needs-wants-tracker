@@ -6,15 +6,16 @@ from app import normalize_category_name, safe_next
 @pytest.mark.parametrize(
     "target, expected",
     [
-        (None, "/"),
-        ("", "/"),
-        ("/", "/"),
-        ("/?month=2026-11&q=mercado", "/?month=2026-11&q=mercado"),
-        ("https://example.com", "/"),
-        ("//example.com", "/"),
-        ("/categories", "/"),
-        ("/\\example.com", "/"),
-        ("javascript:alert(1)", "/"),
+        (None, "/expenses"),
+        ("", "/expenses"),
+        ("/expenses", "/expenses"),
+        ("/expenses?month=2026-11&q=mercado", "/expenses?month=2026-11&q=mercado"),
+        ("/", "/expenses"),
+        ("https://example.com", "/expenses"),
+        ("//example.com", "/expenses"),
+        ("/categories", "/expenses"),
+        ("/\\example.com", "/expenses"),
+        ("javascript:alert(1)", "/expenses"),
     ],
 )
 def test_safe_next(app, target, expected):

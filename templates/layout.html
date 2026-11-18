@@ -22,13 +22,13 @@
 
     <header class="site-header">
         <div class="header-inner">
-            <a class="brand" href="{{ url_for('index') }}" aria-label="Needs/Wants Tracker, home">
+            <a class="brand" href="{{ url_for('summary') }}" aria-label="Needs/Wants Tracker, home">
                 <img src="{{ url_for('static', filename='logo.svg') }}" alt="" width="40" height="40">
             </a>
 
             <nav class="main-nav" aria-label="Main">
-                {{ nav_link("Expenses", "index", request.endpoint in ("index", "edit_expense")) }}
                 {{ nav_link("Summary", "summary", request.endpoint == "summary") }}
+                {{ nav_link("Expenses", "list_expenses", request.endpoint in ("list_expenses", "edit_expense")) }}
             </nav>
 
             <a class="button primary add-button" href="{{ url_for('new_expense') }}" aria-label="New expense">

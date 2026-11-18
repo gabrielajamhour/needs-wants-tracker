@@ -5,7 +5,7 @@ from pathlib import Path
 ROOT = Path(__file__).parent
 DEFAULT_PATH = ROOT / "instance" / "demo.db"
 
-MONTHS = ["2026-09", "2026-10", "2026-11"]
+MONTHS = ["2026-08", "2026-09", "2026-10"]
 INCOME_CENTS = 180000
 
 # (day, name, category, amount in cents)
@@ -28,11 +28,11 @@ BASE = [
 ]
 
 EXTRA = {
-    "2026-10": [
+    "2026-09": [
         (11, "Weekend trip", "travel", 18000),
         (24, "Birthday gift", "gifts", 3500),
     ],
-    "2026-11": [
+    "2026-10": [
         (9, "Concert tickets", "entertainment", 9500),
         (10, "Winter jacket", "shopping", 12000),
         (16, "Weekend trip", "travel", 24000),

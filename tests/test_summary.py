@@ -1,18 +1,18 @@
 def set_income(client, month, income):
     """Submit the income form for the specified month."""
-    return client.post("/summary", data={"month": month, "income": income})
+    return client.post("/", data={"month": month, "income": income})
 
 
 def test_summary_without_income_prompts_for_it(client):
     """Verify that the summary prompts users to enter missing monthly income."""
-    response = client.get("/summary?month=2026-11")
+    response = client.get("/?month=2026-11")
     assert response.status_code == 200
     assert b"Set this month's income" in response.data
 
 
 def test_invalid_month_returns_400(client):
     """Verify that invalid month values return a 400 response."""
-    assert client.get("/summary?month=abc").status_code == 400
+    assert client.get("/?month=abc").status_code == 400
 
 
 def test_income_is_saved_and_updated_not_duplicated(client, db_rows):
@@ -28,9 +28,7 @@ def test_invalid_income_is_rejected(client, db_rows):
     response = set_income(client, "2026-11", "1,234.56")
     assert response.status_code == 302
     assert db_rows("SELECT COUNT(*) AS n FROM budgets")[0]["n"] == 0
-    followed = client.post(
-        "/summary", data={"month": "2026-11", "income": "abc"}, follow_redirects=True
-    )
+    followed = client.post("/", data={"month": "2026-11", "income": "abc"}, follow_redirects=True)
     assert b"Enter a valid income" in followed.data
 
 
@@ -42,7 +40,7 @@ def test_limits_remaining_and_over_cap(client, add_expense):
     # other month: must not count
     add_expense(name="Old", amount="77,00", date="2026-10-20", category="groceries")
 
-    page = client.get("/summary?month=2026-11").data.decode()
+    page = client.get("/?month=2026-11").data.decode()
     assert "500,00 €" in page  # needs cap (50%)
     assert "300,00 €" in page  # wants cap (30%)
     assert "200,00 €" in page  # savings goal (20%)
@@ -54,5 +52,5 @@ def test_savings_above_goal_is_not_flagged(client, add_expense):
     """Verify that exceeding the savings goal does not trigger an overspending warning."""
     set_income(client, "2026-11", "1.000,00")
     add_expense(name="Transfer", amount="300,00", date="2026-11-05", category="emergency fund")
-    page = client.get("/summary?month=2026-11").data.decode()
+    page = client.get("/?month=2026-11").data.decode()
     assert "Above the limit" not in page

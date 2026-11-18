@@ -88,17 +88,19 @@ def test_edit_and_delete_follow_safe_next(client, add_expense, category_id, db_r
     }
 
     good = client.post(
-        f"/expenses/{expense_id}/edit", data=data, query_string={"next": "/?month=2026-11"}
+        f"/expenses/{expense_id}/edit", data=data, query_string={"next": "/expenses?month=2026-11"}
     )
-    assert good.headers["Location"] == "/?month=2026-11"
+    assert good.headers["Location"] == "/expenses?month=2026-11"
 
     bad = client.post(
         f"/expenses/{expense_id}/edit", data=data, query_string={"next": "https://example.com"}
     )
-    assert bad.headers["Location"] == "/"
+    assert bad.headers["Location"] == "/expenses"
 
-    deleted = client.post(f"/expenses/{expense_id}/delete", query_string={"next": "/?q=lidl"})
-    assert deleted.headers["Location"] == "/?q=lidl"
+    deleted = client.post(
+        f"/expenses/{expense_id}/delete", query_string={"next": "/expenses?q=lidl"}
+    )
+    assert deleted.headers["Location"] == "/expenses?q=lidl"
 
 
 def test_delete_expense(client, add_expense, db_rows):
@@ -125,7 +127,7 @@ def test_delete_unknown_expense_returns_404(client):
 def test_empty_result_keeps_filter_form(client, add_expense):
     """Verify that the filter form remains visible when no expenses match."""
     add_expense()
-    response = client.get("/?q=zzzz")
+    response = client.get("/expenses?q=zzzz")
     assert response.status_code == 200
     assert b'name="q"' in response.data
     assert b"Mercado" not in response.data
@@ -138,7 +140,7 @@ def test_list_filters(client, add_expense):
 
     def page(query):
         """Return the decoded HTML of the expense list for the given query string."""
-        return client.get(f"/{query}").data.decode()
+        return client.get(f"/expenses{query}").data.decode()
 
     assert "Mercado" in page("?month=all") and "Cinema" in page("?month=all")
     assert "Cinema" not in page("?month=2026-11")
@@ -153,13 +155,13 @@ def test_list_defaults_to_the_current_month(client, add_expense):
     """Verify that the expense list shows only the current month by default."""
     add_expense(name="Current", date="2026-11-11")
     add_expense(name="Older", date="2026-10-05")
-    page = client.get("/").data.decode()
+    page = client.get("/expenses").data.decode()
     assert "Current" in page and "Older" not in page
 
 
 def test_month_menu_always_offers_the_current_month(client):
     """Verify that the month menu includes the current month and the 'all' option."""
-    page = client.get("/").data.decode()
+    page = client.get("/expenses").data.decode()
     assert 'value="2026-11"' in page and 'value="all"' in page
 
 

@@ -14,7 +14,7 @@ INJECTIONS = ["' OR 1=1 --", "'; DROP TABLE expenses; --", "%' OR '%'='", '" OR 
 def test_list_filters_are_not_injectable(client, add_expense, db_rows, param, payload):
     """Verify that malicious input cannot alter expense list filter queries."""
     add_expense()
-    response = client.get("/", query_string={param: payload})
+    response = client.get("/expenses", query_string={param: payload})
     assert response.status_code == 200
     assert count_rows(db_rows, "expenses") == 1  # the table is still there
 
@@ -23,7 +23,7 @@ def test_list_filters_are_not_injectable(client, add_expense, db_rows, param, pa
 def test_search_payloads_match_nothing(client, add_expense, payload):
     """Verify that SQL injection payloads do not return unintended search results."""
     add_expense(name="Mercado")
-    page = client.get("/", query_string={"q": payload}).data.decode()
+    page = client.get("/expenses", query_string={"q": payload}).data.decode()
     assert "Mercado" not in page
 
 
@@ -57,7 +57,7 @@ def test_category_names_are_escaped(client):
     assert "&lt;b&gt;" in page
 
 
-@pytest.mark.parametrize("url", ["/", "/summary", "/categories", "/expenses/new"])
+@pytest.mark.parametrize("url", ["/", "/", "/categories", "/expenses/new"])
 def test_security_headers(client, url):
     """Verify that application pages include the required security headers."""
     response = client.get(url)

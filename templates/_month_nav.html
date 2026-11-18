@@ -11,13 +11,21 @@
     {% if picker_action %}
         {# The month title opens the native picker; without JavaScript the field and the Go button show instead #}
         <form method="get" action="{{ picker_action }}" class="month-picker">
+
+            {# Active filters travel with the chosen month so they are not lost #}
+            {% for name, value in (links.keep or {}).items() %}
+                <input type="hidden" name="{{ name }}" value="{{ value }}">
+            {% endfor %}
+
             <button type="button" class="month-title month-title-button" aria-label="Choose month, {{ links.month | month_label }}" hidden>
                 {{ links.month | month_label }}
                 <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
                     <path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
             </button>
+
             <input class="month-input" name="month" type="month" value="{{ links.month }}" aria-label="Choose month">
+            
             <noscript><button type="submit" class="ghost small">Go</button></noscript>
         </form>
     {% else %}

@@ -250,9 +250,10 @@ def test_summary_has_no_view_button_and_a_separate_income_form(client):
     assert 'name="income"' in income
 
 
-def test_expense_list_navigation_has_no_month_picker(client):
-    page = client.get("/expenses").data.decode()  # "/expenses" after the home page change
-    assert 'class="month-picker"' not in page
+def test_expense_list_navigation_has_the_month_picker(client):
+    page = client.get("/expenses").data.decode()
+    assert 'class="month-picker"' in page
+    assert 'action="/expenses"' in page
 
 
 def test_month_picker_script_is_served(client):
@@ -389,7 +390,28 @@ def test_summary_month_title_opens_the_picker(client):
     assert "November 2026" in nav
 
 
-def test_expenses_month_title_is_plain_text(client):
-    """Check that on the expense list the month title is plain text."""
+def test_expenses_month_title_opens_the_picker(client):
+    """Check that on the expense list the month title is the button of the month picker."""
     nav = month_nav_html(client, "/expenses")
-    assert '<strong class="month-title">November 2026</strong>' in nav
+    assert 'class="month-title month-title-button"' in nav
+    assert "November 2026" in nav
+
+
+def test_expenses_month_picker_keeps_the_active_filters(client, category_id):
+    """Check that choosing another month keeps the category, type and search filters."""
+    cid = category_id("groceries")
+    nav = month_nav_html(client, f"/expenses?category_id={cid}&type=needs&q=market")
+    assert f'<input type="hidden" name="category_id" value="{cid}">' in nav
+    assert '<input type="hidden" name="type" value="needs">' in nav
+    assert '<input type="hidden" name="q" value="market">' in nav
+
+
+def test_expenses_month_picker_has_no_hidden_filters_when_none_are_active(client):
+    """Check that the picker adds no hidden fields when no filter is active."""
+    assert 'type="hidden"' not in month_nav_html(client, "/expenses")
+
+
+def test_expense_list_keeps_on_screen_filters_when_changing_month(client):
+    """Check that expense list loads the script that carries unsaved filters to the new month."""
+    assert "month-filters.js" in client.get("/expenses").data.decode()
+    assert client.get("/static/month-filters.js").status_code == 200

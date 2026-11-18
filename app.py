@@ -232,6 +232,7 @@ def list_expenses():
             "month": month,
             "prev_url": url_for("list_expenses", month=shift_month(month, -1), **keep),
             "next_url": url_for("list_expenses", month=shift_month(month, 1), **keep),
+            "keep": keep,
         }
 
     where = "WHERE " + " AND ".join(conditions) if conditions else ""

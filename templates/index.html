@@ -14,7 +14,7 @@
     <h1 class="sr-only">Expenses</h1>
 
     {% if month_links %}
-        {{ month_nav(month_links) }}
+        {{ month_nav(month_links, picker_action=url_for('list_expenses')) }}
     {% endif %}
 
     <form method="get" class="row filter-bar">
@@ -154,5 +154,8 @@
             {% endif %}
         </p>
     {% endif %}
+
+    <script src="{{ url_for('static', filename='month-picker.js') }}" defer></script>
+    <script src="{{ url_for('static', filename='month-filters.js') }}" defer></script>
 
 {% endblock %}

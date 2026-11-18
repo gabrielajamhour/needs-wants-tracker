@@ -237,7 +237,22 @@ Icons are simple 24-unit stroke SVGs (stroke 1.9–2.4, round caps) in `currentC
 - **Focus** — every control shows `outline: 3px solid {colors.ink}; outline-offset: 2px` (ink, not a bucket colour, so focus never reads as "Needs") on `:focus-visible`.
 
 ### Month navigation
-`[‹]  October 2026  [›]` — two ghost icon buttons around the `month-title`. On Summary the income sits on the same row at the right: "Income  1.800,00 €  [Edit income]". On Expenses the right side shows "18 expenses · 1.695,49 €" and an "All months" link sits after the arrows (replaces the old Month select).
+`[‹]  October 2026 ⌄  [›]` — two ghost icon buttons around the **month button**. The arrows step one month; the month button jumps to any month. Same control on Summary and Expenses, desktop and phone.
+
+- **Month button** — the `month-title` text plus a 16px chevron, inside a transparent button (44px tall, 12px padding, 4px radius, hover and open state `surface`). It sits inside the page's `<h1>`. `aria-haspopup="dialog"`, `aria-expanded` reflects the state.
+- **Month picker popover** — opens under the button, centred on it: 304px wide, `field` background, 1px `border`, 4px radius, the popover shadow, 16px padding, `role="dialog"` `aria-label="Choose month"`.
+  - Top row: ghost "Previous year" / "Next year" icon buttons (36px) around the year in mono.
+  - A 3 × 4 grid of month buttons (Jan … Dec), each 44px tall:
+    - **shown month**: `ink` fill, `on-ink` text, `aria-current="date"`;
+    - **current calendar month**: 1px `border` outline;
+    - **months with expenses**: `ink` text, weight 500, and a 5px `ink` dot under the name (`aria-label` adds ", has expenses");
+    - **months without expenses**: `muted` text, still selectable (the person may want to set next month's income in advance).
+  - Footer, above a `hairline-soft` rule: a small dot legend "Has expenses" and a quiet "Go to this month" button.
+  - Closes on Escape, on a click outside, or after a month is chosen (then navigates to `?month=YYYY-MM`). Focus moves into the grid on open (to the shown month) and returns to the month button on close; arrow keys move between months.
+- **Without JavaScript** the month button is replaced by the native `<input type="month">` plus a "Go" button (the current progressive-enhancement pattern in `month-picker.js` stays).
+- On Summary the income sits on the same row at the right: "Income  1.800,00 €  [Edit income]". On Expenses the right side shows "18 expenses · 1.695,49 €" and an "All months" link sits after the arrows (replaces the old Month select, which the picker makes redundant).
+
+**Implementing it in two steps.** The current app already opens the native month input from a calendar button (`static/month-picker.js`). A first commit can simply make the month title that trigger and use it on Expenses too: cheap and works today in Chrome, Edge and Safari (Firefox desktop shows a plain text field). The custom grid above, with the "has expenses" dots, is a later commit; it needs the list of months with expenses, which `/expenses` already builds for its Month select.
 
 ### Summary: hero
 - Left: eyebrow "LEFT TO SPEND", the figure in `figure-hero`, then "1.695,49 € of 1.800,00 € used this month" in `muted`.
@@ -301,15 +316,16 @@ Plain text and one action, no illustration:
 
 ## Implementation notes (for the commits)
 
-Suggested order, one commit each:
+Suggested order, one commit each (step 4 already turns the month title into the trigger of the native month input):
 1. **Tokens** — replace the `:root` block in `static/styles.css` with the colours, type, radius and spacing above; load the two Google Fonts in `templates/layout.html`; set `body` to `paper` / `ink` / Instrument Sans.
 2. **Logo and header** — new `static/logo.svg` (the 50/30/20 bar), wordmark, three nav links with the underline indicator, remove the ☰ menu (`menu.js` no longer needed).
 3. **Buttons and form controls** — primary / ghost / quiet / icon / row-action; inputs, selects, segmented control, focus ring.
 4. **Summary** — hero number + income bar, bucket columns with ledger rows (replaces `.cards` and the coloured breakdown tables).
-5. **Expenses** — month row with count and total, filter bar with segmented Type (drop the Month select), clean table with mono amounts and icon actions, total row.
+5. **Expenses** — month row with count and total and the same month button as Summary, filter bar with segmented Type (drop the Month select), clean table with mono amounts and icon actions, total row.
 6. **Categories** — two-column layout, grouped list, inline rename, archived style (drop the duplicate Edit column and the status pill).
 7. **Expense form** — narrow column, big amount field, suggestion line, fix the "Manage categories" link that is currently inside the `<select>` in `templates/expense_form.html`.
 8. **Phone layout** — header at < 600px, stacked tables, full-width form buttons; check 375px for horizontal overflow.
+9. **Custom month picker** — replace the native month input behind the month button with the grid popover (year switcher, "has expenses" dots, keyboard support), keeping the native input as the no-JavaScript fallback.
 
 Mapping from current CSS:
 | Current | Becomes |

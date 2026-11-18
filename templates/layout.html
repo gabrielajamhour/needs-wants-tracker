@@ -49,12 +49,10 @@
 
     <main>
         {% for category, message in get_flashed_messages(with_categories=true) %}
-        {# get_flashed_messages returns a list of (category, message) tuples #}
-
-            <p class="flash {{ category }}" role="status">
-                {{ message }}
-            </p>
-
+        <div class="flash {{ category }}" role="{{ 'alert' if category == 'error' else 'status' }}" data-flash="{{ category }}">
+            <span class="flash-text">{{ message }}</span>
+            <button type="button" class="flash-close" aria-label="Dismiss message">×</button>
+        </div>
         {% endfor %}
 
         {% block content %}
@@ -63,6 +61,7 @@
     </main>
 
     <script src="{{ url_for('static', filename='menu.js') }}" defer></script>
+    <script src="{{ url_for('static', filename='flash.js') }}" defer></script>
 </body>
 
 </html>

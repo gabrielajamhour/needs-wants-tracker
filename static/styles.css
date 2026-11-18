@@ -1001,3 +1001,37 @@ h1 {
 .status-cell {
     gap: var(--space-3);
 }
+/* Flash messages: text plus a close button; success and info fade out on their own */
+.flash {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.flash.is-leaving {
+    opacity: 0;
+    transform: translateY(-4px);
+}
+
+.flash-close {
+    min-width: 32px;
+    min-height: 32px;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: inherit;
+    font-size: 1.3rem;
+    line-height: 1;
+}
+
+.flash-close:hover {
+    background: rgba(0, 0, 0, 0.06);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .flash {
+        transition: none;
+    }
+}

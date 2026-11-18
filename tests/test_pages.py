@@ -351,3 +351,14 @@ def test_archived_category_shows_an_archived_badge(client, category_id):
 def test_stylesheet_aligns_the_emoji_label_with_the_other_fields(client):
     css = client.get("/static/styles.css").data.decode()
     assert ".row .emoji-field" in css
+
+
+def test_flash_messages_can_be_dismissed_and_errors_do_not_auto_hide(client):
+    page = client.post("/categories", data={"name": "", "type": "wants"}).data.decode()
+    assert 'class="flash error"' in page
+    assert 'data-flash="error"' in page
+    assert 'class="flash-close"' in page
+
+
+def test_flash_script_is_served(client):
+    assert client.get("/static/flash.js").status_code == 200

@@ -10,6 +10,7 @@ instance/
 
 # Playwright CLI output
 .playwright-cli/
+.playwright/
 # Claude Code local tooling
 .claude/
 # Design references (not part of the app)

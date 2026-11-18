@@ -141,24 +141,27 @@ form .field {
 /* Form labels */
 label {
     display: block;
-    font-size: 0.9rem;
+    font-size: 13px;
+    color: var(--color-muted);
 }
 
 /* Form inputs and dropdowns */
 input, select {
     display: block;
     width: 100%;
-    min-height: 44px;
+    min-height: var(--control-height);
     margin-top: 6px;
-    padding: 10px 12px;
+    padding: 0 var(--space-3);
     border: 1px solid var(--color-border);
-    border-radius: 6px;
+    border-radius: var(--radius-md);
+    background: var(--color-field);
+    color: var(--color-ink);
     font: inherit;
 }
 
 /* Hint text */
 .hint {
-    font-size: 0.85rem;
+    font-size: 13px;
     color: var(--color-muted);
 }
 
@@ -414,13 +417,6 @@ html {
     scrollbar-gutter: stable;
 }
 
-/* Keyboard focus must always be visible */
-a:focus-visible, button:focus-visible, summary:focus-visible,
-input:focus-visible, select:focus-visible {
-    outline: 3px solid #1f5fa8;
-    outline-offset: 2px;
-}
-
 /* Header: full-width bar whose content shares the container of <main> */
 .site-header {
     background: var(--color-paper);
@@ -495,12 +491,6 @@ input:focus-visible, select:focus-visible {
     background: var(--color-ink);
 }
 
-/* Primary buttons */
-.button.primary {
-    background: var(--color-ink);
-    color: #fff;
-}
-
 /* Pushes the add button to the right and keeps it at its own height */
 .add-button {
     align-self: center;
@@ -541,66 +531,75 @@ input:focus-visible, select:focus-visible {
 :where(a:visited) { color: var(--color-ink); }
 :where(a:hover) { color: var(--color-ink-strong); }
 
-/* Buttons: one base; <button> is primary by default */
+/* Buttons: one base; <button> and .button are primary by default */
 button, .button {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 6px;
-    min-height: 44px;
+    gap: var(--space-2);
+    min-height: var(--control-height);
     padding: 0 18px;
-    border: 1px solid var(--color-ink);
+    border: 0;
     border-radius: var(--radius-md);
     background: var(--color-ink);
-    color: #fff;
+    color: var(--color-on-ink);
     font: inherit;
-    font-weight: 600;
+    font-weight: 500;
     text-decoration: none;
     cursor: pointer;
 }
 
-/* Darken buttons on hover */
+/* Primary hover: a darker ink */
 button:hover, .button:hover {
     background: var(--color-ink-strong);
-    border-color: var(--color-ink-strong);
 }
 
-/* Secondary: neutral actions (Edit, Cancel, Clear, Archive) */
-.secondary {
-    background: var(--color-field);
-    border-color: var(--color-border);
+/* Ghost: outlined neutral actions (Cancel, Clear, Edit, Close) */
+.ghost {
+    background: transparent;
+    box-shadow: inset 0 0 0 1px var(--color-border);
     color: var(--color-ink);
 }
 
-/* Highlight secondary buttons on hover */
-.secondary:hover {
-    background: #eef1f4;
-    border-color: var(--color-border);
+/* Ghost hover: a light surface fill */
+.ghost:hover {
+    background: var(--color-surface);
 }
 
-/* Destructive: only for actions that cannot be undone (Delete) */
+/* Quiet: repeated row actions without an outline (Archive, Restore) */
+.quiet {
+    background: transparent;
+    color: var(--color-muted);
+}
+
+/* Quiet hover: a soft fill and ink text */
+.quiet:hover {
+    background: var(--color-hairline-soft);
+    color: var(--color-ink);
+}
+
+/* Destructive: outlined until Delete becomes a row action icon */
 .danger {
-    background: var(--color-field);
-    border-color: var(--color-danger);
+    background: transparent;
+    box-shadow: inset 0 0 0 1px var(--color-danger);
     color: var(--color-danger);
 }
 
-/* Tint destructive buttons on hover */
+/* Destructive hover: a light red tint */
 .danger:hover {
     background: var(--color-danger-bg);
-    border-color: var(--color-danger);
 }
 
-/* Smaller buttons for table rows; touch screens keep the full 44px target */
+/* Small buttons: 36px on desktop */
 .small {
-    min-height: 36px;
-    padding: 0 12px;
-    font-size: 0.9rem;
+    min-height: var(--control-height-small);
+    padding: 0 var(--space-3);
+    font-size: 14px;
 }
 
-/* Keep small buttons touch-friendly on touch screens */
+/* Touch screens keep the full 44px target */
 @media (pointer: coarse) {
-    .small { min-height: 44px; }
+    .small { min-height: var(--control-height); }
 }
 
 /* Groups of actions */
@@ -622,19 +621,18 @@ form.inline {
     margin: 0;
 }
 
-/* The emoji picker button looks like a secondary button */
+/* Emoji button: a white square with the control outline */
 .emoji-open {
-    min-width: 44px;
-    padding: 8px;
+    min-width: var(--control-height);
+    padding: var(--space-2);
     background: var(--color-field);
-    border-color: var(--color-border);
+    box-shadow: inset 0 0 0 1px var(--color-border);
     color: var(--color-ink);
 }
 
-/* Highlight the emoji picker button on hover */
+/* Emoji button hover: a light surface fill */
 .emoji-open:hover {
-    background: #eef1f4;
-    border-color: var(--color-border);
+    background: var(--color-surface);
 }
 
 /* Spacing scale applied to the main page elements */
@@ -689,11 +687,6 @@ th, td {
     vertical-align: middle;
 }
 
-.small {
-    min-height: 40px;
-    padding: 0 14px;
-}
-
 /* Keep controls inside inline forms aligned and the same height as the buttons */
 form.inline {
     align-items: center;
@@ -701,7 +694,7 @@ form.inline {
 }
 
 td form.inline input {
-    min-height: 40px;
+    min-height: var(--control-height-small);
 }
 
 /* The plus icon scales with the text and inherits its color */

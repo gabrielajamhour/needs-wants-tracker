@@ -113,7 +113,7 @@
                                 <span class="status-badge {{ 'active' if c['is_active'] else 'archived' }}">{{ "Active" if c["is_active"] else "Archived" }}</span>
                                 <form method="post" action="{{ url_for('toggle_category', category_id=c['id']) }}" class="inline">
                                     <input type="hidden" name="show" value="{{ selected }}">
-                                    <button type="submit" class="secondary small">{{ "Archive" if c["is_active"] else "Restore" }}</button>
+                                    <button type="submit" class="quiet small">{{ "Archive" if c["is_active"] else "Restore" }}</button>
                                 </form>
                             </div>
                         </td>
@@ -142,7 +142,7 @@
 
 <dialog id="emoji-dialog" aria-label="Choose emoji">
     <emoji-picker></emoji-picker>
-    <form method="dialog"><button class="secondary">Close</button></form>
+    <form method="dialog"><button class="ghost">Close</button></form>
 </dialog>
 
 <script type="module" src="https://cdn.jsdelivr.net/npm/emoji-picker-element@^1/index.js"></script>

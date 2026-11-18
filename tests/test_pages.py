@@ -174,9 +174,9 @@ def test_row_actions_are_buttons_not_links(client, add_expense):
     """Check that row actions are shown as buttons instead of links."""
     add_expense(date="2026-11-11")
     page = client.get("/expenses").data.decode()
-    assert "button secondary small" in page  # Edit
+    assert "button ghost small" in page  # Edit
     assert "danger small" in page  # Delete
-    assert "Clear" in page and 'class="button secondary"' in page
+    assert "Clear" in page and 'class="button ghost"' in page
 
 
 @pytest.mark.parametrize("url", ["/expenses", "/categories", "/expenses/new", "/"])
@@ -190,7 +190,7 @@ def test_expense_form_actions_are_buttons(client):
     """Check that the expense form actions are shown as buttons."""
     page = client.get("/expenses/new").data.decode()
     assert 'class="form-actions"' in page
-    assert 'class="button secondary"' in page
+    assert 'class="button ghost"' in page
 
 
 def test_stylesheet_defines_the_design_tokens(client):
@@ -359,3 +359,15 @@ def test_archived_category_shows_an_archived_badge(client, category_id):
 def test_stylesheet_aligns_the_emoji_label_with_the_other_fields(client):
     css = client.get("/static/styles.css").data.decode()
     assert ".row .emoji-field" in css
+
+
+@pytest.mark.parametrize("url", ["/expenses", "/categories", "/expenses/new", "/"])
+def test_no_pages_use_the_old_secondary_style(client, add_expense, url):
+    """Check that the old secondary button style was replaced by ghost and quiet."""
+    add_expense(date="2026-11-11")
+    assert "secondary" not in client.get(url).data.decode()
+
+
+def test_archive_uses_the_quiet_button(client, category_id):
+    """Check that Archive is a quiet button, as repeated row actions are."""
+    assert 'class="quiet small">Archive' in client.get("/categories").data.decode()

@@ -144,6 +144,31 @@ def category_name_exists(db, name, exclude_id=None):
     return row is not None
 
 
+def render_categories(show, form=None, edit=None, status=200):
+    """Render the categories page, optionally with what the user typed after an error."""
+    where, params = ("WHERE c.type = ?", (show,)) if show else ("", ())
+    rows = (
+        get_db()
+        .execute(
+            f"""
+        SELECT c.id, c.name, c.emoji, c.type, c.is_active, COUNT(e.id) AS uses
+        FROM categories c
+            LEFT JOIN expenses e ON e.category_id = c.id
+        {where}
+        GROUP BY c.id
+        ORDER BY {TYPE_ORDER_SQL}, c.is_active DESC, c.name COLLATE NOCASE
+        """,
+            params,
+        )
+        .fetchall()
+    )
+    form = form or {"name": "", "type": "", "emoji": DEFAULT_EMOJI}
+    return (
+        render_template("categories.html", categories=rows, selected=show, form=form, edit=edit),
+        status,
+    )
+
+
 @app.context_processor
 def inject_constants():
     """Make application constants available to all templates."""
@@ -513,8 +538,13 @@ def suggest_category():
 def manage_categories():
     """Display categories or create a new category."""
     db = get_db()
+    show = request.values.get("show", "")
+    if show not in VALID_TYPES:
+        show = ""
+
     if request.method == "POST":
-        name = normalize_category_name(request.form.get("name", ""))
+        raw_name = request.form.get("name", "")
+        name = normalize_category_name(raw_name)
         category_type = request.form.get("type", "")
         emoji = request.form.get("emoji", "").strip() or DEFAULT_EMOJI
         emoji_problem = emoji_error(emoji)
@@ -523,7 +553,7 @@ def manage_categories():
         if not name:
             error = "Enter a category name."
         elif len(name) > MAX_CATEGORY_NAME_LENGTH:
-            error = "Category name must be at most 40 characters."
+            error = f"Category name must be at most {MAX_CATEGORY_NAME_LENGTH} characters."
         elif category_type not in VALID_TYPES:
             error = "Choose a type."
         elif emoji_problem:
@@ -533,7 +563,9 @@ def manage_categories():
 
         if error:
             flash(error, "error")
-            return back_to_categories()
+            return render_categories(
+                show, form={"name": raw_name, "type": category_type, "emoji": emoji}, status=400
+            )
 
         db.execute(
             "INSERT INTO categories (name, type, emoji) VALUES (?, ?, ?)",
@@ -543,23 +575,7 @@ def manage_categories():
         flash("Category added.", "success")
         return redirect(url_for("manage_categories", show=category_type))  # show where it landed
 
-    show = request.args.get("show", "")
-    if show not in VALID_TYPES:
-        show = ""
-    where, params = ("WHERE c.type = ?", (show,)) if show else ("", ())
-
-    categories = db.execute(
-        f"""
-        SELECT c.id, c.name, c.emoji, c.type, c.is_active, COUNT(e.id) AS uses
-        FROM categories c
-        LEFT JOIN expenses e ON e.category_id = c.id
-        {where}
-        GROUP BY c.id
-        ORDER BY c.is_active DESC, {TYPE_ORDER_SQL}, c.name COLLATE NOCASE
-        """,
-        params,
-    ).fetchall()
-    return render_template("categories.html", categories=categories, selected=show)
+    return render_categories(show)
 
 
 @app.post("/categories/<int:category_id>/edit")
@@ -575,27 +591,36 @@ def edit_category(category_id):
     if category is None:
         abort(404)
 
-    name = normalize_category_name(request.form.get("name", ""))
+    show = request.form.get("show", "")
+    if show not in VALID_TYPES:
+        show = ""
+
+    raw_name = request.form.get("name", "")
+    name = normalize_category_name(raw_name)
     emoji = request.form.get("emoji", "").strip() or category["emoji"]
     emoji_problem = None if emoji == category["emoji"] else emoji_error(emoji)
 
+    error = None
     if not name or len(name) > MAX_CATEGORY_NAME_LENGTH:
-        flash(f"Enter a name of up to {MAX_CATEGORY_NAME_LENGTH} characters.", "error")
-
-    elif name.casefold() == category["name"].casefold() and emoji == category["emoji"]:
-        flash("No changes to save.", "info")
-
-    elif name.casefold() != category["name"].casefold() and category_name_exists(
-        db, name, category_id
-    ):
-        flash("That category already exists.", "error")
+        error = f"Enter a name of up to {MAX_CATEGORY_NAME_LENGTH} characters."
 
     elif emoji_problem:
-        flash(emoji_error(emoji), "error")
+        error = emoji_problem
 
+    elif name != category["name"] and category_name_exists(db, name, category_id):
+        error = "That category already exists."
+
+    if error:
+        flash(error, "error")
+        edit = {"id": category_id, "name": raw_name, "emoji": emoji}
+        return render_categories(show, edit=edit, status=400)
+
+    if name == category["name"] and emoji == category["emoji"]:
+        flash("No changes to save.", "info")
     else:
         db.execute(
-            "UPDATE categories SET name = ?, emoji = ? WHERE id = ?", (name, emoji, category_id)
+            "UPDATE categories SET name = ?, emoji = ? WHERE id = ?",
+            (name, emoji, category_id),
         )
         db.commit()
 

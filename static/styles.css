@@ -632,7 +632,7 @@ form.inline {
 
 /* Spacing scale applied to the main page elements */
 h1 {
-    margin: var(--space-4) 0 var(--space-3);
+    margin: var(--space-4) 0 var(--space-5);
     font-size: 1.75rem;
     line-height: 1.2;
 }
@@ -920,4 +920,84 @@ h1 {
 .filter-bar select,
 .filter-bar input {
     width: 100%;
+}
+
+/* The hidden attribute must always win, even over rules like "display: inline-flex".
+   Before this, buttons marked hidden were visible when JavaScript did not run. */
+[hidden] {
+    display: none !important;
+}
+
+/* Emoji control: one button showing the current emoji.
+   The text field next to it is only a fallback, shown if the picker does not load. */
+.emoji-field {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+}
+
+/* Same 6px gap between label and control that inputs and selects have */
+.row .emoji-field {
+    margin-top: 6px;
+}
+
+.emoji-choice {
+    min-width: 44px;
+    padding: 0 10px;
+    font-size: 1.3rem;
+    line-height: 1;
+}
+
+/* Status cell: the state and its button side by side */
+.status-cell {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+}
+
+/* Small screens: the edit form uses the whole card width */
+@media (max-width: 600px) {
+    .table-cards td.actions form.inline {
+        width: 100%;
+    }
+
+    .table-cards td.actions input[name="name"] {
+        flex: 1;
+        width: auto;
+    }
+}
+
+/* The state is a label (badge); only the button next to it is clickable */
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 2px 10px;
+    border-radius: 999px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.status-badge::before {
+    content: "";
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: currentColor;
+}
+
+.status-badge.active {
+    background: #e3f0ee;
+    color: #14554f;
+}
+
+.status-badge.archived {
+    background: #eef1f4;
+    color: var(--color-muted);
+}
+
+.status-cell {
+    gap: var(--space-3);
 }

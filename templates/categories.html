@@ -6,157 +6,146 @@
 
 {% block content %}
 
-    <h1>Categories</h1>
+{% macro emoji_field(field_id, value, label) %}
 
-    <form method="post" class="row">
-        <div>
-            <label for="name">New category</label>
-            <input 
-                id="name" 
-                name="name" 
-                type="text" 
-                maxlength="{{ MAX_CATEGORY_NAME_LENGTH }}" 
-                required placeholder="e.g.: subscriptions"
-            >
-        </div>
-        <div>
-            <label for="emoji">Emoji</label>
-            <input 
-                id="emoji" 
-                name="emoji" 
-                type="text" 
-                size="4" 
-                autocomplete="off" 
-                placeholder="🏷️" 
-                class="emoji-input"
-            >
-        </div>
-        <div>
-            <button
-                type="button"
-                class="emoji-open"
-                data-for="emoji"
-                hidden
-                aria-label="Open the emoji picker"
-            >
-                😀
-            </button>
-        </div>
-        <div>
-            <label for="type">Type</label>
-            <select id="type" name="type" required>
-                <option value="">Choose...</option>
-                <option value="needs">Needs</option>
-                <option value="wants">Wants</option>
-                <option value="savings">Savings</option>
-            </select>
-        </div>
+    <span class="emoji-field">
+        <input
+            id="{{ field_id }}" 
+            class="emoji-input" 
+            name="emoji" 
+            type="text" 
+            size="3"
+            value="{{ value }}" 
+            autocomplete="off" 
+            aria-label="{{ label }}">
+        <button 
+            type="button" 
+            class="emoji-open emoji-choice" 
+            data-for="{{ field_id }}" 
+            hidden
+            aria-label="Change emoji, current: {{ value }}">
+            {{ value }}
+        </button>
+    </span>
 
-        <input type="hidden" name="show" value="{{ selected }}">
+{% endmacro %}
 
-        <button type="submit">Add</button>
-    </form>
+<h1>Categories</h1>
 
-    <nav class="chips" aria-label="Filter categories by type">
+<form method="post" class="row">
+    <input type="hidden" name="show" value="{{ selected }}">
+    <div>
+        <label for="name">New category</label>
+        <input 
+            id="name" 
+            name="name" 
+            type="text" 
+            maxlength="{{ MAX_CATEGORY_NAME_LENGTH }}" 
+            required
+            placeholder="e.g.: subscriptions" 
+            value="{{ form.name }}">
+    </div>
+    <div>
+        <label for="emoji-new">Emoji</label>
+        {{ emoji_field("emoji-new", form.emoji, "Emoji") }}
+    </div>
+    <div>
+        <label for="type">Type</label>
+        <select id="type" name="type" required>
+            <option value="">Choose...</option>
+            {% for value, label in [("needs", "Needs"), ("wants", "Wants"), ("savings", "Savings")] %}
+            <option value="{{ value }}"{% if form.type == value %} selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+        </select>
+    </div>
 
-        {% for value, label in [("", "All"), ("needs", "Needs"), ("wants", "Wants"), ("savings", "Savings")] %}
+    <button type="submit">Add</button>
+</form>
 
-        <a href="{{ url_for('manage_categories', show=value or None) }}"
-        class="chip {{ 'active' if selected == value }}"
+<nav class="chips" aria-label="Filter categories by type">
+
+    {% for value, label in [("", "All"), ("needs", "Needs"), ("wants", "Wants"), ("savings", "Savings")] %}
+
+    <a href="{{ url_for('manage_categories', show=value or None) }}"
+       class="chip {{ 'active' if selected == value }}"
         {% if selected == value %}
             aria-current="page"
         {% endif %}>
-            {{ label }}
-        </a>
+        {{ label }}
+    </a>
 
-        {% endfor %}
-    </nav>
+    {% endfor %}
+</nav>
 
-    {% if categories %}
+{% if categories %}
 
-        <div class="table-wrap">
-            <table class="table-cards" role="table">
-                <thead role="rowgroup">
-                    <tr role="row">
-                        <th role="columnheader">Name</th>
-                        <th role="columnheader">Type</th>
-                        <th role="columnheader">Uses</th>
-                        <th role="columnheader">Status</th>
-                        <th role="columnheader" class="actions">Actions</th>
-                    </tr>
-                </thead>
-                <tbody role="rowgroup">
+    <div class="table-wrap">
+        <table class="table-cards" role="table">
+            <thead role="rowgroup">
+                <tr role="row">
+                    <th role="columnheader">Name</th>
+                    <th role="columnheader">Type</th>
+                    <th role="columnheader" title="How many expenses use this category">Expenses</th>
+                    <th role="columnheader">Status</th>
+                    <th role="columnheader" class="actions">Edit</th>
+                </tr>
+            </thead>
+            <tbody role="rowgroup">
 
-                    {% for c in categories %}
-                        <tr role="row" class="{{ '' if c['is_active'] else 'archived' }}"> <!-- Apply class only to archived categories -->
-                            <td role="cell" data-label="Name">
-                                <span class="cell-value">
-                                    <span class="emoji" aria-hidden="true">{{ c["emoji"] }}</span>
-                                    <span class="cell-name">{{ c["name"] | capitalize }}</span>
-                                </span> 
-                            </td>
-                            <td role="cell" data-label="Type">{{ c["type"] | capitalize }}</td>
-                            <td role="cell" data-label="Uses">{{ c["uses"] }}</td>
-                            <td role="cell" data-label="Status">{{ "Active" if c["is_active"] else "Archived" }}</td>
+                {% for c in categories %}
 
-                            <td role="cell" class="actions">
-                                <form method="post" action="{{ url_for('edit_category', category_id=c['id']) }}" class="inline">
-                                    <input
-                                        id="emoji-{{ c['id'] }}"
-                                        name="emoji"
-                                        type="text"
-                                        size="3"
-                                        value="{{ c['emoji'] }}"
-                                        class="emoji-input"
-                                        aria-label="{{ c['name'] | capitalize }} emoji"
-                                    >
-                                    <button
-                                        type="button"
-                                        class="emoji-open"
-                                        data-for="emoji-{{ c['id'] }}"
-                                        hidden
-                                        aria-label="Open the emoji picker of {{ c['name'] | capitalize }}"
-                                    >
-                                        😀
-                                    </button>
-                                    <input 
-                                        name="name" 
-                                        type="text" 
-                                        maxlength="{{ MAX_CATEGORY_NAME_LENGTH }}" 
-                                        required
-                                        value="{{ c['name'] | capitalize }}" 
-                                        aria-label="New name for {{ c['name'] | capitalize }}"
-                                    >
-                                    <input type="hidden" name="show" value="{{ selected }}">
-                                    <button type="submit" class="small">Edit</button>
-                                </form>
+                {% set editing = edit and edit.id == c["id"] %}
+                {% set row_name = edit.name if editing else c["name"] | capitalize %}
+                {% set row_emoji = edit.emoji if editing else c["emoji"] %}
 
+                    <tr role="row" class="{{ '' if c['is_active'] else 'archived' }}">
+                        <td role="cell" data-label="Name">
+                            <span class="cell-value">
+                                <span class="emoji" aria-hidden="true">{{ c["emoji"] }}</span>
+                                <span class="cell-name">{{ c["name"] | capitalize }}</span>
+                            </span>
+                        </td>
+                        <td role="cell" data-label="Type">{{ c["type"] | capitalize }}</td>
+                        <td role="cell" data-label="Expenses">{{ c["uses"] }}</td>
+
+                        <td role="cell" data-label="Status">
+                            <div class="status-cell">
+                                <span class="status-badge {{ 'active' if c['is_active'] else 'archived' }}">{{ "Active" if c["is_active"] else "Archived" }}</span>
                                 <form method="post" action="{{ url_for('toggle_category', category_id=c['id']) }}" class="inline">
                                     <input type="hidden" name="show" value="{{ selected }}">
-                                    <button type="submit" class="secondary small">
-                                        {{ "Archive" if c["is_active"] else "Restore" }}
-                                    </button>
+                                    <button type="submit" class="secondary small">{{ "Archive" if c["is_active"] else "Restore" }}</button>
                                 </form>
-                            </td>
+                            </div>
+                        </td>
 
-                        </tr>
-                    {% endfor %}
+                        <td role="cell" class="actions">
+                            <form method="post" action="{{ url_for('edit_category', category_id=c['id']) }}" class="inline">
+                                <input type="hidden" name="show" value="{{ selected }}">
+                                {{ emoji_field("emoji-" ~ c["id"], row_emoji, "Emoji of " ~ (c["name"] | capitalize)) }}
+                                <input name="name" type="text" maxlength="40" required value="{{ row_name }}"
+                                    aria-label="Name of {{ c['name'] | capitalize }}">
+                                <button type="submit" class="small">Save</button>
+                            </form>
+                        </td>
+                    </tr>
 
-                </tbody>
+                {% endfor %}
+            </tbody>
         </table>
-        </div>
+    </div>
 
-    {% else %}
-        
-        <p>No category of this type.</p>
+{% else %}
 
-    {% endif %}
+    <p>No categories of this type.</p>
 
-    <dialog id="emoji-dialog" aria-label="Choose emoji">
-        <emoji-picker></emoji-picker>
-        <form method="dialog" class="secondary"><button>Close</button></form>
-    </dialog>
-    <script type="module" src="https://cdn.jsdelivr.net/npm/emoji-picker-element@^1/index.js"></script>
-    <script src="{{ url_for('static', filename='emoji-picker.js') }}"></script>
+{% endif %}
+
+<dialog id="emoji-dialog" aria-label="Choose emoji">
+    <emoji-picker></emoji-picker>
+    <form method="dialog"><button class="secondary">Close</button></form>
+</dialog>
+
+<script type="module" src="https://cdn.jsdelivr.net/npm/emoji-picker-element@^1/index.js"></script>
+<script src="{{ url_for('static', filename='emoji-picker.js') }}"></script>
 
 {% endblock %}

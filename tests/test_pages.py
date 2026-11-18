@@ -34,7 +34,7 @@ def test_stylesheet_uses_border_box(client):
     "url, labels",
     [
         ("/expenses", ["Date", "Name", "Category", "Type", "Amount"]),
-        ("/categories", ["Name", "Type", "Uses", "Status"]),
+        ("/categories", ["Name", "Type", "Expenses", "Status"]),
     ],
 )
 def test_wide_tables_have_card_labels(client, add_expense, url, labels):
@@ -50,7 +50,7 @@ def test_categories_page_has_the_emoji_picker(client):
     """Check that the categories page includes the emoji picker."""
     page = client.get("/categories").data.decode()
     assert 'id="emoji-dialog"' in page
-    assert 'class="emoji-open"' in page
+    assert 'class="emoji-open emoji-choice"' in page
     assert "emoji-picker.js" in page
 
 
@@ -199,11 +199,11 @@ def test_add_button_uses_an_icon_not_a_text_plus(client):
     assert ">+</span>" not in page
 
 
-@pytest.mark.parametrize("url", ["/expenses", "/categories"])
-def test_actions_column_header_can_shrink_to_fit(client, add_expense, url):
+@pytest.mark.parametrize("url, header", [("/expenses", "Actions"), ("/categories", "Edit")])
+def test_actions_column_header_can_shrink_to_fit(client, add_expense, url, header):
     add_expense(date="2026-11-11")
     page = client.get(url).data.decode()
-    assert '<th role="columnheader" class="actions">Actions</th>' in page
+    assert f'<th role="columnheader" class="actions">{header}</th>' in page
 
 
 def test_stylesheet_shrinks_the_actions_column(client):
@@ -297,3 +297,57 @@ def test_old_summary_url_redirects_to_the_home_page(client):
     response = client.get("/summary?month=2026-10")
     assert response.status_code == 301
     assert response.headers["Location"] == "/?month=2026-10"
+
+
+def test_categories_headers_are_clear(client):
+    page = client.get("/categories").data.decode()
+    assert ">Expenses</th>" in page
+    assert ">Uses<" not in page
+    assert '<th role="columnheader" class="actions">Edit</th>' in page
+
+
+def test_emoji_is_one_button_with_a_text_fallback(client):
+    page = client.get("/categories").data.decode()
+    assert 'class="emoji-field"' in page
+    assert 'class="emoji-open emoji-choice"' in page
+    assert 'id="emoji-new"' in page
+
+
+def test_invalid_category_keeps_what_the_user_typed(client):
+    response = client.post(
+        "/categories", data={"name": "My new thing", "type": "wants", "emoji": "abc"}
+    )
+    assert response.status_code == 400
+    page = response.data.decode()
+    assert "That is not an emoji." in page
+    assert 'value="My new thing"' in page
+    assert 'value="wants" selected' in page
+
+
+def test_failed_edit_keeps_what_the_user_typed(client, category_id):
+    cid = category_id("groceries")
+    response = client.post(f"/categories/{cid}/edit", data={"name": "housing", "emoji": "🛒"})
+    assert response.status_code == 400
+    page = response.data.decode()
+    assert "That category already exists." in page
+    assert 'value="housing"' in page
+
+
+def test_stylesheet_makes_the_hidden_attribute_win(client):
+    css = client.get("/static/styles.css").data.decode()
+    assert "[hidden]" in css
+
+
+def test_category_status_is_a_badge(client):
+    assert 'class="status-badge active"' in client.get("/categories").data.decode()
+
+
+def test_archived_category_shows_an_archived_badge(client, category_id):
+    cid = category_id("groceries")
+    client.post(f"/categories/{cid}/toggle")
+    assert 'class="status-badge archived"' in client.get("/categories").data.decode()
+
+
+def test_stylesheet_aligns_the_emoji_label_with_the_other_fields(client):
+    css = client.get("/static/styles.css").data.decode()
+    assert ".row .emoji-field" in css

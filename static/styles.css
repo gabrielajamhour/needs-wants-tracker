@@ -371,35 +371,6 @@ emoji-picker {
     height: 380px;
 }
 
-/* Center the month navigation bar with arrows on each side. */
-.month-nav {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 16px;
-    margin: 16px 0;
-}
-
-/* Style the previous/next month arrows as large, touch-friendly buttons. */
-.month-arrow {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 44px;
-    min-height: 44px;
-    border: 1px solid var(--color-border);
-    border-radius: 6px;
-    background: #fff;
-    color: var(--color-ink);
-    text-decoration: none;
-    font-size: 1.4rem;
-}
-
-/* Highlight month arrows on hover. */
-.month-arrow:hover {
-    background: #eef1f4;
-}
-
 /* Muted color for hint links */
 .hint-link {
     color: var(--color-muted);
@@ -602,6 +573,59 @@ button:hover, .button:hover {
     .small { min-height: var(--control-height); }
 }
 
+/* Icon buttons: 44px ghost squares with an 18px stroke icon */
+.icon-button {
+    width: var(--control-height);
+    padding: 0;
+}
+
+.icon-button svg {
+    width: 18px;
+    height: 18px;
+}
+
+/* Month navigation: [‹] month title [›], aligned left */
+.month-nav {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin: var(--space-5) 0 var(--space-4);
+}
+
+/* Month title: centred between the arrows, wide enough that they never move */
+.month-title {
+    min-width: 9.5em;
+    font-size: 22px;
+    font-weight: 500;
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+    text-align: center;
+}
+
+/* As a button, the title keeps the text look and gets a soft hover */
+.month-title-button {
+    padding: 0 var(--space-3);
+    background: transparent;
+    color: var(--color-ink);
+}
+
+.month-title-button:hover {
+    background: var(--color-hairline-soft);
+}
+
+/* Small chevron that tells the title opens the picker */
+.month-title-button svg {
+    width: 14px;
+    height: 14px;
+    color: var(--color-muted);
+}
+
+/* The picker form wraps the title button and the hidden native field */
+.month-picker {
+    position: relative;
+    display: inline-flex;
+}
+
 /* Groups of actions */
 .actions-group,
 .form-actions {
@@ -656,8 +680,7 @@ h2 {
     margin: var(--space-5) 0;
 }
 
-.row,
-.month-nav {
+.row {
     margin-bottom: var(--space-4);
 }
 
@@ -766,26 +789,6 @@ h1 {
     text-align: left;
 }
 
-/* Month picker: sits next to the arrows, opens the native picker from an icon button */
-.month-picker {
-    position: relative;
-    display: inline-flex;
-    margin-left: var(--space-1);
-}
-
-.month-arrow.month-calendar {
-    padding: 0;
-    background: var(--color-field);
-    border-color: var(--color-border);
-    color: var(--color-ink);
-    cursor: pointer;
-}
-
-.month-arrow.month-calendar:hover {
-    background: #eef1f4;
-    border-color: var(--color-border);
-}
-
 /* With JavaScript, the real input is invisible and anchored behind the button */
 .month-picker.is-enhanced .month-input {
     position: absolute;
@@ -812,25 +815,6 @@ h1 {
     margin: var(--space-5) 0 var(--space-4);
 }
 
-/* Summary: the month navigation grows to fill the space next to the income form,
-   and the month name becomes a wide box with the same look as the income field */
-.summary-toolbar .month-nav {
-    flex: 1 1 360px;
-    gap: var(--space-2);
-    justify-content: flex-start;
-}
-
-/* The month name is plain text: no border or fill, so it does not look clickable */
-.summary-toolbar .month-nav strong {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 44px;
-    padding: 0 var(--space-4);
-    font-size: 1.1rem;
-}
-
 .summary-toolbar .income-form {
     flex: 0 0 auto;
 }
@@ -852,14 +836,6 @@ h1 {
     .summary-toolbar {
         flex-direction: column;
         align-items: stretch;
-    }
-
-    .summary-toolbar .month-nav {
-        justify-content: center;
-    }
-
-    .summary-toolbar .month-nav {
-        flex: 0 0 auto;
     }
 }
 
@@ -894,10 +870,6 @@ h1 {
     clip: rect(0, 0, 0, 0);
     white-space: nowrap;
     border: 0;
-}
-
-.month-nav {
-    margin-top: var(--space-5);
 }
 
 /* Filters stretch across the same width as the table below */

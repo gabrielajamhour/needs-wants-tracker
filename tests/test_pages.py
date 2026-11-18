@@ -277,11 +277,6 @@ def test_filter_form_uses_the_full_width_bar(client):
     assert 'class="grow"' in page
 
 
-def test_stylesheet_lets_the_summary_month_navigation_grow(client):
-    css = client.get("/static/styles.css").data.decode()
-    assert ".summary-toolbar .month-nav strong" in css
-
-
 def test_summary_is_the_home_page(client):
     page = client.get("/").data.decode()
     assert "Monthly summary" in page
@@ -371,3 +366,30 @@ def test_no_pages_use_the_old_secondary_style(client, add_expense, url):
 def test_archive_uses_the_quiet_button(client, category_id):
     """Check that Archive is a quiet button, as repeated row actions are."""
     assert 'class="quiet small">Archive' in client.get("/categories").data.decode()
+
+
+def month_nav_html(client, url):
+    """Return the HTML inside the month navigation of a page."""
+    page = client.get(url).data.decode()
+    return page.split('class="month-nav"')[1].split("</nav>")[0]
+
+
+@pytest.mark.parametrize("url", ["/expenses", "/?month=2026-11"])
+def test_month_arrows_are_icon_buttons(client, url):
+    """Check that the month arrows are ghost icon buttons with an SVG chevron."""
+    nav = month_nav_html(client, url)
+    assert nav.count('class="button ghost icon-button"') == 2
+    assert "‹" not in nav and "›" not in nav
+
+
+def test_summary_month_title_opens_the_picker(client):
+    """Check that on the summary the month title is the button of the month picker."""
+    nav = month_nav_html(client, "/?month=2026-11")
+    assert 'class="month-title month-title-button"' in nav
+    assert "November 2026" in nav
+
+
+def test_expenses_month_title_is_plain_text(client):
+    """Check that on the expense list the month title is plain text."""
+    nav = month_nav_html(client, "/expenses")
+    assert '<strong class="month-title">November 2026</strong>' in nav

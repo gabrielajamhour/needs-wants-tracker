@@ -4,7 +4,7 @@
         return;
     }
     var input = form.querySelector(".month-input");
-    var button = form.querySelector(".month-calendar");
+    var button = form.querySelector(".month-title-button");
 
     // Browsers without a native month picker keep the plain field
     if (input.type !== "month") {

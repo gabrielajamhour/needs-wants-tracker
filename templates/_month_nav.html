@@ -1,23 +1,34 @@
 {% macro month_nav(links, picker_action=None) %}
 
 <nav class="month-nav" aria-label="Month navigation">
-    
-    <a class="month-arrow" href="{{ links.prev_url }}" aria-label="Previous month">‹</a>
-    <strong>{{ links.month | month_label }}</strong>
-    <a class="month-arrow" href="{{ links.next_url }}" aria-label="Next month">›</a>
+
+    <a class="button ghost icon-button" href="{{ links.prev_url }}" aria-label="Previous month">
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path d="M15 6l-6 6 6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+    </a>
 
     {% if picker_action %}
-    <form method="get" action="{{ picker_action }}" class="month-picker">
-        <button type="button" class="month-arrow month-calendar" aria-label="Choose month" hidden>
-            <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" focusable="false">
-                <rect x="3.5" y="5" width="17" height="15" rx="2.5" fill="none" stroke="currentColor" stroke-width="2"/>
-                <path d="M3.5 10h17M8 3v4M16 3v4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-            </svg>
-        </button>
-        <input class="month-input" name="month" type="month" value="{{ links.month }}" aria-label="Choose month">
-        <noscript><button type="submit" class="ghost small">Go</button></noscript>
-    </form>
+        {# The month title opens the native picker; without JavaScript the field and the Go button show instead #}
+        <form method="get" action="{{ picker_action }}" class="month-picker">
+            <button type="button" class="month-title month-title-button" aria-label="Choose month, {{ links.month | month_label }}" hidden>
+                {{ links.month | month_label }}
+                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                    <path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </button>
+            <input class="month-input" name="month" type="month" value="{{ links.month }}" aria-label="Choose month">
+            <noscript><button type="submit" class="ghost small">Go</button></noscript>
+        </form>
+    {% else %}
+        <strong class="month-title">{{ links.month | month_label }}</strong>
     {% endif %}
+
+    <a class="button ghost icon-button" href="{{ links.next_url }}" aria-label="Next month">
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+    </a>
 
 </nav>
 

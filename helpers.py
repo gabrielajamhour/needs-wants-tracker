@@ -7,7 +7,7 @@ from decimal import (  # Class used for working with decimal numbers with precis
     InvalidOperation,
 )
 
-import emoji
+import regex
 
 DEFAULT_EMOJI = "🏷️"
 
@@ -26,15 +26,22 @@ MONTH_NAMES = [
     "december",
 ]
 
+# Match one user-perceived character, including multi-code-point Unicode characters
+_GRAPHEME = regex.compile(r"\X")
+
+# Match emoji pictographs, flag letters and keycap symbols
+_EMOJI_CHAR = regex.compile(r"[\p{Extended_Pictographic}\p{Regional_Indicator}\u20e3]")
+
 
 def emoji_error(text):
     """Return an error message if text is not exactly one emoji, otherwise None."""
-    found = emoji.emoji_list(text)
-    if not found:
+    clusters = _GRAPHEME.findall(text)  # all characters
+    emoji_clusters = [cluster for cluster in clusters if _EMOJI_CHAR.search(cluster)]  # only emojis
+    if not emoji_clusters:
         return "That is not an emoji."
-    if len(found) > 1:
+    if len(emoji_clusters) > 1:
         return "Choose only one emoji."
-    if found[0]["match_start"] != 0 or found[0]["match_end"] != len(text):
+    if len(clusters) > 1:
         return "Use only the emoji, without other characters."
     return None
 

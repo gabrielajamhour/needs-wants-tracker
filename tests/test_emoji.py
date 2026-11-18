@@ -101,3 +101,23 @@ def test_edit_with_nothing_changed_reports_no_changes(client, category_id):
         f"/categories/{cid}/edit", data={"name": "Groceries"}, follow_redirects=True
     )
     assert b"No changes to save." in response.data
+
+
+@pytest.mark.parametrize(
+    "text",
+    [
+        "\U0001f4fa\ufe0f",  # television plus a redundant variation selector (the bug)
+        "\U0001fae8",  # shaking face (Emoji 15.0)
+        "\U0001f642\u200d\u2194\ufe0f",  # head shaking horizontally (Emoji 15.1)
+        "1\ufe0f\u20e3",  # keycap one
+        "\u2764\ufe0f",  # red heart with its variation selector
+    ],
+)
+def test_emojis_from_the_picker_are_accepted(text):
+    assert emoji_error(text) is None
+
+
+def test_picker_emoji_with_a_redundant_selector_can_create_a_category(client, db_rows):
+    emoji = "\U0001f4fa\ufe0f"
+    client.post("/categories", data={"name": "tv", "type": "wants", "emoji": emoji})
+    assert db_rows("SELECT emoji FROM categories WHERE name = 'tv'")[0]["emoji"] == emoji

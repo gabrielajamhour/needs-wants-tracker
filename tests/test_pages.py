@@ -188,7 +188,7 @@ def test_expense_form_actions_are_buttons(client):
 def test_stylesheet_defines_the_design_tokens(client):
     """Check that the stylesheet defines the design tokens and drops the old link button style."""
     css = client.get("/static/styles.css").data.decode()
-    assert "--color-primary" in css and "--space-3" in css
+    assert "--color-ink" in css and "--space-3" in css
     assert ":where(a:visited)" in css
     assert ".link-button" not in css
 

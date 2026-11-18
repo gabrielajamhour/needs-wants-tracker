@@ -1,22 +1,56 @@
-/* Design tokens: colors, spacing scale and border radius */
+/* Design tokens from DESIGN.md (Livro-caixa) */
 :root {
-    --color-text: #1f2328;
-    --color-muted: #5b6470;
-    --color-border: #c9cfd6;
-    --color-border-strong: #8a929c;
-    --color-surface: #fff;
-    --color-primary: #1f6f6b;
-    --color-primary-dark: #185a57;
-    --color-danger: #b42318;
-    --color-danger-bg: #fdecea;
+    /* Page and surfaces */
+    --color-paper: #f7f9f8;
+    --color-surface: #ebf0ee;
+    --color-surface-row: #eef3f1;
+    --color-field: #fff;
 
+    /* Ink */
+    --color-ink: #06525c;
+    --color-ink-strong: #03383f;
+    --color-muted: #2f737d;
+    --color-on-ink: #f7f9f8;
+
+    /* Lines */
+    --color-border: #9fb9b4;
+    --color-hairline: #cfdcd8;
+    --color-hairline-soft: #e1e9e6;
+
+    /* The three buckets: the only chroma in the interface */
+    --color-needs: #2b59c3;
+    --color-wants: #c4532f;
+    --color-wants-text: #b4482a;
+    --color-savings: #b8861c;
+    --color-savings-text: #8a6410;
+
+    /* Destructive confirmation only */
+    --color-danger: #b42318;
+    --color-danger-bg: #fdecea; /* Temporary: goes away with the new flash messages */
+
+    /* Typography */
+    --font-text: "Instrument Sans", system-ui, sans-serif;
+    --font-mono: "DM Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+
+    /* Spacing: 4px base */
     --space-1: 4px;
     --space-2: 8px;
-    --space-3: 16px;
-    --space-4: 24px;
-    --space-5: 32px;
+    --space-3: 12px;
+    --space-4: 16px;
+    --space-5: 24px;
+    --space-6: 32px;
+    --space-7: 48px;
+    --space-8: 72px;
 
-    --radius: 6px;
+    /* Shapes */
+    --radius-sm: 2px;
+    --radius-md: 4px;
+
+    /* Layout */
+    --container: 1080px;
+    --header-height: 68px;
+    --control-height: 44px;
+    --control-height-small: 36px;
 }
 
 /* Apply border-box sizing to all elements and their pseudo-elements */
@@ -33,9 +67,11 @@ input, select {
 /* Page body */
 body {
     margin: 0;
-    font-family: system-ui, sans-serif;
-    color: var(--color-text);
-    background: #f6f7f9;
+    font-family: var(--font-text);
+    font-size: 15px;
+    line-height: 1.5;
+    color: var(--color-ink);
+    background: var(--color-paper);
 }
 
 /* Main content area */
@@ -56,7 +92,7 @@ table {
 th, td {
     text-align: left;
     padding: 12px;
-    border-bottom: 1px solid var(--color-border);
+    border-bottom: 1px solid var(--color-hairline);
 }
 
 /* Table header cells */
@@ -65,22 +101,24 @@ th {
     color: var(--color-muted);
 }
 
-/* Numeric values */
+/* Numeric values: ledger figures */
 .num {
     text-align: right;
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
 }
 
 /* Flash messages */
 .flash {
     padding: 12px;
     border-radius: 6px;
-    border: 1px solid var(--color-border);
+    border: 1px solid var(--color-hairline);
     background: #fff;
 }
 
 /* Success flash messages */
 .flash.success {
-    border-color: var(--color-primary);
+    border-color: var(--color-ink);
 }
 
 /* Error flash messages */
@@ -91,7 +129,7 @@ th {
 
 /* Informational flash messages */
 .flash.info {
-    border-color: var(--color-border-strong);
+    border-color: var(--color-border);
 }
 
 /* Form fields */
@@ -112,7 +150,7 @@ input, select {
     min-height: 44px;
     margin-top: 6px;
     padding: 10px 12px;
-    border: 1px solid var(--color-border-strong);
+    border: 1px solid var(--color-border);
     border-radius: 6px;
     font: inherit;
 }
@@ -158,7 +196,7 @@ input, select {
 
 /* Heading color for the needs section */
 .type-needs .type-heading th {
-    background: var(--color-primary);
+    background: var(--color-ink);
 }
 
 /* Heading color for the wants section */
@@ -179,7 +217,7 @@ input, select {
 /* Summary cards */
 .card {
     background: #fff;
-    border: 1px solid var(--color-border);
+    border: 1px solid var(--color-hairline);
     border-radius: 8px;
     padding: 20px;
 }
@@ -195,7 +233,7 @@ input, select {
 /* Progress bar fill */
 .fill {
     height: 100%;
-    background: var(--color-primary);
+    background: var(--color-ink);
     width: var(--bar-width);
 }
 
@@ -241,17 +279,17 @@ td form.inline input {
 /* Styling for individual category filter chips */
 .chip {
     padding: 8px 16px;
-    border: 1px solid var(--color-border-strong);
+    border: 1px solid var(--color-border);
     border-radius: 999px;
     background: #fff;
-    color: var(--color-text);
+    color: var(--color-ink);
     text-decoration: none;
 }
 
 /* Styling for the currently active category filter chip */
 .chip.active {
-    background: var(--color-primary);
-    border-color: var(--color-primary);
+    background: var(--color-ink);
+    border-color: var(--color-ink);
     color: #fff;
 }
 
@@ -274,7 +312,7 @@ td form.inline input {
     }
     .table-cards, .table-cards tbody, .table-cards tr, .table-cards td { display: block; }
     .table-cards tr {
-        background: #fff; border: 1px solid var(--color-border); border-radius: 8px;
+        background: #fff; border: 1px solid var(--color-hairline); border-radius: 8px;
         margin-bottom: 12px; padding: 8px 12px;
     }
     .table-cards td {
@@ -312,7 +350,7 @@ td form.inline input {
 
 /* Style the emoji picker dialog. */
 dialog {
-    border: 1px solid var(--color-border);
+    border: 1px solid var(--color-hairline);
     border-radius: 12px;
     padding: 12px;
     max-width: 95vw;
@@ -345,10 +383,10 @@ emoji-picker {
     justify-content: center;
     min-width: 44px;
     min-height: 44px;
-    border: 1px solid var(--color-border-strong);
+    border: 1px solid var(--color-border);
     border-radius: 6px;
     background: #fff;
-    color: var(--color-text);
+    color: var(--color-ink);
     text-decoration: none;
     font-size: 1.4rem;
 }
@@ -385,7 +423,7 @@ input:focus-visible, select:focus-visible {
 /* Header: full-width bar whose content shares the container of <main> */
 .site-header {
     background: #fff;
-    border-bottom: 1px solid var(--color-border);
+    border-bottom: 1px solid var(--color-hairline);
 }
 
 /* Lay out the header content in a centered row */
@@ -438,13 +476,13 @@ input:focus-visible, select:focus-visible {
 /* Highlight the link of the current page */
 .main-nav a[aria-current="page"], .menu-list a[aria-current="page"] {
     background: #e3f0ef;
-    color: var(--color-primary);
+    color: var(--color-ink);
     font-weight: 600;
 }
 
 /* Primary buttons */
 .button.primary {
-    background: var(--color-primary);
+    background: var(--color-ink);
     color: #fff;
 }
 
@@ -465,7 +503,7 @@ input:focus-visible, select:focus-visible {
     justify-content: center;
     width: 44px;
     height: 44px;
-    border: 1px solid var(--color-border-strong);
+    border: 1px solid var(--color-border);
     border-radius: 6px;
     background: #fff;
     font-size: 1.3rem;
@@ -494,7 +532,7 @@ input:focus-visible, select:focus-visible {
     padding: 8px;
     list-style: none;
     background: #fff;
-    border: 1px solid var(--color-border);
+    border: 1px solid var(--color-hairline);
     border-radius: 8px;
     box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
 }
@@ -530,9 +568,9 @@ input:focus-visible, select:focus-visible {
 
 /* Links: one color, no browser "visited" purple. :where() keeps specificity at zero,
    so component styles (nav, chips, buttons) always win regardless of order. */
-:where(a) { color: var(--color-primary); text-underline-offset: 3px; }
-:where(a:visited) { color: var(--color-primary); }
-:where(a:hover) { color: var(--color-primary-dark); }
+:where(a) { color: var(--color-ink); text-underline-offset: 3px; }
+:where(a:visited) { color: var(--color-ink); }
+:where(a:hover) { color: var(--color-ink-strong); }
 
 /* Buttons: one base; <button> is primary by default */
 button, .button {
@@ -542,9 +580,9 @@ button, .button {
     gap: 6px;
     min-height: 44px;
     padding: 0 18px;
-    border: 1px solid var(--color-primary);
-    border-radius: var(--radius);
-    background: var(--color-primary);
+    border: 1px solid var(--color-ink);
+    border-radius: var(--radius-md);
+    background: var(--color-ink);
     color: #fff;
     font: inherit;
     font-weight: 600;
@@ -554,26 +592,26 @@ button, .button {
 
 /* Darken buttons on hover */
 button:hover, .button:hover {
-    background: var(--color-primary-dark);
-    border-color: var(--color-primary-dark);
+    background: var(--color-ink-strong);
+    border-color: var(--color-ink-strong);
 }
 
 /* Secondary: neutral actions (Edit, Cancel, Clear, Archive) */
 .secondary {
-    background: var(--color-surface);
-    border-color: var(--color-border-strong);
-    color: var(--color-text);
+    background: var(--color-field);
+    border-color: var(--color-border);
+    color: var(--color-ink);
 }
 
 /* Highlight secondary buttons on hover */
 .secondary:hover {
     background: #eef1f4;
-    border-color: var(--color-border-strong);
+    border-color: var(--color-border);
 }
 
 /* Destructive: only for actions that cannot be undone (Delete) */
 .danger {
-    background: var(--color-surface);
+    background: var(--color-field);
     border-color: var(--color-danger);
     color: var(--color-danger);
 }
@@ -606,7 +644,7 @@ button:hover, .button:hover {
 
 /* Space between the form fields and the form actions */
 .form-actions {
-    margin-top: var(--space-3);
+    margin-top: var(--space-4);
 }
 
 /* Inline forms sit next to other actions without extra spacing */
@@ -619,20 +657,20 @@ form.inline {
 .emoji-open {
     min-width: 44px;
     padding: 8px;
-    background: var(--color-surface);
-    border-color: var(--color-border-strong);
-    color: var(--color-text);
+    background: var(--color-field);
+    border-color: var(--color-border);
+    color: var(--color-ink);
 }
 
 /* Highlight the emoji picker button on hover */
 .emoji-open:hover {
     background: #eef1f4;
-    border-color: var(--color-border-strong);
+    border-color: var(--color-border);
 }
 
 /* Spacing scale applied to the main page elements */
 h1 {
-    margin: var(--space-4) 0 var(--space-5);
+    margin: var(--space-5) 0 var(--space-6);
     font-size: 1.75rem;
     line-height: 1.2;
 }
@@ -643,31 +681,31 @@ h2 {
 }
 
 main {
-    padding: var(--space-4);
+    padding: var(--space-5);
 }
 
 .card {
-    padding: var(--space-3);
+    padding: var(--space-4);
 }
 
 .cards {
-    gap: var(--space-3);
-    margin: var(--space-4) 0;
+    gap: var(--space-4);
+    margin: var(--space-5) 0;
 }
 
 .row,
 .month-nav {
-    margin-bottom: var(--space-3);
+    margin-bottom: var(--space-4);
 }
 
 /* Tables are wrapped in .table-wrap, so spacing goes between the wrappers */
 .table-wrap + .table-wrap {
-    margin-top: var(--space-4);
+    margin-top: var(--space-5);
 }
 
 /* Tighter page padding and full-width row actions on small screens */
 @media (max-width: 600px) {
-    main { padding: var(--space-3); }
+    main { padding: var(--space-4); }
 
     /* Row actions share the width of the card equally */
     .table-cards .actions-group > a,
@@ -749,13 +787,13 @@ h1 {
 @media (min-width: 601px) {
     .table-cards th,
     .table-cards td {
-        border: 1px solid var(--color-border);
+        border: 1px solid var(--color-hairline);
         text-align: center;
     }
 
     .table-cards th {
         background: #eef1f4;
-        color: var(--color-text);
+        color: var(--color-ink);
     }
 
     .table-cards tbody tr:hover {
@@ -779,15 +817,15 @@ h1 {
 
 .month-arrow.month-calendar {
     padding: 0;
-    background: var(--color-surface);
-    border-color: var(--color-border-strong);
-    color: var(--color-text);
+    background: var(--color-field);
+    border-color: var(--color-border);
+    color: var(--color-ink);
     cursor: pointer;
 }
 
 .month-arrow.month-calendar:hover {
     background: #eef1f4;
-    border-color: var(--color-border-strong);
+    border-color: var(--color-border);
 }
 
 /* With JavaScript, the real input is invisible and anchored behind the button */
@@ -812,8 +850,8 @@ h1 {
     flex-wrap: wrap;
     justify-content: space-between;
     align-items: flex-end;
-    gap: var(--space-3) var(--space-5);
-    margin: var(--space-4) 0 var(--space-3);
+    gap: var(--space-4) var(--space-6);
+    margin: var(--space-5) 0 var(--space-4);
 }
 
 /* Summary: the month navigation grows to fill the space next to the income form,
@@ -831,7 +869,7 @@ h1 {
     align-items: center;
     justify-content: center;
     min-height: 44px;
-    padding: 0 var(--space-3);
+    padding: 0 var(--space-4);
     font-size: 1.1rem;
 }
 
@@ -901,7 +939,7 @@ h1 {
 }
 
 .month-nav {
-    margin-top: var(--space-4);
+    margin-top: var(--space-5);
 }
 
 /* Filters stretch across the same width as the table below */
@@ -999,5 +1037,5 @@ h1 {
 }
 
 .status-cell {
-    gap: var(--space-3);
+    gap: var(--space-4);
 }

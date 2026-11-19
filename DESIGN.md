@@ -1,7 +1,7 @@
 ---
 version: 1.0
-name: Livro-caixa
-description: The visual identity of Needs/Wants Tracker — a calm cash-book on paper. Teal ink on an off-white page, numbers set in a monospaced face like columns in a ledger, and exactly three colours (Needs, Wants, Savings) that carry all the meaning. Nothing decorative; the money is the design.
+name: Needs/Wants
+description: The visual identity of Needs/Wants Tracker — a calm ledger on paper. Teal ink on an off-white page, numbers set in a monospaced face like columns in a ledger, and exactly three colours (Needs, Wants, Savings) that carry all the meaning. Nothing decorative; the money is the design.
 
 colors:
   # Page and surfaces
@@ -83,7 +83,7 @@ components:
 
 ## Overview
 
-Needs/Wants Tracker looks like a **cash-book (livro-caixa)**: a clean page, teal ink, figures lined up in a column. The person opens it to answer one question — *how much do I have left this month, and where did the rest go?* — so the design puts that number first and lets everything else stay quiet.
+Needs/Wants Tracker looks like a **ledger**: a clean page, teal ink, figures lined up in a column. The person opens it to answer one question — *how much do I have left this month, and where did the rest go?* — so the design puts that number first and lets everything else stay quiet.
 
 Three ideas carry the whole identity:
 

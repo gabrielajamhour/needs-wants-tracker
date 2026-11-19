@@ -33,11 +33,13 @@
                 </a>
             </div>
         {% endif %}
-    </div>
 
-    {% if income is none and not editing %}
-        <p>Set this month's income to see your limits.</p>
-    {% endif %}
+        {% if suggested_from %}
+            <p class="hint">Filled in from {{ suggested_from | month_label }}. Change it if this month is different.</p>
+        {% elif income is none and not editing %}
+            <p class="hint">Set this month's income to see your limits.</p>
+        {% endif %}
+    </div>
 
     <div class="cards">
 

@@ -10,6 +10,7 @@ from db import DEFAULT_DB_PATH, close_db, get_db
 from helpers import (
     DEFAULT_EMOJI,
     cents_to_eur,
+    cents_to_field,
     emoji_error,
     eur_to_cents,
     format_date,
@@ -366,7 +367,7 @@ def edit_expense(expense_id):
 
     form = {
         "name": expense["name"],
-        "amount": cents_to_eur(expense["amount_cents"]).removesuffix(" €"),
+        "amount": cents_to_field(expense["amount_cents"]),
         "date": expense["date"],
         "category_id": expense["category_id"],
     }
@@ -446,6 +447,20 @@ def summary():
 
     income = budget["income_cents"] if budget else None
 
+    # A month without income starts from the latest earlier month that has one
+    income_value = cents_to_field(income) if income is not None else ""
+    suggested_from = None
+
+    if editing and income is None:
+        previous = db.execute(
+            "SELECT month, income_cents FROM budgets WHERE month < ? ORDER BY month DESC LIMIT 1",
+            (month,),
+        ).fetchone()
+
+        if previous:
+            income_value = cents_to_field(previous["income_cents"])
+            suggested_from = previous["month"]
+
     category_totals = db.execute(
         """
         SELECT c.name, c.emoji, c.type, COALESCE(SUM(e.amount_cents), 0) AS total
@@ -483,7 +498,8 @@ def summary():
         month=month,
         income=income,
         editing=editing,
-        income_value=(cents_to_eur(income).removesuffix(" €") if income is not None else ""),
+        income_value=income_value,
+        suggested_from=suggested_from,
         cards=cards,
         total_spent=total_spent,
         breakdown=[r for r in category_totals if r["total"] > 0],

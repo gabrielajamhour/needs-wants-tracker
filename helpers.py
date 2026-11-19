@@ -73,6 +73,11 @@ def cents_to_eur(cents: int) -> str:  # Receives an integer and returns a string
     return f"{sign}{euros:,}".replace(",", ".") + f",{rest:02d} €"  # European format 1.234,56 €
 
 
+def cents_to_field(cents: int) -> str:
+    """Format cents for an input field, without the euro sign: 123456 -> '1.234,56'."""
+    return cents_to_eur(cents).removesuffix(" €")
+
+
 def eur_to_cents(text: str) -> int | None:
     """Convert a European-formatted euro amount to integer cents."""
     # '12,34' -> 1234; '1.234,56' -> 123456

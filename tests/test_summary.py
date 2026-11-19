@@ -101,5 +101,62 @@ def test_add_income_button_sits_in_the_toolbar(client):
     page = client.get("/?month=2026-11").data.decode()
     toolbar = page.split('class="summary-toolbar"')[1].split('<div class="cards">')[0]
     assert "Add income" in toolbar
-    assert "Set this month's income to see your limits." not in toolbar.split("Add income")[0]
+    assert toolbar.index("Add income") < toolbar.index(
+        "Set this month's income to see your limits."
+    )
     assert "0,00 €" in toolbar
+
+
+def test_income_form_starts_from_the_previous_month(client):
+    """Verify that the income form of a new month starts from the previous income."""
+    set_income(client, "2026-10", "1.800,00")
+    page = client.get("/?month=2026-11&edit=income").data.decode()
+    assert 'value="1.800,00"' in page
+    assert "Filled in from October 2026" in page
+
+
+def test_income_form_skips_months_without_income(client):
+    """Verify that the suggestion comes from the latest earlier month that has income."""
+    set_income(client, "2026-08", "1.500,00")
+    page = client.get("/?month=2026-11&edit=income").data.decode()
+    assert 'value="1.500,00"' in page
+    assert "Filled in from August 2026" in page
+
+
+def test_income_form_ignores_later_months(client):
+    """Verify that the suggestion never comes from a later month."""
+    set_income(client, "2026-12", "2.000,00")
+    page = client.get("/?month=2026-11&edit=income").data.decode()
+    assert 'name="income"' in page
+    assert 'value="2.000,00"' not in page and "Filled in from" not in page
+
+
+def test_saved_income_wins_over_the_suggestion(client):
+    """Verify that a month with its own income does not use the suggestion."""
+    set_income(client, "2026-10", "1.800,00")
+    set_income(client, "2026-11", "1.900,00")
+    page = client.get("/?month=2026-11&edit=income").data.decode()
+    assert 'value="1.900,00"' in page and "Filled in from" not in page
+
+
+def test_suggestion_is_not_saved_until_the_user_saves(client, db_rows):
+    """Verify that opening the form does not save the suggested income."""
+    set_income(client, "2026-10", "1.800,00")
+    client.get("/?month=2026-11&edit=income")
+    assert db_rows("SELECT * FROM budgets WHERE month = '2026-11'") == []
+
+
+def test_closed_income_line_ignores_the_suggestion(client):
+    """Verify that the income line still shows 0,00 € until the income is saved."""
+    set_income(client, "2026-10", "1.800,00")
+    page = client.get("/?month=2026-11").data.decode()
+    assert "Add income" in page and "1.800,00" not in page
+
+
+def test_income_suggestion_hint_comes_right_after_the_form(client):
+    """Verify that the suggestion hint sits in the toolbar, after the income form."""
+    set_income(client, "2026-10", "1.800,00")
+    page = client.get("/?month=2026-11&edit=income").data.decode()
+    form_end = page.index("</form>", page.index('class="control-form income-form"'))
+    hint = page.index("Filled in from October 2026")
+    assert form_end < hint < page.index("<section")

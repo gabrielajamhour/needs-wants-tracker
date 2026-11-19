@@ -1,6 +1,13 @@
 import pytest
 
-from helpers import cents_to_eur, eur_to_cents, format_date, month_label, shift_month
+from helpers import (
+    cents_to_eur,
+    cents_to_field,
+    eur_to_cents,
+    format_date,
+    month_label,
+    shift_month,
+)
 
 
 @pytest.mark.parametrize(
@@ -88,3 +95,9 @@ def test_month_label(month, label):
 )
 def test_format_date(iso, label):
     assert format_date(iso) == label
+
+
+def test_cents_to_field():
+    """Verify that amounts are formatted for input fields without the euro sign."""
+    assert cents_to_field(123456) == "1.234,56"
+    assert cents_to_field(0) == "0,00"

@@ -54,3 +54,52 @@ def test_savings_above_goal_is_not_flagged(client, add_expense):
     add_expense(name="Transfer", amount="300,00", date="2026-11-05", category="emergency fund")
     page = client.get("/?month=2026-11").data.decode()
     assert "Above the limit" not in page
+
+
+def test_income_is_shown_as_text_with_an_edit_button(client):
+    """Check that a saved income shows as text and the form stays hidden."""
+    set_income(client, "2026-11", "1.800,00")
+    page = client.get("/?month=2026-11").data.decode()
+    assert "1.800,00 €" in page
+    assert "Edit income" in page and "edit=income" in page
+    assert 'name="income"' not in page
+
+
+def test_edit_income_opens_the_form_with_the_saved_value(client):
+    """Check that the edit link opens the form filled with the saved income."""
+    set_income(client, "2026-11", "1.800,00")
+    page = client.get("/?month=2026-11&edit=income").data.decode()
+    assert 'name="income"' in page and 'value="1.800,00"' in page
+    assert "Save income" in page and "Cancel" in page
+    assert "Edit income" not in page
+
+
+def test_without_income_the_summary_offers_to_add_it(client):
+    """Check that a month without income shows the invitation and the Add income button."""
+    page = client.get("/?month=2026-11").data.decode()
+    assert "Set this month's income to see your limits." in page
+    assert "Add income" in page
+    assert 'name="income"' not in page
+
+
+def test_invalid_income_reopens_the_form(client):
+    """Check that an invalid income redirects back to the open form."""
+    response = client.post("/", data={"month": "2026-11", "income": "abc"})
+    assert response.status_code == 302
+    assert "edit=income" in response.headers["Location"]
+
+
+def test_valid_income_returns_to_the_closed_form(client):
+    """Check that saving a valid income redirects back without the open form."""
+    response = set_income(client, "2026-11", "1.800,00")
+    assert response.status_code == 302
+    assert "edit" not in response.headers["Location"]
+
+
+def test_add_income_button_sits_in_the_toolbar(client):
+    """Check that without income the Add income button sits in the toolbar next to the month."""
+    page = client.get("/?month=2026-11").data.decode()
+    toolbar = page.split('class="summary-toolbar"')[1].split('<div class="cards">')[0]
+    assert "Add income" in toolbar
+    assert "Set this month's income to see your limits." not in toolbar.split("Add income")[0]
+    assert "0,00 €" in toolbar

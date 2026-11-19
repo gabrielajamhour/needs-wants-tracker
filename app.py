@@ -412,11 +412,16 @@ def summary():
     except ValueError:
         abort(400)
 
+    # The income form is hidden until the user asks to edit (link with ?edit=income)
+    editing = request.args.get("edit") == "income"
+
     if request.method == "POST":
         income_cents = eur_to_cents(request.form.get("income", ""))
 
         if income_cents is None or not 0 <= income_cents <= MAX_AMOUNT_CENTS:
             flash("Enter a valid income (e.g. 1.000,00).", "error")
+            # Reopen the form so the user can fix the value
+            return redirect(url_for("summary", month=month, edit="income"))
 
         else:
             db.execute(
@@ -477,6 +482,7 @@ def summary():
         "summary.html",
         month=month,
         income=income,
+        editing=editing,
         income_value=(cents_to_eur(income).removesuffix(" €") if income is not None else ""),
         cards=cards,
         total_spent=total_spent,

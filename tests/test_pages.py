@@ -244,7 +244,7 @@ def test_month_picker_lives_in_the_month_navigation(client):
 
 
 def test_summary_has_no_view_button_and_a_separate_income_form(client):
-    page = client.get("/?month=2026-11").data.decode()
+    page = client.get("/?month=2026-11&edit=income").data.decode()
     assert ">View<" not in page
     income = page.split('class="control-form income-form"')[1]
     assert 'name="income"' in income
@@ -267,7 +267,7 @@ def test_main_pages_keep_a_hidden_title(client):
 
 
 def test_summary_toolbar_has_month_navigation_before_income(client):
-    page = client.get("/?month=2026-11").data.decode()
+    page = client.get("/?month=2026-11&edit=income").data.decode()
     assert 'class="summary-toolbar"' in page
     assert page.index('class="month-nav"') < page.index('class="control-form income-form"')
 

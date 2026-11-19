@@ -415,3 +415,20 @@ def test_expense_list_keeps_on_screen_filters_when_changing_month(client):
     """Check that expense list loads the script that carries unsaved filters to the new month."""
     assert "month-filters.js" in client.get("/expenses").data.decode()
     assert client.get("/static/month-filters.js").status_code == 200
+
+
+def test_flash_messages_have_a_hidden_close_button_and_the_right_role(client):
+    """Check that flash messages have a close button and errors use role alert."""
+    client.post("/", data={"month": "2026-11", "income": "abc"})
+    page = client.get("/?month=2026-11").data.decode()
+    assert 'class="flash error" role="alert"' in page
+    assert (
+        'class="quiet flash-close"' in page
+        and "hidden" in page.split("flash-close")[1].split(">")[0]
+    )
+
+
+def test_flash_script_is_served_and_loaded(client):
+    """Check that the script that fades out flash messages is loaded and served."""
+    assert "flash.js" in client.get("/").data.decode()
+    assert client.get("/static/flash.js").status_code == 200

@@ -109,28 +109,51 @@ th {
     font-variant-numeric: tabular-nums;
 }
 
-/* Flash messages */
+/* Flash messages: a bordered line under the header */
 .flash {
-    padding: 12px;
-    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+    margin: var(--space-4) 0;
+    padding: var(--space-3) var(--space-4);
     border: 1px solid var(--color-hairline);
-    background: #fff;
+    border-radius: var(--radius-md);
+    background: var(--color-paper);
+    color: var(--color-ink);
+    transition: opacity 0.3s ease;
 }
 
-/* Success flash messages */
-.flash.success {
+.flash p {
+    margin: 0;
+}
+
+/* Errors get the strong ink border instead of a new colour */
+.flash.error {
     border-color: var(--color-ink);
 }
 
-/* Error flash messages */
-.flash.error {
-    border-color: var(--color-danger);
-    color: var(--color-danger);
+/* Fading out before the message is removed */
+.flash.is-leaving {
+    opacity: 0;
 }
 
-/* Informational flash messages */
-.flash.info {
-    border-color: var(--color-border);
+/* Close button: a small quiet square */
+.flash-close {
+    flex-shrink: 0;
+    width: var(--control-height-small);
+    min-height: var(--control-height-small);
+    padding: 0;
+}
+
+.flash-close svg {
+    width: 16px;
+    height: 16px;
+}
+
+/* No fade for people who ask for less motion */
+@media (prefers-reduced-motion: reduce) {
+    .flash { transition: none; }
 }
 
 /* Form fields */

@@ -26,3 +26,27 @@ def build_cards(income_cents, spent_by_type):
             }
         )
     return cards
+
+
+def build_income_bar(income_cents, spent_by_type):
+    """Split the income bar into what each type spent and what is left."""
+    if not income_cents:
+        return None
+
+    total = sum(spent_by_type.get(kind, 0) for kind, *_ in SPLIT)
+    left = max(income_cents - total, 0)
+    # Over the income, the bar is as wide as the spending, so it stays full
+    scale = max(income_cents, total)
+
+    parts = [(kind, label, spent_by_type.get(kind, 0)) for kind, label, *_ in SPLIT]
+    parts.append(("left", "Left", left))
+
+    return [
+        {
+            "kind": kind,
+            "label": label,
+            "width": amount * 100 / scale,
+            "pct": round(amount * 100 / income_cents),
+        }
+        for kind, label, amount in parts
+    ]

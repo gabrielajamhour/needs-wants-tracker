@@ -61,12 +61,13 @@ def test_short_date_is_normalized(add_expense, db_rows):
 def test_month_boundaries_in_summary(client, add_expense):
     """Verify that expenses are included in the correct monthly summary."""
     client.post("/", data={"month": "2026-11", "income": "1.000,00"})
+    client.post("/", data={"month": "2026-12", "income": "1.000,00"})
     add_expense(name="Last", amount="10,00", date="2026-11-30")
     add_expense(name="First", amount="20,00", date="2026-12-01")
     november = client.get("/?month=2026-11").data.decode()
     december = client.get("/?month=2026-12").data.decode()
-    assert "Total spent: 10,00 €" in november
-    assert "Total spent: 20,00 €" in december
+    assert "10,00 € of 1.000,00 € used this month" in november
+    assert "20,00 € of 1.000,00 € used this month" in december
 
 
 def test_empty_month_summary(client):

@@ -98,9 +98,12 @@ def test_summary_breakdown_is_ordered_needs_wants_savings(client, add_expense):
     )
 
 
-def test_summary_remaining_card_is_full_width(client):
-    """Check that the summary remaining card spans the full width of the grid."""
-    assert 'class="card card-wide"' in client.get("/?month=2026-11").data.decode()
+def test_summary_hero_replaces_the_remaining_card(client):
+    """Check that the hero shows what is left to spend instead of a Remaining card."""
+    client.post("/", data={"month": "2026-11", "income": "1.000,00"})
+    page = client.get("/?month=2026-11").data.decode()
+    assert 'class="hero"' in page
+    assert "Remaining" not in page and "card-wide" not in page
 
 
 def test_expense_form_links_to_the_categories_page(client):

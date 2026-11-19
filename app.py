@@ -5,7 +5,7 @@ from urllib.parse import urlsplit
 from flask import Flask, abort, flash, jsonify, redirect, render_template, request, url_for
 
 # Imports from other files in the project
-from budget import build_cards
+from budget import build_cards, build_income_bar
 from db import DEFAULT_DB_PATH, close_db, get_db
 from helpers import (
     DEFAULT_EMOJI,
@@ -487,6 +487,9 @@ def summary():
     # Budget cards
     cards = build_cards(income, spent)
 
+    income_bar = build_income_bar(income, spent)
+    left = income - total_spent if income is not None else None
+
     month_links = {
         "month": month,
         "prev_url": url_for("summary", month=shift_month(month, -1)),
@@ -501,6 +504,8 @@ def summary():
         income_value=income_value,
         suggested_from=suggested_from,
         cards=cards,
+        income_bar=income_bar,
+        left=left,
         total_spent=total_spent,
         breakdown=[r for r in category_totals if r["total"] > 0],
         # So as to not display categories with zero spending

@@ -160,3 +160,52 @@ def test_income_suggestion_hint_comes_right_after_the_form(client):
     form_end = page.index("</form>", page.index('class="control-form income-form"'))
     hint = page.index("Filled in from October 2026")
     assert form_end < hint < page.index("<section")
+
+
+def test_hero_shows_what_is_left_to_spend(client, add_expense):
+    """Check that the hero shows the amount left and how much of the income was used."""
+    set_income(client, "2026-11", "1.000,00")
+    add_expense(amount="100,00", date="2026-11-02")
+    page = client.get("/?month=2026-11").data.decode()
+    assert "Left to spend" in page and "900,00 €" in page
+    assert "100,00 € of 1.000,00 € used this month" in page
+
+
+def test_hero_is_hidden_without_income(client):
+    """Check that without income there is no hero and no income bar."""
+    page = client.get("/?month=2026-11").data.decode()
+    assert "Left to spend" not in page and "income-bar" not in page
+
+
+def test_hero_warns_when_spending_passes_the_income(client, add_expense):
+    """Check that spending above the income shows a negative number and the warning line."""
+    set_income(client, "2026-11", "100,00")
+    add_expense(amount="130,00", date="2026-11-02")
+    page = client.get("/?month=2026-11").data.decode()
+    assert "-30,00 €" in page
+    assert "30,00 € over this month's income" in page
+
+
+def test_zero_income_has_a_hero_but_no_income_bar(client, add_expense):
+    """Check that zero income shows the hero without the income bar."""
+    set_income(client, "2026-11", "0")
+    add_expense(amount="3,58", date="2026-11-11")
+    page = client.get("/?month=2026-11").data.decode()
+    assert "Left to spend" in page and "income-bar" not in page
+
+
+def test_income_bar_describes_the_split_for_screen_readers(client, add_expense):
+    """Check that the income bar has the percentages as its accessible label."""
+    set_income(client, "2026-11", "1.000,00")
+    add_expense(amount="100,00", date="2026-11-02", category="groceries")
+    page = client.get("/?month=2026-11").data.decode()
+    assert 'role="img" aria-label="Needs 10%, Wants 0%, Savings 0%, Left 90%"' in page
+
+
+def test_income_bar_segments_get_their_width_from_a_css_variable(client, add_expense):
+    """Check that each segment of the income bar carries its width as a CSS variable."""
+    set_income(client, "2026-11", "1.000,00")
+    add_expense(amount="100,00", date="2026-11-02", category="groceries")
+    page = client.get("/?month=2026-11").data.decode()
+    assert 'class="segment segment-needs" style="--w: 10.00"' in page
+    assert 'class="segment segment-left" style="--w: 90.00"' in page

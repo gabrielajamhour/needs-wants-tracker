@@ -41,6 +41,46 @@
         {% endif %}
     </div>
 
+    {% if income is not none %}
+        <div class="hero">
+            <div class="hero-left">
+                <p class="eyebrow">Left to spend</p>
+                <p class="figure-hero">{{ left | eur }}</p>
+
+                {% if left < 0 %}
+                    <p class="hero-note hero-over">
+                        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                            <path d="M12 3.5l9.5 16.5h-19z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+                            <path d="M12 10v4M12 17h.01" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                        {{ (-left) | eur }} over this month's income
+                    </p>
+                {% else %}
+                    <p class="hero-note">{{ total_spent | eur }} of {{ income | eur }} used this month</p>
+                {% endif %}
+            </div>
+
+            {% if income_bar %}
+                <div class="hero-right">
+                    <p class="eyebrow">Where the income went</p>
+
+                    <div class="income-bar" role="img" aria-label="{% for part in income_bar %}{{ part.label }} {{ part.pct }}%{{ ', ' if not loop.last }}{% endfor %}">
+                        {% for part in income_bar if part.width > 0 %}
+                            <span class="segment segment-{{ part.kind }}" style="--w: {{ '%.2f' | format(part.width) }}"></span>
+                        {% endfor %}
+                    </div>
+
+                    {# The bar already has the percentages as its label, so the visible legend is hidden from screen readers #}
+                    <ul class="legend" aria-hidden="true">
+                        {% for part in income_bar %}
+                            <li><span class="swatch swatch-{{ part.kind }}"></span>{{ part.label }} <span class="mono">{{ part.pct }}%</span></li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% endif %}
+        </div>
+    {% endif %}
+
     <div class="cards">
 
         {% for c in cards %}
@@ -72,17 +112,6 @@
         </section>
         {% endfor %}
 
-        <section class="card card-wide">
-            <h2>Remaining</h2>
-            <p class="big">
-                {% if income is not none %}
-                    {{ (income - total_spent) | eur }}
-                {% else %}
-                    —
-                {% endif %}
-            </p>
-            <p>Total spent: {{ total_spent | eur }}</p>
-        </section>
     </div>
 
     {% if breakdown %}

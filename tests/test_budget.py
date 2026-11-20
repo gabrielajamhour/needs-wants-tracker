@@ -82,3 +82,8 @@ def test_income_bar_over_the_income_has_nothing_left():
     assert bar_part(bar, "left")["width"] == 0
     assert sum(p["width"] for p in bar) == pytest.approx(100)
     assert bar_part(bar, "needs")["pct"] == 80
+
+
+def test_cards_carry_their_kind():
+    """Verify that each card knows its type, so the template can colour it."""
+    assert [c["kind"] for c in build_cards(100000, {})] == ["needs", "wants", "savings"]

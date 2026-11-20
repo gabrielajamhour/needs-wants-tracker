@@ -48,11 +48,8 @@
                 <p class="figure-hero">{{ left | eur }}</p>
 
                 {% if left < 0 %}
-                    <p class="hero-note hero-over">
-                        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                            <path d="M12 3.5l9.5 16.5h-19z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
-                            <path d="M12 10v4M12 17h.01" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                        </svg>
+                    <p class="hero-note over-note">
+                        {% include "_warning_icon.html" %}
                         {{ (-left) | eur }} over this month's income
                     </p>
                 {% else %}
@@ -81,34 +78,42 @@
         </div>
     {% endif %}
 
-    <div class="cards">
+    <div class="buckets">
 
         {% for c in cards %}
-        <section class="card">
-            <h2>{{ c.label }} ({{ c.pct }}%)</h2>
-
-            <p>
+        <section class="bucket bucket-{{ c.kind }}">
+            <div class="bucket-head">
+                <h2 class="bucket-title">{{ c.label }}</h2>
                 {% if c.limit is not none %}
-                    {{ 'Limit' if c.is_cap else 'Goal' }} {{ c.limit | eur }} · 
+                    <span class="mono bucket-share">{{ c.pct }}% of income</span>
                 {% endif %}
-                
-                {{ 'Spent' if c.is_cap else 'Saved' }} {{ c.spent | eur }}
-            </p>
+            </div>
+
+            <p class="figure-lg"><span class="sr-only">{{ 'Spent' if c.is_cap else 'Saved' }} </span>{{ c.spent | eur }}</p>
+
+            {% if c.limit is not none %}
+                <p class="bucket-limit">{{ 'Limit' if c.is_cap else 'Goal' }} {{ c.limit | eur }}</p>
+            {% endif %}
 
             {% if c.limit %}
-            
-                <div class="bar" role="img" aria-label="{{ c.used }}% of the limit">
-                    <div class="fill {{ 'over' if c.over }}"
-                        style="--bar-width: {{ [c.used, 100] | min }}%">
-                    </div>
+                <div class="bucket-bar" role="img"
+                    aria-label="{{ c.used }}% of the {{ 'limit' if c.is_cap else 'goal' }}">
+                    <div class="bucket-fill{{ ' is-over' if c.over }}" style="--bar-width: {{ [c.used, 100] | min }}%"></div>
                 </div>
 
                 {% if c.over %}
-                    <p class="over-text">Above the limit in {{ (c.spent - c.limit) | eur }}</p>
+                    <p class="bucket-status over-note">
+                        {% include "_warning_icon.html" %}
+                        {{ (c.spent - c.limit) | eur }} over the limit
+                    </p>
+                {% elif c.is_cap %}
+                    <p class="bucket-status">{{ (c.limit - c.spent) | eur }} left</p>
+                {% elif c.spent >= c.limit %}
+                    <p class="bucket-status">Goal reached</p>
+                {% else %}
+                    <p class="bucket-status">{{ (c.limit - c.spent) | eur }} to reach the goal</p>
                 {% endif %}
-
             {% endif %}
-
         </section>
         {% endfor %}
 

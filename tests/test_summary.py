@@ -44,7 +44,7 @@ def test_limits_remaining_and_over_cap(client, add_expense):
     assert "500,00 €" in page  # needs cap (50%)
     assert "300,00 €" in page  # wants cap (30%)
     assert "200,00 €" in page  # savings goal (20%)
-    assert "Above the limit in 50,00 €" in page
+    assert "50,00 € over the limit" in page
     assert "550,00 €" in page  # remaining: 1000 - 100 - 350
 
 
@@ -53,7 +53,8 @@ def test_savings_above_goal_is_not_flagged(client, add_expense):
     set_income(client, "2026-11", "1.000,00")
     add_expense(name="Transfer", amount="300,00", date="2026-11-05", category="emergency fund")
     page = client.get("/?month=2026-11").data.decode()
-    assert "Above the limit" not in page
+    assert "over the limit" not in page
+    assert "Goal reached" in page
 
 
 def test_income_is_shown_as_text_with_an_edit_button(client):
@@ -99,7 +100,7 @@ def test_valid_income_returns_to_the_closed_form(client):
 def test_add_income_button_sits_in_the_toolbar(client):
     """Check that without income the Add income button sits in the toolbar next to the month."""
     page = client.get("/?month=2026-11").data.decode()
-    toolbar = page.split('class="summary-toolbar"')[1].split('<div class="cards">')[0]
+    toolbar = page.split('class="summary-toolbar"')[1].split('<div class="buckets">')[0]
     assert "Add income" in toolbar
     assert toolbar.index("Add income") < toolbar.index(
         "Set this month's income to see your limits."
@@ -209,3 +210,31 @@ def test_income_bar_segments_get_their_width_from_a_css_variable(client, add_exp
     page = client.get("/?month=2026-11").data.decode()
     assert 'class="segment segment-needs" style="--w: 10.00"' in page
     assert 'class="segment segment-left" style="--w: 90.00"' in page
+
+
+def test_buckets_show_the_share_the_limit_and_what_is_left(client, add_expense):
+    """Check that each bucket column shows its share, limit and status line."""
+    set_income(client, "2026-11", "1.000,00")
+    add_expense(name="Rent", amount="100,00", date="2026-11-02", category="groceries")
+    page = client.get("/?month=2026-11").data.decode()
+    assert "50% of income" in page and "30% of income" in page and "20% of income" in page
+    assert "Limit 500,00 €" in page and "Goal 200,00 €" in page
+    assert "400,00 € left" in page
+    assert "200,00 € to reach the goal" in page
+
+
+def test_buckets_without_income_have_no_limit_bar_or_status(client, add_expense):
+    """Check that without income the buckets only show what was spent."""
+    add_expense(amount="3,58", date="2026-11-11")
+    page = client.get("/?month=2026-11").data.decode()
+    assert "3,58 €" in page
+    assert "bucket-bar" not in page and "Limit" not in page and "% of income" not in page
+
+
+def test_over_limit_bucket_has_a_full_striped_bar(client, add_expense):
+    """Check that a bucket over its limit shows a full striped bar and the warning line."""
+    set_income(client, "2026-11", "1.000,00")
+    add_expense(amount="350,00", date="2026-11-03", category="dining out")
+    page = client.get("/?month=2026-11").data.decode()
+    assert 'class="bucket-fill is-over" style="--bar-width: 100%"' in page
+    assert "50,00 € over the limit" in page

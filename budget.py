@@ -16,6 +16,7 @@ def build_cards(income_cents, spent_by_type):
         spent = spent_by_type.get(kind, 0)
         cards.append(
             {
+                "kind": kind,
                 "label": label,
                 "pct": pct,
                 "limit": limit,

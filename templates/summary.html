@@ -61,7 +61,7 @@
                 <div class="hero-right">
                     <p class="eyebrow">Where the income went</p>
 
-                    <div class="income-bar" role="img" aria-label="{% for part in income_bar %}{{ part.label }} {{ part.pct }}%{{ ', ' if not loop.last }}{% endfor %}">
+                    <div class="income-bar" role="img" aria-label="{% for part in income_bar %}{{ part.label }}{{ ', ' if not loop.last }}{% endfor %}">
                         {% for part in income_bar if part.width > 0 %}
                             <span class="segment segment-{{ part.kind }}" style="--w: {{ '%.2f' | format(part.width) }}"></span>
                         {% endfor %}
@@ -70,7 +70,7 @@
                     {# The bar already has the percentages as its label, so the visible legend is hidden from screen readers #}
                     <ul class="legend" aria-hidden="true">
                         {% for part in income_bar %}
-                            <li><span class="swatch swatch-{{ part.kind }}"></span>{{ part.label }} <span class="mono">{{ part.pct }}%</span></li>
+                            <li><span class="swatch swatch-{{ part.kind }}"></span>{{ part.label }}</li>
                         {% endfor %}
                     </ul>
                 </div>

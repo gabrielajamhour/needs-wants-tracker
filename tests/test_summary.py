@@ -200,7 +200,7 @@ def test_income_bar_describes_the_split_for_screen_readers(client, add_expense):
     set_income(client, "2026-11", "1.000,00")
     add_expense(amount="100,00", date="2026-11-02", category="groceries")
     page = client.get("/?month=2026-11").data.decode()
-    assert 'role="img" aria-label="Needs 10%, Wants 0%, Savings 0%, Left 90%"' in page
+    assert 'role="img" aria-label="Needs, Wants, Savings, Left"' in page
 
 
 def test_income_bar_segments_get_their_width_from_a_css_variable(client, add_expense):

@@ -63,12 +63,12 @@ def test_income_bar_widths_fill_the_whole_bar():
     """Verify that the parts of the income bar add up to the whole bar."""
     bar = build_income_bar(100000, {"needs": 50000, "wants": 20000, "savings": 10000})
     assert sum(p["width"] for p in bar) == pytest.approx(100)
-    assert bar_part(bar, "left")["pct"] == 20
 
 
-def test_income_bar_percentages_are_of_the_income():
-    """Verify that each percentage is calculated over the income."""
-    assert bar_part(build_income_bar(100000, {"needs": 49000}), "needs")["pct"] == 49
+def test_income_bar_widths_are_of_the_income():
+    """Verify that, within the income, each part's width is its share of the income."""
+    bar = build_income_bar(100000, {"needs": 49000})
+    assert bar_part(bar, "needs")["width"] == pytest.approx(49)
 
 
 def test_income_bar_without_spending_is_all_left():
@@ -81,7 +81,6 @@ def test_income_bar_over_the_income_has_nothing_left():
     bar = build_income_bar(100000, {"needs": 80000, "wants": 40000})
     assert bar_part(bar, "left")["width"] == 0
     assert sum(p["width"] for p in bar) == pytest.approx(100)
-    assert bar_part(bar, "needs")["pct"] == 80
 
 
 def test_cards_carry_their_kind():

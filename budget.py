@@ -47,7 +47,6 @@ def build_income_bar(income_cents, spent_by_type):
             "kind": kind,
             "label": label,
             "width": amount * 100 / scale,
-            "pct": round(amount * 100 / income_cents),
         }
         for kind, label, amount in parts
     ]

@@ -57,7 +57,7 @@ def test_category_names_are_escaped(client):
     assert "&lt;b&gt;" in page
 
 
-@pytest.mark.parametrize("url", ["/", "/", "/categories", "/expenses/new"])
+@pytest.mark.parametrize("url", ["/", "/expenses", "/categories", "/expenses/new"])
 def test_security_headers(client, url):
     """Verify that application pages include the required security headers."""
     response = client.get(url)

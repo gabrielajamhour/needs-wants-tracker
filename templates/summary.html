@@ -114,40 +114,26 @@
                     <p class="bucket-status">{{ (c.limit - c.spent) | eur }} to reach the goal</p>
                 {% endif %}
             {% endif %}
+
+            {% set items = breakdown | selectattr("type", "equalto", c.kind) | list %}
+            {% if items %}
+                <ul class="ledger">
+                    {% for r in items %}
+                    <li class="ledger-row">
+                        <span class="ledger-name"><span aria-hidden="true">{{ r["emoji"] }}</span> {{ r["name"] | capitalize }}</span>
+                        <span class="ledger-leader" aria-hidden="true"></span>
+                        <span class="mono">{{ r["total"] | eur }}</span>
+                    </li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
         </section>
         {% endfor %}
 
     </div>
 
-    {% if breakdown %}
-
-        {% for kind in ["needs", "wants", "savings"] %}
-            {% set items = breakdown | selectattr("type", "equalto", kind) | list %}
-            {% if items %}
-            <div class="table-wrap">
-                <table class="type-{{ kind }}">
-                    <thead>
-                        <tr class="type-heading">
-                            <th>{{ kind | capitalize }}</th>
-                            <th class="num">Spent</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for r in items %}
-                        <tr>
-                            <td><span aria-hidden="true">{{ r["emoji"] }}</span> {{ r["name"] | capitalize }}</td>
-                            <td class="num">{{ r["total"] | eur }}</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-            {% endif %}
-        {% endfor %}
-
-    {% else %}
+    {% if not breakdown %}
         <p>No expenses this month.</p>
-
     {% endif %}
 
     <script src="{{ url_for('static', filename='month-picker.js') }}" defer></script>

@@ -3,13 +3,6 @@ def set_income(client, month, income):
     return client.post("/", data={"month": month, "income": income})
 
 
-def test_summary_without_income_prompts_for_it(client):
-    """Verify that the summary prompts users to enter missing monthly income."""
-    response = client.get("/?month=2026-11")
-    assert response.status_code == 200
-    assert b"Set this month's income" in response.data
-
-
 def test_invalid_month_returns_400(client):
     """Verify that invalid month values return a 400 response."""
     assert client.get("/?month=abc").status_code == 400

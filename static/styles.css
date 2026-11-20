@@ -202,27 +202,6 @@ input, select {
     width: auto;
 }
 
-/* Heading cells for each expense type section */
-.type-heading th {
-    color: #fff;
-    font-size: 0.95rem;
-}
-
-/* Heading color for the needs section */
-.type-needs .type-heading th {
-    background: var(--color-ink);
-}
-
-/* Heading color for the wants section */
-.type-wants .type-heading th {
-    background: #6b4fa3;
-}
-
-/* Heading color for the savings section */
-.type-savings .type-heading th {
-    background: #1f5fa8;
-}
-
 /* Styling for archived category rows */
 tr.archived {
     color: var(--color-muted);
@@ -1178,4 +1157,33 @@ h1 {
     flex-shrink: 0;
     width: 16px;
     height: 16px;
+}
+
+/* Ledger rows: category, dotted leader, amount */
+.ledger {
+    margin: var(--space-5) 0 0;
+    padding: 0;
+    list-style: none;
+    border-top: 1px solid var(--color-hairline-soft);
+}
+
+.ledger-row {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-2);
+    padding: var(--space-2) 0;
+    border-bottom: 1px solid var(--color-hairline-soft);
+    font-size: 15px;
+}
+
+/* An empty element sits on the baseline, so its bottom border is the dotted leader */
+.ledger-leader {
+    flex: 1;
+    min-width: var(--space-4);
+    border-bottom: 1px dotted var(--color-hairline);
+}
+
+.ledger-row .mono {
+    font-size: 14px;
+    font-variant-numeric: tabular-nums;
 }

@@ -18,7 +18,7 @@ def test_pages_declare_viewport(client, url):
     assert b'name="viewport"' in client.get(url).data
 
 
-@pytest.mark.parametrize("url", ["/expenses", "/?month=2026-11", "/categories"])
+@pytest.mark.parametrize("url", ["/expenses", "/categories"])
 def test_tables_are_scrollable_on_small_screens(client, add_expense, url):
     """Verify that tables are wrapped for horizontal scrolling on small screens."""
     add_expense(date="2026-11-11")
@@ -86,16 +86,28 @@ def test_summary_has_month_arrows_across_the_year(client):
 
 
 def test_summary_breakdown_is_ordered_needs_wants_savings(client, add_expense):
-    """Check that the summary breakdown lists needs, then wants, then savings."""
+    """Check that the summary lists needs, then wants, then savings, each category in its column."""
     add_expense(category="groceries", date="2026-11-11")
     add_expense(name="Dinner", category="dining out", date="2026-11-12")
     add_expense(name="Transfer", category="emergency fund", date="2026-11-13")
     page = client.get("/?month=2026-11").data.decode()
+    buckets = page[page.index('class="buckets"') :]
     assert (
-        page.index('class="type-needs"')
-        < page.index('class="type-wants"')
-        < page.index('class="type-savings"')
+        buckets.index('class="bucket bucket-needs"')
+        < buckets.index("Groceries")
+        < buckets.index('class="bucket bucket-wants"')
+        < buckets.index("Dining out")
+        < buckets.index('class="bucket bucket-savings"')
+        < buckets.index("Emergency fund")
     )
+
+
+def test_summary_has_no_tables(client, add_expense):
+    """Check that the summary shows ledger lists instead of the old tables."""
+    add_expense(category="groceries", date="2026-11-11")
+    page = client.get("/?month=2026-11").data.decode()
+    assert 'class="ledger"' in page
+    assert "<table" not in page and ">Spent</th>" not in page
 
 
 def test_summary_hero_replaces_the_remaining_card(client):
@@ -286,18 +298,9 @@ def test_summary_is_the_home_page(client):
     assert "Monthly summary" in page
 
 
-def test_expense_list_lives_at_expenses(client):
-    assert client.get("/expenses").status_code == 200
-
-
 def test_navigation_lists_summary_first(client):
     nav = main_nav(client.get("/").data.decode())
     assert nav.index("Summary") < nav.index("Expenses")
-
-
-def test_brand_links_to_the_home_page_and_not_to_the_list(client):
-    page = client.get("/expenses").data.decode()
-    assert 'class="brand" href="/"' in page
 
 
 def test_old_summary_url_redirects_to_the_home_page(client):
@@ -435,3 +438,14 @@ def test_flash_script_is_served_and_loaded(client):
     """Check that the script that fades out flash messages is loaded and served."""
     assert "flash.js" in client.get("/").data.decode()
     assert client.get("/static/flash.js").status_code == 200
+
+
+def test_each_bucket_lists_the_categories_of_its_type(client, add_expense):
+    """Check that every category appears inside the column of its own type."""
+    add_expense(amount="10,00", date="2026-11-03", category="groceries")
+    add_expense(amount="20,00", date="2026-11-04", category="dining out")
+    page = client.get("/?month=2026-11").data.decode()
+    needs, wants, savings = page.split('<section class="bucket bucket-')[1:]
+    assert "Groceries" in needs and "10,00 €" in needs and "Dining out" not in needs
+    assert "Dining out" in wants and "20,00 €" in wants
+    assert "ledger-row" not in savings

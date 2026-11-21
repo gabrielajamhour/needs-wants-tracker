@@ -698,6 +698,44 @@ button:hover, .button:hover {
     color: var(--color-ink-strong);
 }
 
+/* Small screens: the month row takes the full width, arrows at the edges and the title between them;
+   the count and the link to every month share the next row */
+@media (max-width: 600px) {
+    .expenses-toolbar .month-nav {
+        flex: 1 1 100%;
+    }
+
+    .expenses-toolbar .month-nav .month-picker,
+    .expenses-toolbar .month-nav > .month-title {
+        flex: 1;
+        justify-content: center;
+    }
+
+    /* "All months" is an action: a small underlined link under the month row.
+    The count and total are information: a centred line under a soft rule, tied to the list below. */
+    .expenses-toolbar > .button {
+        order: 2;
+        flex: 1 1 100%;
+        min-height: var(--control-height-small);
+        padding: 0;
+        text-decoration: underline;
+        text-underline-offset: 3px;
+    }
+
+    .expenses-toolbar > .button:hover {
+        background: none;
+    }
+
+    .expenses-count {
+        order: 3;
+        flex: 1 1 100%;
+        margin: 0;
+        padding-top: var(--space-3);
+        border-top: 1px solid var(--color-hairline-soft);
+        text-align: center;
+    }
+}
+
 /* Groups of actions */
 .actions-group,
 .form-actions {
@@ -1049,6 +1087,27 @@ h1 {
 .segmented-option-needs .segmented-dot { background: var(--color-needs); }
 .segmented-option-wants .segmented-dot { background: var(--color-wants); }
 .segmented-option-savings .segmented-dot { background: var(--color-savings); }
+
+/* Small screens: Type is as wide as the other filters, its options sharing the width;
+   Clear moves to the right */
+@media (max-width: 600px) {
+    .filter-bar > div.type-field {
+        flex: 1 1 100%;
+    }
+
+    .segmented {
+        display: flex;
+    }
+
+    .segmented-option {
+        flex: 1;
+        justify-content: center;
+    }
+
+    .filter-bar > .button {
+        margin-left: auto;
+    }
+}
 
 /* The hidden attribute must always win, even over rules like "display: inline-flex".
    Before this, buttons marked hidden were visible when JavaScript did not run. */

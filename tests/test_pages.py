@@ -187,12 +187,13 @@ def test_header_stays_on_one_row_on_small_screens(client):
     assert "flex-wrap: nowrap" in css
 
 
-def test_row_actions_are_buttons_not_links(client, add_expense):
-    """Check that row actions are shown as buttons instead of links."""
+def test_row_actions_are_labelled_icon_buttons(client, add_expense):
+    """Check that the row actions are icon buttons that name the expense for screen readers."""
     add_expense(date="2026-11-11")
     page = client.get("/expenses").data.decode()
-    assert "button ghost small" in page  # Edit
-    assert "danger small" in page  # Delete
+    assert page.count("row-action") >= 2
+    assert 'aria-label="Edit ' in page
+    assert 'aria-label="Delete ' in page
     assert "Clear" in page and 'class="button ghost"' in page
 
 

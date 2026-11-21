@@ -569,6 +569,26 @@ button:hover, .button:hover {
     height: 18px;
 }
 
+/* Row actions: 36px quiet squares with a 16px stroke icon (Edit, Delete) */
+.row-action {
+    width: var(--control-height-small);
+    min-height: var(--control-height-small);
+    padding: 0;
+}
+
+.row-action svg {
+    width: 16px;
+    height: 16px;
+}
+
+/* Touch screens keep the full 44px target */
+@media (pointer: coarse) {
+    .row-action {
+        width: var(--control-height);
+        min-height: var(--control-height);
+    }
+}
+
 /* Month navigation: [‹] month title [›], aligned left */
 .month-nav {
     display: flex;
@@ -705,10 +725,9 @@ h2 {
 @media (max-width: 600px) {
     main { padding-block: var(--space-4); }
 
-    /* Row actions share the width of the card equally */
-    .table-cards .actions-group > a,
-    .table-cards .actions-group > form {
-        flex: 1;
+    /* Row actions are icons: keep them together at the right of the card */
+    .table-cards .actions-group {
+        justify-content: flex-end;
     }
 
     .table-cards .actions-group > form button {

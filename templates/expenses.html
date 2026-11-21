@@ -109,14 +109,16 @@
                     {% for e in expenses %}
                     <tr role="row">
                         <td role="cell" data-label="Date" class="mono cell-date">{{ e["date"] | date_label(with_year=not filters.month) }}</td>
-                        <td role="cell" data-label="Name">{{ e["name"] | capitalize }}</td>
+                        <td role="cell" data-label="Name" class="cell-title">{{ e["name"] | capitalize }}</td>
                         <td role="cell" data-label="Category">
                             <span class="cell-value">
                                 <span class="emoji" aria-hidden="true">{{ e["emoji"] }}</span>
                                 <span class="cell-name">{{ e["category"] | capitalize }}</span>
                             </span>
                         </td>
-                        <td role="cell" data-label="Type">{{ e["type"] | capitalize }}</td>
+                        <td role="cell" data-label="Type">
+                            <span class="type-tag type-tag-{{ e['type'] }}">{{ e["type"] | capitalize }}</span>
+                        </td>
                         <td role="cell" data-label="Amount" class="num">{{ e["amount_cents"] | eur }}</td>
                         <td role="cell" class="actions">
                             <div class="actions-group">

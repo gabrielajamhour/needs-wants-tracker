@@ -297,6 +297,29 @@ td form.inline input {
     white-space: nowrap;
 }
 
+.cell-title {
+    font-weight: 500;
+}
+
+/* Type tag: a dot and the type name, both in the bucket's text colour */
+.type-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+}
+
+.type-tag::before {
+    content: "";
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+}
+
+.type-tag-needs { color: var(--color-needs); }
+.type-tag-wants { color: var(--color-wants-text); }
+.type-tag-savings { color: var(--color-savings-text); }
+
 /* Place emojis after category names in mobile card layouts. */
 @media (max-width: 600px) {
     .table-cards .cell-value .emoji { order: 1; }

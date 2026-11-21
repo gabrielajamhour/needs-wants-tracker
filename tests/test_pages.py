@@ -552,3 +552,9 @@ def test_expenses_type_filter_is_a_segmented_control(client):
     assert html.count('type="radio" name="type"') == 4
     assert re.search(r'value="wants"\s+checked', html)
     assert not re.search(r'value=""\s+checked', html)
+
+
+def test_list_marks_each_expense_with_its_type_tag(client, add_expense):
+    add_expense(date="2026-11-11")
+    page = client.get("/expenses").data.decode()
+    assert 'class="type-tag type-tag-' in page

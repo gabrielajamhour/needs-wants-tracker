@@ -41,6 +41,11 @@
         {# The month is chosen with the arrows above, so it travels in a hidden field #}
         <input type="hidden" name="month" value="{{ filters.month or 'all' }}">
 
+        <div class="grow">
+            <label for="q">Search by name</label>
+            <input id="q" name="q" type="search" value="{{ filters.q }}" placeholder="e.g.: market">
+        </div>
+
         <div>
             <label for="category_id">Category</label>
             <select id="category_id" name="category_id">
@@ -78,11 +83,6 @@
                 {% endfor %}
 
             </div>
-        </div>
-
-        <div class="grow">
-            <label for="q">Search by name</label>
-            <input id="q" name="q" type="search" value="{{ filters.q }}" placeholder="e.g.: market">
         </div>
 
         {# Filters apply on their own with JavaScript; without it this button sends them #}

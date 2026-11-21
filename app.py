@@ -28,7 +28,8 @@ app.add_template_filter(month_label, "month_label")
 app.add_template_filter(format_date, "date_label")
 
 # Types of expenses
-VALID_TYPES = {"needs", "wants", "savings"}
+TYPE_ORDER = ("needs", "wants", "savings")
+VALID_TYPES = set(TYPE_ORDER)
 
 # Custom order for category types
 TYPE_ORDER_SQL = "CASE c.type WHEN 'needs' THEN 1 WHEN 'wants' THEN 2 ELSE 3 END"
@@ -178,11 +179,30 @@ def render_categories(show, form=None, edit=None, status=200):
         )
         .fetchall()
     )
+
+    # One group per type, in the usual order; types with nothing to show are left out
+    groups = [
+        {"type": kind, "categories": [c for c in rows if c["type"] == kind]} for kind in TYPE_ORDER
+    ]
+    groups = [group for group in groups if group["categories"]]
+
+    # "Rename" links open the page with ?edit=<id>: that row becomes the rename form
+    if edit is None:
+        edit_id = request.args.get("edit", type=int)
+        current = next((c for c in rows if c["id"] == edit_id), None)
+        if current:
+            edit = {
+                "id": current["id"],
+                "name": current["name"].capitalize(),
+                "emoji": current["emoji"],
+            }
+
     form = form or {"name": "", "type": "", "emoji": DEFAULT_EMOJI}
+
     return (
         render_template(
             "categories.html",
-            categories=rows,
+            groups=groups,
             selected=show,
             form=form,
             edit=edit,

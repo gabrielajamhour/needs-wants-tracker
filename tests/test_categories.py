@@ -122,3 +122,30 @@ def test_category_filter_marks_the_chosen_type(client):
     """Check that only the chosen type is marked as active."""
     page = client.get("/categories?show=wants").data.decode()
     assert page.count("segmented-option is-active") == 1
+
+
+def test_categories_are_grouped_by_type_in_order(client):
+    """Check that the list has one group per type: needs, then wants, then savings."""
+    page = client.get("/categories").data.decode()
+    needs = page.index("category-group-needs")
+    wants = page.index("category-group-wants")
+    savings = page.index("category-group-savings")
+    assert needs < wants < savings
+
+
+def test_rename_link_turns_one_row_into_a_form(client, category_id):
+    """Check that ?edit=<id> shows the rename form only for that category."""
+    cid = category_id("groceries")
+    assert "Save name" not in client.get("/categories").data.decode()
+    page = client.get(f"/categories?edit={cid}").data.decode()
+    assert page.count("Save name") == 1
+    assert f'action="/categories/{cid}/edit"' in page
+    assert 'value="Groceries"' in page
+
+
+def test_archived_category_is_marked_and_can_be_restored(client, category_id):
+    cid = category_id("groceries")
+    client.post(f"/categories/{cid}/toggle")
+    page = client.get("/categories").data.decode()
+    assert "category-state" in page
+    assert "Restore" in page

@@ -20,7 +20,7 @@ def test_pages_declare_viewport(client, url):
     assert b'name="viewport"' in client.get(url).data
 
 
-@pytest.mark.parametrize("url", ["/expenses", "/categories"])
+@pytest.mark.parametrize("url", ["/expenses"])
 def test_tables_are_scrollable_on_small_screens(client, add_expense, url):
     """Verify that tables are wrapped for horizontal scrolling on small screens."""
     add_expense(date="2026-11-11")
@@ -36,7 +36,6 @@ def test_stylesheet_uses_border_box(client):
     "url, labels",
     [
         ("/expenses", ["Date", "Name", "Category", "Type", "Amount"]),
-        ("/categories", ["Name", "Type", "Expenses", "Status"]),
     ],
 )
 def test_wide_tables_have_card_labels(client, add_expense, url, labels):
@@ -234,7 +233,6 @@ def test_add_button_uses_an_icon_not_a_text_plus(client):
     "url, header",
     [
         ("/expenses", '<span class="sr-only">Actions</span>'),
-        ("/categories", "Edit"),
     ],
 )
 def test_actions_column_header_can_shrink_to_fit(client, add_expense, url, header):
@@ -330,13 +328,6 @@ def test_old_summary_url_redirects_to_the_home_page(client):
     assert response.headers["Location"] == "/?month=2026-10"
 
 
-def test_categories_headers_are_clear(client):
-    page = client.get("/categories").data.decode()
-    assert ">Expenses</th>" in page
-    assert ">Uses<" not in page
-    assert '<th role="columnheader" class="actions">Edit</th>' in page
-
-
 def test_emoji_is_one_button_with_a_text_fallback(client):
     page = client.get("/categories").data.decode()
     assert 'class="emoji-field"' in page
@@ -367,16 +358,6 @@ def test_failed_edit_keeps_what_the_user_typed(client, category_id):
 def test_stylesheet_makes_the_hidden_attribute_win(client):
     css = client.get("/static/styles.css").data.decode()
     assert "[hidden]" in css
-
-
-def test_category_status_is_a_badge(client):
-    assert 'class="status-badge active"' in client.get("/categories").data.decode()
-
-
-def test_archived_category_shows_an_archived_badge(client, category_id):
-    cid = category_id("groceries")
-    client.post(f"/categories/{cid}/toggle")
-    assert 'class="status-badge archived"' in client.get("/categories").data.decode()
 
 
 def test_stylesheet_aligns_the_emoji_label_with_the_other_fields(client):

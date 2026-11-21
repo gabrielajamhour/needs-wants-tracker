@@ -28,15 +28,17 @@
     });
 
     // Choosing a type that does not match the chosen category clears the category
-    type.addEventListener("change", function () {
-        var option = category.selectedOptions[0];
-        if (type.value && option && option.dataset.type && option.dataset.type !== type.value) {
-            category.value = "";
-        }
+    type.forEach(function (radio) {
+        radio.addEventListener("change", function () {
+            var option = category.selectedOptions[0];
+            if (type.value && option && option.dataset.type && option.dataset.type !== type.value) {
+                category.value = "";
+            }
+        });
     });
 
-    form.querySelectorAll("select").forEach(function (select) {
-        select.addEventListener("change", apply);
+    form.querySelectorAll("select, input[type=radio]").forEach(function (control) {
+        control.addEventListener("change", apply);
     });
 
     search.addEventListener("input", function () {

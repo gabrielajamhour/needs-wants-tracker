@@ -1,3 +1,5 @@
+import re
+
 import pytest
 
 
@@ -535,3 +537,11 @@ def test_expenses_category_filter_is_grouped_by_type(client):
     for kind in ("Needs", "Wants", "Savings"):
         assert f'<optgroup label="{kind}">' in page
     assert 'data-type="needs"' in page and 'data-type="wants"' in page
+
+
+def test_expenses_type_filter_is_a_segmented_control(client):
+    """Check that the type filter has one radio per option and marks the chosen one."""
+    html = client.get("/expenses?month=all&type=wants").get_data(as_text=True)
+    assert html.count('type="radio" name="type"') == 4
+    assert re.search(r'value="wants"\s+checked', html)
+    assert not re.search(r'value=""\s+checked', html)

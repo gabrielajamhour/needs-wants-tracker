@@ -44,7 +44,7 @@
         <div>
             <label for="category_id">Category</label>
             <select id="category_id" name="category_id">
-                <option value="">All</option>
+                <option value="">All categories</option>
 
                 {% for kind in ["needs", "wants", "savings"] %}
                     <optgroup label="{{ kind | capitalize }}">
@@ -65,22 +65,19 @@
             </select>
         </div>
 
-        <div>
-            <label for="type">Type</label>
-            <select id="type" name="type">
-                <option value="">All</option>
+        <div class="type-field">
+            <span class="field-label" id="type-label">Type</span>
+            <div class="segmented" role="radiogroup" aria-labelledby="type-label">
 
-                {% for t in ["needs", "wants", "savings"] %}
-                <option value="{{ t }}"
-                    {% if filters.type == t %}
-                        selected
-                    {% endif %}
-                >
-                    {{ t | capitalize }}
-                </option>
+                {% for value, label in [("", "All"), ("needs", "Needs"), ("wants", "Wants"), ("savings", "Savings")] %}
+                    <label class="segmented-option{% if value %} segmented-option-{{ value }}{% endif %}">
+                        <input type="radio" name="type" value="{{ value }}" {% if filters.type == value %}checked{% endif %}>
+                        {% if value %}<span class="segmented-dot" aria-hidden="true"></span>{% endif %}
+                        {{ label }}
+                    </label>
                 {% endfor %}
 
-            </select>
+            </div>
         </div>
 
         <div class="grow">

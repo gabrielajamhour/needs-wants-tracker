@@ -2,7 +2,7 @@ import os
 from datetime import date, datetime
 from urllib.parse import urlsplit
 
-from flask import Flask, abort, flash, jsonify, redirect, render_template, request, url_for
+from flask import Flask, abort, flash, jsonify, redirect, render_template, request, session, url_for
 
 # Imports from other files in the project
 from budget import build_cards, build_income_bar
@@ -43,6 +43,11 @@ MAX_NAME_LENGTH = 100
 def today():
     """Today's date; a function so tests can freeze it."""
     return date.today()
+
+
+def remembered_month():
+    """Return the month the user chose last, or the current month if none yet."""
+    return session.get("month") or today().strftime("%Y-%m")
 
 
 def get_categories(include_archived=False, keep_id=None):
@@ -190,7 +195,7 @@ def list_expenses():
     conditions, params = [], []
 
     if month is None:
-        month = current_month
+        month = remembered_month()
     elif month in ("", "all"):
         month = ""
     else:
@@ -200,6 +205,7 @@ def list_expenses():
             month = current_month
 
     if month:
+        session["month"] = month  # Shared with the other pages
         conditions.append("strftime('%Y-%m', e.date) = ?")
         params.append(month)
 
@@ -404,14 +410,16 @@ def summary():
     db = get_db()
 
     # The user can choose which month they wish to view
-    # If none is selected, the system automatically displays the current month
-    month = request.values.get("month") or today().strftime("%Y-%m")
+    # If none is selected, it shows the month chosen last (or the current month)
+    month = request.values.get("month") or remembered_month()
 
     try:
         month = datetime.strptime(month, "%Y-%m").strftime("%Y-%m")
         # ensuring that the received month has a valid format
     except ValueError:
         abort(400)
+
+    session["month"] = month
 
     # The income form is hidden until the user asks to edit (link with ?edit=income)
     editing = request.args.get("edit") == "income"

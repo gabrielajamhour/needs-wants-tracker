@@ -449,3 +449,40 @@ def test_each_bucket_lists_the_categories_of_its_type(client, add_expense):
     assert "Groceries" in needs and "10,00 €" in needs and "Dining out" not in needs
     assert "Dining out" in wants and "20,00 €" in wants
     assert "ledger-row" not in savings
+
+
+def test_pages_show_the_current_month_when_none_was_chosen(client):
+    """Check that without a chosen month both pages start on the current month."""
+    for url in ("/", "/expenses"):
+        page = client.get(url).data.decode()
+        assert "month=2026-10" in page and "month=2026-12" in page
+
+
+def test_expenses_follows_the_month_chosen_in_summary(client):
+    """Check that the month picked in Summary is the one Expenses shows."""
+    client.get("/?month=2026-09")
+    page = client.get("/expenses").data.decode()
+    assert "month=2026-08" in page and "month=2026-10" in page
+
+
+def test_summary_follows_the_month_chosen_in_expenses(client):
+    """Check that the month picked in Expenses is the one Summary shows."""
+    client.get("/expenses?month=2026-09")
+    page = client.get("/").data.decode()
+    assert "month=2026-08" in page and "month=2026-10" in page
+
+
+def test_month_survives_a_visit_to_categories(client):
+    """Check that a page without a month does not make the chosen month go away."""
+    client.get("/?month=2026-09")
+    client.get("/categories")
+    page = client.get("/").data.decode()
+    assert "month=2026-08" in page and "month=2026-10" in page
+
+
+def test_all_months_filter_does_not_replace_the_chosen_month(client):
+    """Check that viewing all months in Expenses keeps the month chosen before."""
+    client.get("/?month=2026-09")
+    client.get("/expenses?month=all")
+    page = client.get("/").data.decode()
+    assert "month=2026-08" in page and "month=2026-10" in page

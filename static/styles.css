@@ -258,7 +258,7 @@ td form.inline input {
         position: absolute; width: 1px; height: 1px;
         overflow: hidden; clip: rect(0 0 0 0);
     }
-    .table-cards, .table-cards tbody, .table-cards tr, .table-cards td { display: block; }
+    .table-cards, .table-cards tbody, .table-cards tfoot, .table-cards tr, .table-cards td { display: block; }
     .table-cards tr {
         background: #fff; border: 1px solid var(--color-hairline); border-radius: 8px;
         margin-bottom: 12px; padding: 8px 12px;
@@ -275,6 +275,25 @@ td form.inline input {
         flex-direction: column; align-items: stretch; text-align: left;
     }
     .table-cards td.actions::before { content: none; }
+
+        /* The total row has no labels: hide the empty ::before and place label and amount */
+    .table-cards tfoot td::before {
+        content: none;
+    }
+
+    .table-cards .total-label {
+        justify-content: flex-start;
+        text-align: left;
+    }
+
+    .table-cards .total-amount {
+        justify-content: flex-end;
+    }
+
+    /* The empty cell under Actions only exists to complete the wide table */
+    .table-cards .total-gap {
+        display: none;
+    }
 }
 
 /* Keep emoji inputs consistent in size and alignment. */
@@ -298,6 +317,17 @@ td form.inline input {
 }
 
 .cell-title {
+    font-weight: 500;
+}
+
+/* Table footer: the count in a quiet label, the total as a larger ledger figure */
+.total-label {
+    color: var(--color-muted);
+    font-size: 14px;
+}
+
+.total-amount {
+    font-size: 18px;
     font-weight: 500;
 }
 
@@ -826,6 +856,11 @@ h1 {
 
     .table-cards tbody tr:hover {
         background: var(--color-surface-row);
+    }
+
+    /* The last row's rule already closes the table */
+    .table-cards tfoot td {
+        border-bottom: 0;
     }
 }
 

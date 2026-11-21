@@ -565,3 +565,17 @@ def test_list_marks_each_expense_with_its_type_tag(client, add_expense):
     add_expense(date="2026-11-11")
     page = client.get("/expenses").data.decode()
     assert 'class="type-tag type-tag-' in page
+
+
+def test_list_ends_with_a_total_row(client, add_expense):
+    add_expense(date="2026-11-11")
+    add_expense(date="2026-11-12")
+    page = client.get("/expenses").data.decode()
+    assert "Total of 2 expenses" in page
+    assert page.index("</tbody>") < page.index("<tfoot")
+
+
+def test_total_row_uses_the_singular_for_one_expense(client, add_expense):
+    add_expense(date="2026-11-11")
+    page = client.get("/expenses").data.decode()
+    assert "Total of 1 expense<" in page

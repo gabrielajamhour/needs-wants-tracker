@@ -87,7 +87,10 @@
 
         {# Filters apply on their own with JavaScript; without it this button sends them #}
         <noscript><button type="submit">Filter</button></noscript>
-        <a class="button ghost" href="{{ url_for('list_expenses', month=filters.month or 'all') }}">Clear</a>
+        
+        {% if filters.category_id or filters.type or filters.q %}
+            <a class="button quiet small" href="{{ url_for('list_expenses', month=filters.month or 'all') }}">Clear filters</a>
+        {% endif %}
     </form>
 
     {% if expenses %}

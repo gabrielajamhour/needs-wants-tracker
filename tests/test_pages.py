@@ -194,7 +194,12 @@ def test_row_actions_are_labelled_icon_buttons(client, add_expense):
     assert page.count("row-action") >= 2
     assert 'aria-label="Edit ' in page
     assert 'aria-label="Delete ' in page
-    assert "Clear" in page and 'class="button ghost"' in page
+
+
+def test_clear_filters_link_only_shows_when_a_filter_is_active(client, add_expense):
+    add_expense(date="2026-11-11")
+    assert "Clear filters" not in client.get("/expenses").data.decode()
+    assert "Clear filters" in client.get("/expenses?type=needs").data.decode()
 
 
 @pytest.mark.parametrize("url", ["/expenses", "/categories", "/expenses/new", "/"])

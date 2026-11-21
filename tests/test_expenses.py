@@ -159,10 +159,14 @@ def test_list_defaults_to_the_current_month(client, add_expense):
     assert "Current" in page and "Older" not in page
 
 
-def test_month_menu_always_offers_the_current_month(client):
-    """Verify that the month menu includes the current month and the 'all' option."""
+def test_list_offers_all_months_and_back_to_one_month(client):
+    """Verify that the list starts on the current month and can switch to all months and back."""
     page = client.get("/expenses").data.decode()
-    assert 'value="2026-11"' in page and 'value="all"' in page
+    assert "November 2026" in page
+    assert 'href="/expenses?month=all">All months</a>' in page
+
+    all_months = client.get("/expenses?month=all").data.decode()
+    assert 'href="/expenses">Back to one month</a>' in all_months
 
 
 def test_new_expense_form_defaults_to_today(client):

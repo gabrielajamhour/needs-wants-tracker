@@ -570,6 +570,28 @@ button:hover, .button:hover {
     display: inline-flex;
 }
 
+/* Expenses month row: arrows and title, then the link to see every month */
+.expenses-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-3);
+}
+
+.expenses-toolbar .month-nav {
+    margin: 0;
+}
+
+.expenses-toolbar {
+    margin: var(--space-5) 0 var(--space-4);
+}
+
+/* "All months" title: left-aligned, no reserved width because there are no arrows */
+.all-months-title {
+    min-width: 0;
+    text-align: left;
+}
+
 /* Groups of actions */
 .actions-group,
 .form-actions {

@@ -13,36 +13,24 @@
 
     <h1 class="sr-only">Expenses</h1>
 
-    {% if month_links %}
-        {{ month_nav(month_links, picker_action=url_for('list_expenses')) }}
-    {% endif %}
+    <div class="expenses-toolbar">
+        {% if month_links %}
+
+            {{ month_nav(month_links, picker_action=url_for('list_expenses')) }}
+            <a class="button quiet small" href="{{ all_months_url }}">All months</a>
+
+        {% else %}
+
+            <strong class="month-title all-months-title">All months</strong>
+            <a class="button quiet small" href="{{ one_month_url }}">Back to one month</a>
+
+        {% endif %}
+    </div>
 
     <form method="get" class="row filter-bar">
 
-        <div>
-            <label for="month">Month</label>
-            <select id="month" name="month">
-                <option 
-                    value="all" 
-                    {% if not filters.month %}
-                        selected
-                    {% endif %}
-                >
-                    All months
-                </option>
-
-                {% for m in months %}
-                    <option value="{{ m }}" 
-                        {% if m == filters.month %}
-                            selected
-                        {% endif %}
-                    >
-                        {{ m | month_label }}
-                    </option>
-                {% endfor %}
-
-            </select>
-        </div>
+        {# The month is chosen with the arrows above, so it travels in a hidden field #}
+        <input type="hidden" name="month" value="{{ filters.month or 'all' }}">
 
         <div>
             <label for="category_id">Category</label>
@@ -51,7 +39,7 @@
 
                 {% for c in categories %}
 
-                <option value="{{ c['id'] }}" 
+                <option value="{{ c['id'] }}"
                     {% if filters.category_id == c['id'] %}
                         selected
                     {% endif %}
@@ -70,7 +58,7 @@
                 <option value="">All</option>
 
                 {% for t in ["needs", "wants", "savings"] %}
-                <option value="{{ t }}" 
+                <option value="{{ t }}"
                     {% if filters.type == t %}
                         selected
                     {% endif %}
@@ -87,8 +75,9 @@
             <input id="q" name="q" type="search" value="{{ filters.q }}" placeholder="e.g.: market">
         </div>
 
-        <button type="submit">Filter</button>
-        <a class="button ghost" href="{{ url_for('list_expenses') }}">Clear</a>
+        {# Filters apply on their own with JavaScript; without it this button sends them #}
+        <noscript><button type="submit">Filter</button></noscript>
+        <a class="button ghost" href="{{ url_for('list_expenses', month=filters.month or 'all') }}">Clear</a>
     </form>
 
     {% if expenses %}
@@ -115,7 +104,7 @@
                             <span class="cell-value">
                                 <span class="emoji" aria-hidden="true">{{ e["emoji"] }}</span>
                                 <span class="cell-name">{{ e["category"] | capitalize }}</span>
-                            </span> 
+                            </span>
                         </td>
                         <td role="cell" data-label="Type">{{ e["type"] | capitalize }}</td>
                         <td role="cell" data-label="Amount" class="num">{{ e["amount_cents"] | eur }}</td>
@@ -156,6 +145,6 @@
     {% endif %}
 
     <script src="{{ url_for('static', filename='month-picker.js') }}" defer></script>
-    <script src="{{ url_for('static', filename='month-filters.js') }}" defer></script>
+    <script src="{{ url_for('static', filename='filters.js') }}" defer></script>
 
 {% endblock %}

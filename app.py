@@ -223,18 +223,20 @@ def list_expenses():
         conditions.append("e.name LIKE ? ESCAPE '\\'")
         params.append(like_pattern(search_query))
 
+    # Filters that travel with the month links
+    keep = {
+        key: value
+        for key, value in (
+            ("category_id", category_id),
+            ("type", category_type),
+            ("q", search_query),
+        )
+        if value
+    }
+
     month_links = None
 
     if month:
-        keep = {
-            key: value
-            for key, value in (
-                ("category_id", category_id),
-                ("type", category_type),
-                ("q", search_query),
-            )
-            if value
-        }
         month_links = {
             "month": month,
             "prev_url": url_for("list_expenses", month=shift_month(month, -1), **keep),
@@ -257,24 +259,11 @@ def list_expenses():
     ).fetchall()
     # 'f' allows you to insert the 'where' variable into the query
 
-    # Store months for which there are recorded expenses
-    months = [
-        row["month"]
-        for row in db.execute(
-            "SELECT DISTINCT strftime('%Y-%m', date) AS month FROM expenses ORDER BY month DESC"
-        )
-    ]
-
-    if current_month not in months:
-        months.insert(0, current_month)
-        months.sort(reverse=True)
-
     return render_template(
         "index.html",
         expenses=expenses,
         total=sum(e["amount_cents"] for e in expenses),
         categories=get_categories(include_archived=True),
-        months=months,
         filters={
             "month": month,
             "category_id": category_id,
@@ -282,6 +271,8 @@ def list_expenses():
             "q": search_query,
         },
         month_links=month_links,
+        all_months_url=url_for("list_expenses", month="all", **keep),
+        one_month_url=url_for("list_expenses", **keep),
     )
 
 

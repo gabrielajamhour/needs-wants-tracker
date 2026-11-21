@@ -417,10 +417,11 @@ def test_expenses_month_picker_has_no_hidden_filters_when_none_are_active(client
     assert 'type="hidden"' not in month_nav_html(client, "/expenses")
 
 
-def test_expense_list_keeps_on_screen_filters_when_changing_month(client):
-    """Check that expense list loads the script that carries unsaved filters to the new month."""
-    assert "month-filters.js" in client.get("/expenses").data.decode()
-    assert client.get("/static/month-filters.js").status_code == 200
+def test_expense_list_loads_the_script_that_applies_filters(client):
+    """Check that the expense list loads the script that applies filters as soon as they change."""
+    page = client.get("/expenses").data.decode()
+    assert "filters.js" in page and "month-filters.js" not in page
+    assert client.get("/static/filters.js").status_code == 200
 
 
 def test_flash_messages_have_a_hidden_close_button_and_the_right_role(client):
@@ -486,3 +487,43 @@ def test_all_months_filter_does_not_replace_the_chosen_month(client):
     client.get("/expenses?month=all")
     page = client.get("/").data.decode()
     assert "month=2026-08" in page and "month=2026-10" in page
+
+
+def filter_bar_html(client, url):
+    """Return the HTML inside the filter form of an expenses page."""
+    page = client.get(url).data.decode()
+    return page.split('class="row filter-bar"')[1].split("</form>")[0]
+
+
+def test_filters_carry_the_chosen_month_in_a_hidden_field(client):
+    """Check that the month is sent with the filters now that the select is gone."""
+    bar = filter_bar_html(client, "/expenses?month=2026-09")
+    assert '<input type="hidden" name="month" value="2026-09">' in bar
+    assert 'id="month"' not in bar
+
+
+def test_filters_keep_all_months_in_the_hidden_field(client):
+    """Check that the all-months view stays when a filter changes."""
+    bar = filter_bar_html(client, "/expenses?month=all")
+    assert 'name="month" value="all"' in bar
+
+
+def test_filter_button_only_shows_without_javascript(client):
+    """Check that the Filter button lives inside noscript."""
+    bar = filter_bar_html(client, "/expenses")
+    assert "<noscript><button" in bar and ">Filter</button></noscript>" in bar
+
+
+def test_expenses_links_to_all_months_and_back(client):
+    """Check the link to all months keeps filters and the link back goes to one month."""
+    page = client.get("/expenses?month=2026-09&type=wants").data.decode()
+    assert "month=all" in page and "type=wants" in page.split("All months")[0].split("href=")[-1]
+    all_page = client.get("/expenses?month=all&type=wants").data.decode()
+    assert "Back to one month" in all_page
+    assert 'href="/expenses?type=wants"' in all_page
+
+
+def test_filters_script_is_served_and_the_old_one_is_gone(client):
+    """Check that filters.js exists and month-filters.js does not."""
+    assert client.get("/static/filters.js").status_code == 200
+    assert client.get("/static/month-filters.js").status_code == 404

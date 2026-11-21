@@ -362,7 +362,7 @@ def test_stylesheet_makes_the_hidden_attribute_win(client):
 
 def test_stylesheet_aligns_the_emoji_label_with_the_other_fields(client):
     css = client.get("/static/styles.css").data.decode()
-    assert ".row .emoji-field" in css
+    assert ".add-category .emoji-field" in css
 
 
 @pytest.mark.parametrize("url", ["/expenses", "/categories", "/expenses/new", "/"])

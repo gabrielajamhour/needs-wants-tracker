@@ -528,6 +528,7 @@ def test_filters_script_is_served_and_the_old_one_is_gone(client):
     assert client.get("/static/filters.js").status_code == 200
     assert client.get("/static/month-filters.js").status_code == 404
 
+
 def test_expenses_category_filter_is_grouped_by_type(client):
     """Check that the category filter lists categories by type, each option carrying its type."""
     page = client.get("/expenses").data.decode()

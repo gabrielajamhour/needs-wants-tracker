@@ -25,6 +25,15 @@
             <a class="button quiet small" href="{{ one_month_url }}">Back to one month</a>
 
         {% endif %}
+
+        {% if expenses %}
+
+            <p class="expenses-count">
+                {{ expenses | length }} expense{{ "" if expenses | length == 1 else "s" }}
+                · <strong>{{ total | eur }}</strong>
+            </p>
+
+        {% endif %}
     </div>
 
     <form method="get" class="row filter-bar">
@@ -39,7 +48,7 @@
 
                 {% for kind in ["needs", "wants", "savings"] %}
                     <optgroup label="{{ kind | capitalize }}">
-                        
+
                         {% for c in categories if c["type"] == kind %}
                         <option value="{{ c['id'] }}" data-type="{{ kind }}"
                             {% if filters.category_id == c['id'] %}
@@ -127,12 +136,6 @@
                 </tbody>
             </table>
         </div>
-
-        <p class="num">
-                <strong>
-                    Total of rows displayed: {{ total | eur }}
-                </strong>
-        </p>
 
     {% else %}
         <p>

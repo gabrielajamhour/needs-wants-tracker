@@ -592,6 +592,20 @@ button:hover, .button:hover {
     text-align: left;
 }
 
+/* Count and total of the rows displayed, pushed to the right (ledger figures) */
+.expenses-count {
+    margin: 0 0 0 auto;
+    font-family: var(--font-mono);
+    font-size: 14px;
+    font-variant-numeric: tabular-nums;
+    color: var(--color-muted);
+}
+
+.expenses-count strong {
+    font-weight: 500;
+    color: var(--color-ink-strong);
+}
+
 /* Groups of actions */
 .actions-group,
 .form-actions {

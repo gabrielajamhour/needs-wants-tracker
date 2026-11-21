@@ -107,3 +107,18 @@ def test_archived_categories_are_listed_last_in_their_group(client, category_id)
     client.post(f"/categories/{cid}/toggle")
     page = client.get("/categories?show=needs").data.decode()
     assert page.index("Education") > page.index("Utilities")
+
+
+def test_category_filter_shows_a_count_for_each_type(client, db_rows):
+    """Check that the type filter shows how many categories there are in total and per type."""
+    total = db_rows("SELECT COUNT(*) AS n FROM categories")[0]["n"]
+    needs = db_rows("SELECT COUNT(*) AS n FROM categories WHERE type = 'needs'")[0]["n"]
+    page = client.get("/categories").data.decode()
+    assert f'<span class="segmented-count">{total}</span>' in page
+    assert f'<span class="segmented-count">{needs}</span>' in page
+
+
+def test_category_filter_marks_the_chosen_type(client):
+    """Check that only the chosen type is marked as active."""
+    page = client.get("/categories?show=wants").data.decode()
+    assert page.count("segmented-option is-active") == 1

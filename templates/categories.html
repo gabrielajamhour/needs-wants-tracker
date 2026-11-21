@@ -62,16 +62,16 @@
     <button type="submit">Add</button>
 </form>
 
-<nav class="chips" aria-label="Filter categories by type">
+<nav class="segmented" aria-label="Filter categories by type">
 
     {% for value, label in [("", "All"), ("needs", "Needs"), ("wants", "Wants"), ("savings", "Savings")] %}
 
     <a href="{{ url_for('manage_categories', show=value or None) }}"
-       class="chip {{ 'active' if selected == value }}"
+       class="segmented-option{{ ' is-active' if selected == value }}"
         {% if selected == value %}
             aria-current="page"
         {% endif %}>
-        {{ label }}
+        {{ label }} <span class="segmented-count">{{ counts[value] }}</span>
     </a>
 
     {% endfor %}

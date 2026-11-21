@@ -1132,6 +1132,12 @@ h1 {
     outline-offset: -4px;
 }
 
+.segmented-option:has(input:checked),
+.segmented-option.is-active {
+    background: var(--color-ink);
+    color: var(--color-on-ink);
+}
+
 .segmented-dot {
     width: 6px;
     height: 6px;
@@ -1141,6 +1147,18 @@ h1 {
 .segmented-option-needs .segmented-dot { background: var(--color-needs); }
 .segmented-option-wants .segmented-dot { background: var(--color-wants); }
 .segmented-option-savings .segmented-dot { background: var(--color-savings); }
+
+/* Segmented options that are links (Categories filter) */
+a.segmented-option {
+    text-decoration: none;
+}
+
+.segmented-count {
+    font-family: var(--font-mono);
+    font-size: 14px;
+    font-variant-numeric: tabular-nums;
+    opacity: 0.75;
+}
 
 /* Small screens: Type is as wide as the other filters, its options sharing the width;
    Clear moves to the right */

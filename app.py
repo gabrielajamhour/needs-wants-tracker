@@ -150,6 +150,16 @@ def category_name_exists(db, name, exclude_id=None):
     return row is not None
 
 
+def count_categories_by_type():
+    """Count the categories of each type, archived ones included; the key "" is the total."""
+    counts = {"needs": 0, "wants": 0, "savings": 0}
+    rows = get_db().execute("SELECT type, COUNT(*) AS n FROM categories GROUP BY type")
+    for row in rows:
+        counts[row["type"]] = row["n"]
+    counts[""] = sum(counts.values())
+    return counts
+
+
 def render_categories(show, form=None, edit=None, status=200):
     """Render the categories page, optionally with what the user typed after an error."""
     where, params = ("WHERE c.type = ?", (show,)) if show else ("", ())
@@ -170,7 +180,14 @@ def render_categories(show, form=None, edit=None, status=200):
     )
     form = form or {"name": "", "type": "", "emoji": DEFAULT_EMOJI}
     return (
-        render_template("categories.html", categories=rows, selected=show, form=form, edit=edit),
+        render_template(
+            "categories.html",
+            categories=rows,
+            selected=show,
+            form=form,
+            edit=edit,
+            counts=count_categories_by_type(),
+        ),
         status,
     )
 

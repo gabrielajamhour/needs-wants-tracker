@@ -112,7 +112,8 @@ def eur_to_cents(text: str) -> int | None:
     )
 
 
-def format_date(iso_date):
-    """'2026-11-27' -> '27/11/2026'."""
+def format_date(iso_date, with_year=False):
+    """'2026-11-27' -> '27 Nov'; with the year: '27 Nov 2026'."""
     year, month, day = iso_date.split("-")
-    return f"{day}/{month}/{year}"
+    label = f"{day} {MONTH_NAMES[int(month) - 1][:3].capitalize()}"
+    return f"{label} {year}" if with_year else label

@@ -90,11 +90,15 @@ def test_month_label(month, label):
 
 
 @pytest.mark.parametrize(
-    "iso, label",
-    [("2026-11-27", "27/11/2026"), ("2026-01-05", "05/01/2026"), ("2027-12-31", "31/12/2027")],
+    "iso, with_year, label",
+    [
+        ("2026-11-27", False, "27 Nov"),
+        ("2026-01-05", False, "05 Jan"),
+        ("2027-12-31", True, "31 Dec 2027"),
+    ],
 )
-def test_format_date(iso, label):
-    assert format_date(iso) == label
+def test_format_date(iso, with_year, label):
+    assert format_date(iso, with_year) == label
 
 
 def test_cents_to_field():

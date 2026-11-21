@@ -291,6 +291,12 @@ td form.inline input {
     gap: 6px;
 }
 
+/* Dates are ledger figures, quieter than the name */
+.cell-date {
+    color: var(--color-muted);
+    white-space: nowrap;
+}
+
 /* Place emojis after category names in mobile card layouts. */
 @media (max-width: 600px) {
     .table-cards .cell-value .emoji { order: 1; }
@@ -740,7 +746,7 @@ h1 {
     .table-cards {
         background: none;
     }
-    
+
     .table-cards th,
     .table-cards td {
         padding: var(--space-3);

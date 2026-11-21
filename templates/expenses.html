@@ -108,7 +108,7 @@
 
                     {% for e in expenses %}
                     <tr role="row">
-                        <td role="cell" data-label="Date">{{ e["date"] | date_label }}</td>
+                        <td role="cell" data-label="Date" class="mono cell-date">{{ e["date"] | date_label(with_year=not filters.month) }}</td>
                         <td role="cell" data-label="Name">{{ e["name"] | capitalize }}</td>
                         <td role="cell" data-label="Category">
                             <span class="cell-value">

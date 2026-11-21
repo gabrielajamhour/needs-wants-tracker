@@ -241,10 +241,17 @@ def test_stylesheet_keeps_row_actions_on_one_line_on_wide_screens(client):
     assert "td.actions .actions-group" in css
 
 
-def test_list_shows_dates_as_day_month_year(client, add_expense):
+def test_list_shows_dates_as_day_and_month(client, add_expense):
     add_expense(date="2026-11-11")
     page = client.get("/expenses").data.decode()
-    assert "11/11/2026" in page
+    assert "11 Nov" in page
+    assert "11 Nov 2026" not in page
+
+
+def test_list_shows_the_year_when_all_months_are_listed(client, add_expense):
+    add_expense(date="2026-11-11")
+    page = client.get("/expenses?month=all").data.decode()
+    assert "11 Nov 2026" in page
 
 
 def test_stylesheet_centers_titles_and_draws_the_table_grid(client):

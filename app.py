@@ -260,7 +260,7 @@ def list_expenses():
     # 'f' allows you to insert the 'where' variable into the query
 
     return render_template(
-        "index.html",
+        "expenses.html",
         expenses=expenses,
         total=sum(e["amount_cents"] for e in expenses),
         categories=get_categories(include_archived=True),

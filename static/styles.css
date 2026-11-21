@@ -310,8 +310,8 @@ td form.inline input {
 
 .type-tag::before {
     content: "";
-    width: 6px;
-    height: 6px;
+    width: 8px;
+    height: 8px;
     border-radius: 50%;
     background: var(--type-dot);
 }

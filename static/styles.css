@@ -313,12 +313,24 @@ td form.inline input {
     width: 6px;
     height: 6px;
     border-radius: 50%;
-    background: currentColor;
+    background: var(--type-dot);
 }
 
-.type-tag-needs { color: var(--color-needs); }
-.type-tag-wants { color: var(--color-wants-text); }
-.type-tag-savings { color: var(--color-savings-text); }
+/* The dot takes the bright fill colour; the text keeps the darker shade so it stays readable */
+.type-tag-needs {
+    --type-dot: var(--color-needs);
+    color: var(--color-needs);
+}
+
+.type-tag-wants {
+    --type-dot: var(--color-wants);
+    color: var(--color-wants-text);
+}
+
+.type-tag-savings {
+    --type-dot: var(--color-savings);
+    color: var(--color-savings-text);
+}
 
 /* Place emojis after category names in mobile card layouts. */
 @media (max-width: 600px) {

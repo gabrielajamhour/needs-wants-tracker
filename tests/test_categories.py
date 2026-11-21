@@ -149,3 +149,10 @@ def test_archived_category_is_marked_and_can_be_restored(client, category_id):
     page = client.get("/categories").data.decode()
     assert "category-state" in page
     assert "Restore" in page
+
+
+def test_add_form_picks_the_bucket_with_a_segmented_control(client):
+    """Check that the bucket is a radio group with Needs chosen by default."""
+    page = client.get("/categories").data.decode()
+    assert page.count('type="radio" name="type"') == 3
+    assert 'value="needs" checked' in page

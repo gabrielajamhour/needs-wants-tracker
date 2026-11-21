@@ -15,99 +15,103 @@
 
 {% macro emoji_field(field_id, value, label) %}
 
-    <span class="emoji-field">
-        <input
-            id="{{ field_id }}" 
-            class="emoji-input" 
-            name="emoji" 
-            type="text" 
-            size="3"
-            value="{{ value }}" 
-            autocomplete="off" 
-            aria-label="{{ label }}">
-        <button 
-            type="button" 
-            class="emoji-open emoji-choice" 
-            data-for="{{ field_id }}" 
-            hidden
-            aria-label="Change emoji, current: {{ value }}">
-            {{ value }}
-        </button>
-    </span>
+<span class="emoji-field">
+    <input id="{{ field_id }}" class="emoji-input" name="emoji" type="text" size="3" value="{{ value }}"
+        autocomplete="off" aria-label="{{ label }}">
+    <button type="button" class="emoji-open emoji-choice" data-for="{{ field_id }}" hidden
+        aria-label="Change emoji, current: {{ value }}">
+        {{ value }}
+    </button>
+</span>
 
 {% endmacro %}
 
-<h1>Categories</h1>
+<div class="categories-layout">
 
-<form method="post" class="row">
-    <input type="hidden" name="show" value="{{ selected }}">
-    <div>
-        <label for="name">New category</label>
-        <input 
-            id="name" 
-            name="name" 
-            type="text" 
-            maxlength="{{ MAX_CATEGORY_NAME_LENGTH }}" 
-            required
-            placeholder="e.g.: subscriptions" 
-            value="{{ form.name }}">
-    </div>
-    <div>
-        <label for="emoji-new">Emoji</label>
-        {{ emoji_field("emoji-new", form.emoji, "Emoji") }}
-    </div>
-    <div>
-        <label for="type">Type</label>
-        <select id="type" name="type" required>
-            <option value="">Choose...</option>
-            {% for value, label in [("needs", "Needs"), ("wants", "Wants"), ("savings", "Savings")] %}
-            <option value="{{ value }}"{% if form.type == value %} selected{% endif %}>{{ label }}</option>
+    <aside class="categories-side">
+
+        <h1>Categories</h1>
+        <p class="hint">Each category belongs to one bucket of the 50/30/20 split.</p>
+
+        <form method="post" class="add-category" aria-labelledby="add-category-title">
+            <h2 id="add-category-title" class="add-category-title">Add a category</h2>
+            <input type="hidden" name="show" value="{{ selected }}">
+
+            <div class="add-category-line">
+                <div>
+                    <label for="emoji-new">Emoji</label>
+                    {{ emoji_field("emoji-new", form.emoji, "Emoji") }}
+                </div>
+                <div class="grow">
+                    <label for="name">Name</label>
+                    <input id="name" name="name" type="text" maxlength="{{ MAX_CATEGORY_NAME_LENGTH }}" required
+                        placeholder="e.g. Subscriptions" value="{{ form.name }}">
+                </div>
+            </div>
+
+            <div>
+                <span class="field-label" id="bucket-label">Bucket</span>
+                <div class="segmented" role="radiogroup" aria-labelledby="bucket-label">
+
+                    {% for value, label in [("needs", "Needs"), ("wants", "Wants"), ("savings", "Savings")] %}
+                    <label class="segmented-option segmented-option-{{ value }}">
+                        <input type="radio" name="type" value="{{ value }}" {% if form.type==value or (not form.type and
+                            value=="needs" ) %}checked{% endif %} required>
+                        <span class="segmented-dot" aria-hidden="true"></span>
+                        {{ label }}
+                    </label>
+                    {% endfor %}
+
+                </div>
+            </div>
+
+            <button type="submit">Add category</button>
+        </form>
+
+    </aside>
+
+    <div class="categories-main">
+
+        <nav class="segmented" aria-label="Filter categories by type">
+
+            {% for value, label in [("", "All"), ("needs", "Needs"), ("wants", "Wants"), ("savings", "Savings")] %}
+
+            <a href="{{ url_for('manage_categories', show=value or None) }}"
+                class="segmented-option{{ ' is-active' if selected == value }}" {% if selected==value %}
+                aria-current="page" {% endif %}>
+                {{ label }} <span class="segmented-count">{{ counts[value] }}</span>
+            </a>
+
             {% endfor %}
-        </select>
-    </div>
+        </nav>
 
-    <button type="submit">Add</button>
-</form>
+        {% if groups %}
 
-<nav class="segmented" aria-label="Filter categories by type">
+        {% for group in groups %}
+        <section class="category-group category-group-{{ group.type }}" aria-labelledby="group-{{ group.type }}">
 
-    {% for value, label in [("", "All"), ("needs", "Needs"), ("wants", "Wants"), ("savings", "Savings")] %}
+            <header class="category-group-head">
+                <h2 class="category-group-title" id="group-{{ group.type }}">{{ group.type | capitalize }}</h2>
+                <span class="category-group-count">{{ counts[group.type] }} categor{{ "y" if counts[group.type] == 1
+                    else "ies" }}</span>
+            </header>
 
-    <a href="{{ url_for('manage_categories', show=value or None) }}"
-       class="segmented-option{{ ' is-active' if selected == value }}"
-        {% if selected == value %}
-            aria-current="page"
-        {% endif %}>
-        {{ label }} <span class="segmented-count">{{ counts[value] }}</span>
-    </a>
+            <ul class="category-list">
 
-    {% endfor %}
-</nav>
-
-{% if groups %}
-
-    {% for group in groups %}
-    <section class="category-group category-group-{{ group.type }}" aria-labelledby="group-{{ group.type }}">
-
-        <header class="category-group-head">
-            <h2 class="category-group-title" id="group-{{ group.type }}">{{ group.type | capitalize }}</h2>
-            <span class="category-group-count">{{ counts[group.type] }} categor{{ "y" if counts[group.type] == 1 else "ies" }}</span>
-        </header>
-
-        <ul class="category-list">
-
-            {% for c in group.categories %}
+                {% for c in group.categories %}
 
                 {% if edit and edit.id == c["id"] %}
 
                 <li class="category-row is-editing">
-                    <form method="post" action="{{ url_for('edit_category', category_id=c['id']) }}" class="rename-form">
+                    <form method="post" action="{{ url_for('edit_category', category_id=c['id']) }}"
+                        class="rename-form">
                         <input type="hidden" name="show" value="{{ selected }}">
                         {{ emoji_field("emoji-" ~ c["id"], edit.emoji, "Emoji of " ~ (c["name"] | capitalize)) }}
                         <input name="name" type="text" maxlength="{{ MAX_CATEGORY_NAME_LENGTH }}" required
                             value="{{ edit.name }}" aria-label="Name of {{ c['name'] | capitalize }}" autofocus>
                         <button type="submit" class="small">Save name</button>
-                        <a class="button ghost small" href="{{ url_for('manage_categories', show=selected or None) }}">Cancel</a>
+                        <a class="button ghost small"
+                            href="{{ url_for('manage_categories', show=selected or None) }}">Cancel</a>
                     </form>
                 </li>
 
@@ -118,26 +122,32 @@
                     <span class="category-name">{{ c["name"] | capitalize }}</span>
                     {% if not c["is_active"] %}<span class="category-state">Archived</span>{% endif %}
                     <span class="category-uses">{{ uses_label(c["uses"]) }}</span>
-                    <a class="button quiet small" href="{{ url_for('manage_categories', show=selected or None, edit=c['id']) }}">Rename</a>
+                    <a class="button quiet small"
+                        href="{{ url_for('manage_categories', show=selected or None, edit=c['id']) }}">Rename</a>
                     <form method="post" action="{{ url_for('toggle_category', category_id=c['id']) }}" class="inline">
                         <input type="hidden" name="show" value="{{ selected }}">
-                        <button type="submit" class="quiet small">{{ "Archive" if c["is_active"] else "Restore" }}</button>
+                        <button type="submit" class="quiet small">{{ "Archive" if c["is_active"] else "Restore"
+                            }}</button>
                     </form>
                 </li>
 
                 {% endif %}
 
-            {% endfor %}
+                {% endfor %}
 
-        </ul>
-    </section>
-    {% endfor %}
+            </ul>
+        </section>
+        {% endfor %}
 
-{% else %}
+        {% else %}
 
-    <p>No categories of this type.</p>
+        <p>No categories of this type.</p>
 
-{% endif %}
+        {% endif %}
+
+    </div>
+
+</div>
 
 <dialog id="emoji-dialog" aria-label="Choose emoji">
     <emoji-picker></emoji-picker>

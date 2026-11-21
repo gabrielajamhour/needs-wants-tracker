@@ -343,7 +343,7 @@ def test_invalid_category_keeps_what_the_user_typed(client):
     page = response.data.decode()
     assert "That is not an emoji." in page
     assert 'value="My new thing"' in page
-    assert 'value="wants" selected' in page
+    assert 'value="wants" checked' in page
 
 
 def test_failed_edit_keeps_what_the_user_typed(client, category_id):

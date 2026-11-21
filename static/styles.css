@@ -693,6 +693,7 @@ button:hover, .button:hover {
 }
 
 .expenses-count strong {
+    font-size: 15px;
     font-weight: 500;
     color: var(--color-ink-strong);
 }

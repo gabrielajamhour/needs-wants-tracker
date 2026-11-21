@@ -584,3 +584,14 @@ def test_total_row_uses_the_singular_for_one_expense(client, add_expense):
     add_expense(date="2026-11-11")
     page = client.get("/expenses").data.decode()
     assert "Total of 1 expense<" in page
+
+
+def test_delete_asks_for_confirmation_in_a_dialog(client, add_expense):
+    """Check that each row names its expense for the dialog, with confirm() kept as the fallback."""
+    add_expense(name="Supermarket", date="2026-11-11")
+    page = client.get("/expenses").data.decode()
+    assert '<dialog id="delete-dialog"' in page
+    assert 'data-delete-name="Supermarket"' in page
+    assert 'data-delete-amount="' in page
+    assert "Delete expense" in page
+    assert "confirm(" in page

@@ -225,7 +225,13 @@ def test_add_button_uses_an_icon_not_a_text_plus(client):
     assert ">+</span>" not in page
 
 
-@pytest.mark.parametrize("url, header", [("/expenses", "Actions"), ("/categories", "Edit")])
+@pytest.mark.parametrize(
+    "url, header",
+    [
+        ("/expenses", '<span class="sr-only">Actions</span>'),
+        ("/categories", "Edit"),
+    ],
+)
 def test_actions_column_header_can_shrink_to_fit(client, add_expense, url, header):
     add_expense(date="2026-11-11")
     page = client.get(url).data.decode()

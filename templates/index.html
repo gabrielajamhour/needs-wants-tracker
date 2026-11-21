@@ -37,16 +37,20 @@
             <select id="category_id" name="category_id">
                 <option value="">All</option>
 
-                {% for c in categories %}
+                {% for kind in ["needs", "wants", "savings"] %}
+                    <optgroup label="{{ kind | capitalize }}">
+                        
+                        {% for c in categories if c["type"] == kind %}
+                        <option value="{{ c['id'] }}" data-type="{{ kind }}"
+                            {% if filters.category_id == c['id'] %}
+                                selected
+                            {% endif %}
+                        >
+                            {{ c["emoji"] }} {{ c["name"] | capitalize }}{% if not c["is_active"] %} (archived){% endif %}
+                        </option>
+                        {% endfor %}
 
-                <option value="{{ c['id'] }}"
-                    {% if filters.category_id == c['id'] %}
-                        selected
-                    {% endif %}
-                >
-                    {{ c["name"] | capitalize }}
-                </option>
-
+                    </optgroup>
                 {% endfor %}
 
             </select>

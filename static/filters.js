@@ -16,6 +16,25 @@
         form.submit();
     }
 
+    var category = form.elements.category_id;
+    var type = form.elements.type;
+
+    // Choosing a category fills in its type
+    category.addEventListener("change", function () {
+        var option = category.selectedOptions[0];
+        if (option && option.dataset.type) {
+            type.value = option.dataset.type;
+        }
+    });
+
+    // Choosing a type that does not match the chosen category clears the category
+    type.addEventListener("change", function () {
+        var option = category.selectedOptions[0];
+        if (type.value && option && option.dataset.type && option.dataset.type !== type.value) {
+            category.value = "";
+        }
+    });
+
     form.querySelectorAll("select").forEach(function (select) {
         select.addEventListener("change", apply);
     });

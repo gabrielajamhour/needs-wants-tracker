@@ -1901,3 +1901,37 @@ a.segmented-option {
         display: block;
     }
 }
+
+/* Small screens: the rename form has two lines. The emoji and the name come first;
+   Save name and Cancel sit below, on the right. */
+@media (max-width: 600px) {
+    .category-row.is-editing {
+        padding: var(--space-3);
+    }
+
+    .rename-form {
+        display: grid;
+        grid-template-columns: auto minmax(0, 1fr) auto auto;
+        gap: var(--space-2);
+    }
+
+    .rename-form .emoji-field {
+        grid-column: 1;
+        grid-row: 1;
+    }
+
+    .rename-form input[name="name"] {
+        grid-column: 2 / -1;
+        grid-row: 1;
+    }
+
+    .rename-form > button {
+        grid-column: 3;
+        grid-row: 2;
+    }
+
+    .rename-form > .button {
+        grid-column: 4;
+        grid-row: 2;
+    }
+}

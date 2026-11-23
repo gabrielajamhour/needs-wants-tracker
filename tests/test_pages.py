@@ -587,3 +587,9 @@ def test_expense_form_amount_field_is_focused_and_has_a_currency_sign(client):
     page = client.get("/expenses/new").data.decode()
     assert "autofocus" in page
     assert 'class="amount-currency"' in page
+
+
+def test_expense_form_has_a_suggestion_line_with_a_use_button(client):
+    page = client.get("/expenses/new").data.decode()
+    assert 'id="suggestion" class="suggestion" hidden' in page
+    assert 'id="suggestion-use" class="button ghost small"' in page

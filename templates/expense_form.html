@@ -36,9 +36,10 @@
         <div class="field">
             <label for="name">Name</label>
             <input id="name" name="name" type="text" maxlength="100" value="{{ form.get('name', '') }}" required>
-            <div id="suggestion" class="hint" hidden aria-live="polite">
-                Suggested category: <strong id="suggestion-label"></strong>
-                <button type="button" id="suggestion-use">Use</button>
+            <div id="suggestion" class="suggestion" hidden aria-live="polite">
+                <span>Suggested category:</span>
+                <strong id="suggestion-label"></strong>
+                <button type="button" id="suggestion-use" class="button ghost small"></button>
             </div>
         </div>
 
@@ -108,6 +109,10 @@
         let timer = null;
         let current = null; // Stores the category suggestion currently being displayed
 
+        function capitalize(text) {
+            return text.charAt(0).toUpperCase() + text.slice(1);
+        }
+
         // Hide the suggestion and clear the stored suggestion
         function hide() {
             box.hidden = true;
@@ -138,7 +143,10 @@
                 }
 
                 current = data.suggestion;
-                label.textContent = current.emoji + " " + current.name + " (" + current.type + ")";
+
+                label.textContent = current.emoji + " " + capitalize(current.name) + " · " + capitalize(current.type);
+                useButton.textContent = "Use";
+
                 box.hidden = false;
             } catch (error) {
                 hide();

@@ -1943,3 +1943,25 @@ a.segmented-option {
         align-items: stretch;
     }
 }
+
+/* Very narrow screens (320 px): tighter header so nothing is cut off */
+@media (max-width: 360px) {
+    :root {
+        --gutter: 12px;
+    }
+
+    .header-inner {
+        gap: var(--space-2);
+    }
+
+    .main-nav {
+        gap: var(--space-2);
+        font-size: 14px;
+    }
+
+    .month-nav .month-title,
+    .month-nav .month-picker {
+        min-width: 0;
+        font-size: 18px;
+    }
+}

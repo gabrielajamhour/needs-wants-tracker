@@ -601,3 +601,10 @@ def test_expense_form_manage_link_is_outside_the_select(client):
     assert "manage-categories-link" not in select
     assert page.index('id="category_id"') < page.index('id="manage-categories-link"')
     assert page.index('id="manage-categories-link"') < page.index('id="date"')
+
+
+def test_new_expense_form_keeps_a_draft_but_not_after_an_error(client):
+    assert 'data-draft="expense-new"' in client.get("/expenses/new").data.decode()
+
+    page = client.post("/expenses/new", data={}).data.decode()
+    assert "data-draft" not in page

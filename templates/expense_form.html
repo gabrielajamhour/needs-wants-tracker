@@ -12,7 +12,11 @@
 
     <h1>{{ heading }}</h1>
 
-    <form method="post" class="expense-form">
+    <form method="post" class="expense-form"
+        {% if use_draft %} 
+            data-draft="expense-new"
+        {% endif %}
+    >
 
         <div class="field amount-field">
             <label for="amount">Amount</label>
@@ -81,7 +85,7 @@
 
         <div class="form-actions">
             <button type="submit">Save</button>
-            <a class="button ghost" href="{{ back_url }}">Cancel</a>
+            <a class="button ghost" href="{{ back_url }}" data-clear-draft>Cancel</a>
         </div>
 
     </form>
@@ -157,6 +161,8 @@
         useButton.addEventListener("click", function () {
             if (current) {
                 select.value = String(current.id);
+                // Changing the value by code fires no event, so tell the form (the draft listens to it)
+                select.dispatchEvent(new Event("change", { bubbles: true }));
                 hide();
             }
         });
@@ -166,5 +172,7 @@
     })();
 
 </script>
+
+<script src="{{ url_for('static', filename='expense-draft.js') }}"></script>
 
 {% endblock %}

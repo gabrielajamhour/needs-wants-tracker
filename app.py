@@ -351,6 +351,7 @@ def new_expense():
         categories=categories,
         form={"date": today().isoformat()},
         back_url=url_for("list_expenses"),
+        use_draft=True,
     )
 
 

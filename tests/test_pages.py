@@ -608,3 +608,24 @@ def test_new_expense_form_keeps_a_draft_but_not_after_an_error(client):
 
     page = client.post("/expenses/new", data={}).data.decode()
     assert "data-draft" not in page
+
+
+def test_save_and_add_another_returns_to_an_empty_form(client, category_id):
+    """Check that saving with the add another button leads back to the new expense form."""
+    response = client.post(
+        "/expenses/new",
+        data={
+            "name": "Bread",
+            "amount": "2,50",
+            "date": "2026-11-15",
+            "category_id": category_id("Groceries"),
+            "action": "add_another",
+        },
+    )
+    assert response.status_code == 302
+    assert response.headers["Location"].endswith("/expenses/new")
+
+
+def test_only_the_new_expense_form_offers_save_and_add_another(client):
+    """Check that the add another button is shown when creating, not when editing."""
+    assert "Save and add another" in client.get("/expenses/new").data.decode()

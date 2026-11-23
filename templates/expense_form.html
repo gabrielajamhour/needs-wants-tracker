@@ -84,7 +84,10 @@
         </div>
 
         <div class="form-actions">
-            <button type="submit">Save</button>
+            <button type="submit">{% if add_another %}Save expense{% else %}Save changes{% endif %}</button>
+            {% if add_another %}
+                <button type="submit" name="action" value="add_another" class="button ghost">Save and add another</button>
+            {% endif %}
             <a class="button ghost" href="{{ back_url }}" data-clear-draft>Cancel</a>
         </div>
 

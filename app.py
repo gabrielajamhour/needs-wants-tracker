@@ -332,6 +332,9 @@ def new_expense():
 
             flash("Expense added.", "success")  # Flask's temporary messaging system
 
+            if request.form.get("action") == "add_another":
+                return redirect(url_for("new_expense"))
+
             return redirect(url_for("list_expenses"))
 
         for message in errors:
@@ -343,6 +346,7 @@ def new_expense():
             categories=categories,
             form=request.form,
             back_url=url_for("list_expenses"),
+            add_another=True,
         ), 400
 
     return render_template(
@@ -352,6 +356,7 @@ def new_expense():
         form={"date": today().isoformat()},
         back_url=url_for("list_expenses"),
         use_draft=True,
+        add_another=True,
     )
 
 

@@ -14,12 +14,23 @@
 
     <form method="post" class="expense-form">
 
-        <div class="field">
-            <label for="amount">Amount (€)</label>
-            <input id="amount" name="amount" type="text" inputmode="decimal" value="{{ form.get('amount', '') }}"
-                placeholder="0,00" required>
-            <!-- Maintain the value when the form needs to be displayed again following an error -->
-            <span class="hint">Use a comma for the cents (e.g.: 12,50).</span>
+        <div class="field amount-field">
+            <label for="amount">Amount</label>
+            <div class="amount-input">
+                <input
+                    id="amount"
+                    name="amount"
+                    type="text"
+                    inputmode="decimal"
+                    value="{{ form.get('amount', '') }}"
+                    placeholder="0,00"
+                    autocomplete="off"
+                    autofocus
+                    required
+                > <!-- Maintain the value when the form needs to be displayed again following an error -->
+                <span class="amount-currency" aria-hidden="true">€</span>
+            </div>
+            <span class="hint">Use a comma for cents, e.g. 12,50</span>
         </div>
 
         <div class="field">

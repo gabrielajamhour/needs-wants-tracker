@@ -1636,3 +1636,38 @@ a.segmented-option {
     border-top: 1px solid var(--color-ink);
     padding-top: var(--space-5);
 }
+
+.amount-input {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-3);
+    border-bottom: 2px solid var(--color-ink);
+}
+
+/* Overrides the global input box: this field has no box, only the bottom line */
+.expense-form .amount-input input {
+    flex: 1;
+    min-width: 0;
+    height: auto;
+    padding: var(--space-2) 0;
+    border: none;
+    border-radius: 0;
+    background: none;
+    box-shadow: none;
+    outline: none;
+    font-family: var(--font-mono);
+    font-size: 44px;
+    font-weight: 400;
+    font-variant-numeric: tabular-nums;
+    line-height: 1.1;
+}
+
+.expense-form .amount-input input::placeholder {
+    color: var(--color-hairline);
+}
+
+.amount-currency {
+    font-family: var(--font-mono);
+    font-size: 24px;
+    color: var(--color-muted);
+}

@@ -581,3 +581,9 @@ def test_delete_asks_for_confirmation_in_a_dialog(client, add_expense):
 def test_expense_form_has_a_back_link(client):
     page = client.get("/expenses/new").data.decode()
     assert '<a class="back-link" href="/expenses">← Back to expenses</a>' in page
+
+
+def test_expense_form_amount_field_is_focused_and_has_a_currency_sign(client):
+    page = client.get("/expenses/new").data.decode()
+    assert "autofocus" in page
+    assert 'class="amount-currency"' in page

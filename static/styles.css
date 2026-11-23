@@ -449,15 +449,11 @@ emoji-picker {
     height: 380px;
 }
 
-/* Muted color for hint links */
-.hint-link {
-    color: var(--color-muted);
-}
-
-/* Hint links shown below form fields */
+/* Hint links shown below form fields, in the muted color */
 .hint-link {
     display: inline-block;
     margin-top: 6px;
+    color: var(--color-muted);
     font-size: 0.9rem;
 }
 
@@ -727,14 +723,11 @@ button:hover, .button:hover {
     flex-wrap: wrap;
     align-items: center;
     gap: var(--space-3);
+    margin: var(--space-5) 0 var(--space-4);
 }
 
 .expenses-toolbar .month-nav {
     margin: 0;
-}
-
-.expenses-toolbar {
-    margin: var(--space-5) 0 var(--space-4);
 }
 
 /* "All months" title: left-aligned, no reserved width because there are no arrows */

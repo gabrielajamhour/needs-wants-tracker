@@ -241,7 +241,9 @@ input, select {
         display: grid;
         grid-template-columns: auto minmax(0, 1fr) auto auto;
         align-items: center;
-        column-gap: var(--space-2);
+        grid-template-columns: auto auto auto max-content;
+        justify-content: space-between;
+        column-gap: var(--space-3);
         margin-bottom: var(--space-2);
         padding: var(--space-3);
         border: 1px solid var(--color-hairline);
@@ -251,13 +253,15 @@ input, select {
     .table-cards .cell-title {
         grid-column: 1 / 4;
         grid-row: 1;
-        font-size: 16px;
+        font-size: 17px;
     }
 
     .table-cards td.num {
         grid-column: 4;
         grid-row: 1;
         text-align: right;
+        white-space: nowrap;
+        font-size: 17px;
     }
 
     .table-cards .cell-date {
@@ -846,10 +850,16 @@ h2 {
 @media (max-width: 600px) {
     main { padding-block: var(--space-4); }
 
-    /* Row actions are icons: keep them together at the right of the row, with no gap between them */
+    /* Row actions are icons: kept together and centered under the amount */
     .table-cards .actions-group {
-        justify-content: flex-end;
+        flex-wrap: nowrap;
+        justify-content: center;
         gap: 0;
+    }
+
+    /* Narrower than the touch target so the pencil and the bin sit close together */
+    .table-cards .row-action {
+        width: 32px;
     }
 }
 

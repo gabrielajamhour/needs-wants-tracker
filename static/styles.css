@@ -39,7 +39,6 @@
     --space-5: 24px;
     --space-6: 32px;
     --space-7: 48px;
-    --space-8: 72px;
 
     /* Shapes */
     --radius-sm: 2px;
@@ -56,12 +55,6 @@
 /* Apply border-box sizing to all elements and their pseudo-elements */
 *, *::before, *::after {
     box-sizing: border-box;
-}
-
-/* Prevent inputs and select elements from exceeding their container width */
-input, select {
-    max-width: 100%;
-    min-width: 0;
 }
 
 /* Page body */
@@ -85,13 +78,14 @@ main {
 table {
     width: 100%;
     border-collapse: collapse;
-    background: #fff;
+    background: var(--color-field);
 }
 
 /* Table headers and cells */
 th, td {
     text-align: left;
-    padding: 12px;
+    padding: 10px 12px;
+    vertical-align: middle;
     border-bottom: 1px solid var(--color-hairline);
 }
 
@@ -167,10 +161,12 @@ label {
     color: var(--color-muted);
 }
 
-/* Form inputs and dropdowns */
+/* Form inputs and dropdowns; they never exceed their container */
 input, select {
     display: block;
     width: 100%;
+    min-width: 0;
+    max-width: 100%;
     min-height: var(--control-height);
     margin-top: 6px;
     padding: 0 var(--space-3);
@@ -187,11 +183,12 @@ input, select {
     color: var(--color-muted);
 }
 
-/* Form rows */
+/* Form rows; filter rows and chips are centered */
 .row {
-    display: flex; 
+    display: flex;
     gap: 12px;
     align-items: end;
+    justify-content: center;
     flex-wrap: wrap;
     margin-bottom: 16px;
 }
@@ -539,6 +536,7 @@ html {
 /* Pushes the add button to the right and keeps it at its own height */
 .add-button {
     align-self: center;
+    gap: 8px;
     margin-left: auto;
 }
 
@@ -796,9 +794,11 @@ button:hover, .button:hover {
     margin-top: var(--space-4);
 }
 
-/* Inline forms sit next to other actions without extra spacing */
+/* Inline forms sit next to other actions without extra spacing; controls stay aligned */
 form.inline {
     display: inline-flex;
+    align-items: center;
+    gap: 6px;
     margin: 0;
 }
 
@@ -821,15 +821,12 @@ h1 {
     margin: var(--space-5) 0 var(--space-6);
     font-size: 1.75rem;
     line-height: 1.2;
+    text-align: center;
 }
 
 h2 {
     margin: 0 0 var(--space-2);
     font-size: 1.2rem;
-}
-
-.row {
-    margin-bottom: var(--space-4);
 }
 
 /* Tables are wrapped in .table-wrap, so spacing goes between the wrappers */
@@ -846,23 +843,6 @@ h2 {
         justify-content: flex-end;
         gap: 0;
     }
-}
-
-/* Row proportions: slightly taller small buttons, slightly tighter rows */
-th, td {
-    padding: 10px 12px;
-    vertical-align: middle;
-}
-
-/* Keep controls inside inline forms aligned and the same height as the buttons */
-form.inline {
-    align-items: center;
-    gap: 6px;
-}
-
-/* The plus icon scales with the text and inherits its color */
-.add-button {
-    gap: 8px;
 }
 
 .add-button .plus {
@@ -891,15 +871,6 @@ form.inline {
     td.actions .actions-group {
         flex-wrap: nowrap;
     }
-}
-
-/* Page titles, filter rows and chips are centered */
-h1 {
-    text-align: center;
-}
-
-.row {
-    justify-content: center;
 }
 
 /* Wide screens: a ledger table. No grid: a heavier rule under the header and a soft rule between rows.

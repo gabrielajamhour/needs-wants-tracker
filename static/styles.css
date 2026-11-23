@@ -1736,3 +1736,54 @@ a.segmented-option {
     font-size: inherit;
     text-decoration: underline;
 }
+
+/* Small screens: each bucket is a small grid. Row 1: title and share on the left, figure on the right.
+   Row 2: the bar. Row 3: the status on the left, the limit on the right. */
+@media (max-width: 600px) {
+    .bucket {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        column-gap: var(--space-3);
+    }
+
+    .bucket-head {
+        grid-column: 1;
+        grid-row: 1;
+        align-self: center;
+        justify-content: flex-start;
+        gap: var(--space-2);
+    }
+
+    .bucket .figure-lg {
+        grid-column: 2;
+        grid-row: 1;
+        margin: 0;
+        font-size: 22px;
+    }
+
+    .bucket-bar {
+        grid-column: 1 / -1;
+        grid-row: 2;
+        margin-top: var(--space-3);
+    }
+
+    .bucket-status {
+        grid-column: 1;
+        grid-row: 3;
+        margin-top: var(--space-2);
+    }
+
+    .bucket-limit {
+        grid-column: 2;
+        grid-row: 3;
+        margin-top: var(--space-2);
+        font-family: var(--font-mono);
+        font-size: 13px;
+        font-variant-numeric: tabular-nums;
+        text-align: right;
+    }
+
+    .bucket .ledger {
+        grid-column: 1 / -1;
+    }
+}

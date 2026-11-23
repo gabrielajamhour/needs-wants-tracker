@@ -120,8 +120,10 @@
                 <li class="category-row{{ '' if c['is_active'] else ' is-archived' }}">
                     <span class="category-emoji" aria-hidden="true">{{ c["emoji"] }}</span>
                     <span class="category-name">{{ c["name"] | capitalize }}</span>
-                    {% if not c["is_active"] %}<span class="category-state">Archived</span>{% endif %}
-                    <span class="category-uses">{{ uses_label(c["uses"]) }}</span>
+                    <span class="category-meta">
+                        {% if not c["is_active"] %}<span class="category-state">Archived</span>{% endif %}
+                        <span class="category-uses">{{ uses_label(c["uses"]) }}</span>
+                    </span>
                     <a class="button quiet small"
                         href="{{ url_for('manage_categories', show=selected or None, edit=c['id']) }}">Rename</a>
                     <form method="post" action="{{ url_for('toggle_category', category_id=c['id']) }}" class="inline">

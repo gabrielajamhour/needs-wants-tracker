@@ -156,3 +156,9 @@ def test_add_form_picks_the_bucket_with_a_segmented_control(client):
     page = client.get("/categories").data.decode()
     assert page.count('type="radio" name="type"') == 3
     assert 'value="needs" checked' in page
+
+
+def test_category_rows_group_state_and_usage(client):
+    """Check that each category row wraps its state and usage for the small screen layout."""
+    page = client.get("/categories").data.decode()
+    assert 'class="category-meta"' in page

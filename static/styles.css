@@ -1263,6 +1263,11 @@ a.segmented-option {
     color: var(--color-muted);
 }
 
+/* Wide screens: the wrapper disappears, so state and usage stay in the row's flex line */
+.category-meta {
+    display: contents;
+}
+
 /* Archived rows: muted text and a faint diagonal hatch (no opacity, so the contrast stays) */
 .category-row.is-archived {
     color: var(--color-muted);
@@ -1831,5 +1836,68 @@ a.segmented-option {
 
     .bucket .ledger {
         grid-column: 1 / -1;
+    }
+}
+
+/* Small screens: a category row is a grid. The emoji and the actions span two lines;
+   the name sits above its usage. Rename and Archive have fixed columns, so they line up in every row. */
+@media (max-width: 600px) {
+    .category-row {
+        display: grid;
+        grid-template-columns: auto minmax(0, 1fr) 5rem 5rem;
+        column-gap: var(--space-2);
+        row-gap: 0;
+        align-items: center;
+        padding: var(--space-1) 0;
+    }
+
+    .category-emoji {
+        grid-column: 1;
+        grid-row: 1 / 3;
+    }
+
+    .category-name {
+        grid-column: 2;
+        grid-row: 1;
+        align-self: end;
+        line-height: 1.3;
+    }
+
+    .category-meta {
+        display: block;
+        grid-column: 2;
+        grid-row: 2;
+        align-self: start;
+        font-size: 12px;
+        line-height: 1.3;
+    }
+
+    .category-state {
+        margin-right: var(--space-2);
+    }
+
+    .category-uses {
+        min-width: 0;
+        text-align: left;
+    }
+
+    .category-row > .button {
+        grid-column: 3;
+        grid-row: 1 / 3;
+        width: 100%;
+    }
+
+    .category-row > form {
+        grid-column: 4;
+        grid-row: 1 / 3;
+    }
+
+    .category-row > form button {
+        width: 100%;
+    }
+
+    /* The row being renamed keeps its own layout (its form wraps in the next step) */
+    .category-row.is-editing {
+        display: block;
     }
 }

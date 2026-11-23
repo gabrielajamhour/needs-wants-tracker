@@ -216,9 +216,13 @@ input, select {
         overflow: hidden; clip: rect(0 0 0 0);
     }
     .table-cards, .table-cards tbody, .table-cards tfoot, .table-cards tr, .table-cards td { display: block; }
+
+    /* The table keeps the page background on small screens; the cards carry their own border */
+    .table-cards {
+        background: none;
+    }
     
-    /* Rows are ledger lines, not cards: name and amount on the first line;
-    date, category, type and the icon actions on the second */
+    /* Reset the wide-table styling; the card look lives on the tbody rows below */
     .table-cards tr {
         padding: 0;
         border: 0;
@@ -231,13 +235,17 @@ input, select {
         text-align: left;
     }
 
+    /* Each expense is a card: name and amount on the first line;
+    date, category, type and the icon actions on the second */
     .table-cards tbody tr {
         display: grid;
         grid-template-columns: auto minmax(0, 1fr) auto auto;
         align-items: center;
         column-gap: var(--space-2);
-        padding: var(--space-2) 0;
-        border-bottom: 1px solid var(--color-hairline-soft);
+        margin-bottom: var(--space-2);
+        padding: var(--space-3);
+        border: 1px solid var(--color-hairline);
+        border-radius: var(--radius-md);
     }
 
     .table-cards .cell-title {

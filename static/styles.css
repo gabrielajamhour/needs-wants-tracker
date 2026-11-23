@@ -238,7 +238,7 @@ input, select {
         display: grid;
         grid-template-columns: auto minmax(0, 1fr) auto auto;
         align-items: center;
-        column-gap: var(--space-3);
+        column-gap: var(--space-2);
         padding: var(--space-2) 0;
         border-bottom: 1px solid var(--color-hairline-soft);
     }
@@ -262,6 +262,11 @@ input, select {
         color: var(--color-muted);
     }
 
+    .table-cards .cell-category,
+    .table-cards .cell-type {
+        font-size: 14px;
+    }
+
     .table-cards .cell-category {
         grid-column: 2;
         grid-row: 2;
@@ -277,9 +282,8 @@ input, select {
 
     /* A long category name is cut with an ellipsis before it can push the other cells */
     .table-cards .cell-category .cell-name {
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
+        overflow-wrap: anywhere;
+        line-height: 1.25;
     }
 
     .table-cards .cell-type {
@@ -844,9 +848,10 @@ h2 {
 @media (max-width: 600px) {
     main { padding-block: var(--space-4); }
 
-    /* Row actions are icons: keep them together at the right of the card */
+    /* Row actions are icons: keep them together at the right of the row, with no gap between them */
     .table-cards .actions-group {
         justify-content: flex-end;
+        gap: 0;
     }
 }
 

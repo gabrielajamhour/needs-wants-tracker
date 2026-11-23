@@ -958,11 +958,32 @@ h1 {
     .summary-toolbar {
         flex-direction: column;
         align-items: stretch;
+        gap: var(--space-5)
     }
     
     .summary-toolbar .hint {
         flex: none;
         text-align: left;
+    }
+
+    /* The income line goes edge to edge like the month row: label and figure together
+    on the left, the link on the right */
+    .summary-toolbar .income-line {
+        flex-wrap: nowrap;
+    }
+
+    /* "Edit income" is a light underlined link here, not a boxed button */
+    .income-line .button {
+        margin-left: auto;
+        padding: 0 0 0 var(--space-2);
+        box-shadow: none;
+        background: none;
+        text-decoration: underline;
+        text-underline-offset: 3px;
+    }
+
+    .income-line .button:hover {
+        background: none;
     }
 }
 
@@ -1375,6 +1396,13 @@ a.segmented-option {
     display: grid;
     gap: var(--space-5) var(--space-7);
     margin: var(--space-6) 0;
+}
+
+/* Small screens: the same space above the hero as between the month row and the income line */
+@media (max-width: 600px) {
+    .hero {
+        margin-top: var(--space-5);
+    }
 }
 
 /* Wide screens: the number and the bar side by side */

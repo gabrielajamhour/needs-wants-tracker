@@ -219,35 +219,85 @@ input, select {
         overflow: hidden; clip: rect(0 0 0 0);
     }
     .table-cards, .table-cards tbody, .table-cards tfoot, .table-cards tr, .table-cards td { display: block; }
+    
+    /* Rows are ledger lines, not cards: name and amount on the first line;
+    date, category, type and the icon actions on the second */
     .table-cards tr {
-        background: #fff; border: 1px solid var(--color-hairline); border-radius: 8px;
-        margin-bottom: 12px; padding: 8px 12px;
+        padding: 0;
+        border: 0;
+        background: none;
     }
+
     .table-cards td {
-        display: flex; justify-content: space-between; align-items: center;
-        gap: 12px; padding: 8px 0; border-bottom: 0; text-align: right;
-    }
-    .table-cards td::before {
-        content: attr(data-label); flex-shrink: 0;
-        font-size: 0.85rem; color: var(--color-muted); text-align: left;
-    }
-    .table-cards td.actions {
-        flex-direction: column; align-items: stretch; text-align: left;
-    }
-    .table-cards td.actions::before { content: none; }
-
-        /* The total row has no labels: hide the empty ::before and place label and amount */
-    .table-cards tfoot td::before {
-        content: none;
-    }
-
-    .table-cards .total-label {
-        justify-content: flex-start;
+        padding: 0;
+        border: 0;
         text-align: left;
     }
 
-    .table-cards .total-amount {
-        justify-content: flex-end;
+    .table-cards tbody tr {
+        display: grid;
+        grid-template-columns: auto minmax(0, 1fr) auto auto;
+        align-items: center;
+        column-gap: var(--space-3);
+        padding: var(--space-2) 0;
+        border-bottom: 1px solid var(--color-hairline-soft);
+    }
+
+    .table-cards .cell-title {
+        grid-column: 1 / 4;
+        grid-row: 1;
+        font-size: 16px;
+    }
+
+    .table-cards td.num {
+        grid-column: 4;
+        grid-row: 1;
+        text-align: right;
+    }
+
+    .table-cards .cell-date {
+        grid-column: 1;
+        grid-row: 2;
+        font-size: 13px;
+        color: var(--color-muted);
+    }
+
+    .table-cards .cell-category {
+        grid-column: 2;
+        grid-row: 2;
+        min-width: 0;
+    }
+
+    .table-cards .cell-category .cell-value {
+        display: flex;
+        align-items: center;
+        gap: var(--space-2);
+        min-width: 0;
+    }
+
+    /* A long category name is cut with an ellipsis before it can push the other cells */
+    .table-cards .cell-category .cell-name {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .table-cards .cell-type {
+        grid-column: 3;
+        grid-row: 2;
+    }
+
+    .table-cards td.actions {
+        grid-column: 4;
+        grid-row: 2;
+    }
+
+    /* Total row: the label on the left and the amount on the right, on one line */
+    .table-cards tfoot tr {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        padding: var(--space-3) 0 0;
     }
 
     /* The empty cell under Actions only exists to complete the wide table */
@@ -320,11 +370,6 @@ input, select {
 .type-tag-savings {
     --type-dot: var(--color-savings);
     color: var(--color-savings-text);
-}
-
-/* Place emojis after category names in mobile card layouts. */
-@media (max-width: 600px) {
-    .table-cards .cell-value .emoji { order: 1; }
 }
 
 /* Style the emoji picker dialog. */
@@ -802,10 +847,6 @@ h2 {
     /* Row actions are icons: keep them together at the right of the card */
     .table-cards .actions-group {
         justify-content: flex-end;
-    }
-
-    .table-cards .actions-group > form button {
-        width: 100%;
     }
 }
 

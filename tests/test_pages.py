@@ -629,3 +629,11 @@ def test_save_and_add_another_returns_to_an_empty_form(client, category_id):
 def test_only_the_new_expense_form_offers_save_and_add_another(client):
     """Check that the add another button is shown when creating, not when editing."""
     assert "Save and add another" in client.get("/expenses/new").data.decode()
+
+
+def test_expense_rows_mark_the_category_and_type_cells(client, add_expense):
+    """Check that the category and type cells have classes for the small screen layout."""
+    add_expense(date="2026-11-11")
+    page = client.get("/expenses").data.decode()
+    assert 'class="cell-category"' in page
+    assert 'class="cell-type"' in page

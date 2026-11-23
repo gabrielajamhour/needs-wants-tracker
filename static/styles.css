@@ -1357,7 +1357,7 @@ a.segmented-option {
 /* Narrow screens: one column for now (the phone layout comes later) */
 @media (max-width: 800px) {
     .categories-layout {
-        grid-template-columns: 1fr;
+        grid-template-columns: minmax(0, 1fr);
         gap: var(--space-5);
     }
 }

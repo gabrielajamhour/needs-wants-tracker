@@ -576,3 +576,8 @@ def test_delete_asks_for_confirmation_in_a_dialog(client, add_expense):
     assert 'data-delete-amount="' in page
     assert "Delete expense" in page
     assert "confirm(" in page
+
+
+def test_expense_form_has_a_back_link(client):
+    page = client.get("/expenses/new").data.decode()
+    assert '<a class="back-link" href="/expenses">← Back to expenses</a>' in page

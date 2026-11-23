@@ -6,100 +6,84 @@
 
 {% block content %}
 
-<h1>{{ heading }}</h1>
+<div class="expense-page">
 
-<form method="post">
+    <a class="back-link" href="{{ back_url }}">← Back to expenses</a>
 
-    <div class="field">
-        <label for="name">Name</label>
-        <input 
-            id="name" 
-            name="name" 
-            type="text" 
-            maxlength="100"
-            value="{{ form.get('name', '') }}" 
-            required
-        >
-        <div id="suggestion" class="hint" hidden aria-live="polite">
-            Suggested category: <strong id="suggestion-label"></strong>
-            <button type="button" id="suggestion-use">Use</button>
+    <h1>{{ heading }}</h1>
+
+    <form method="post" class="expense-form">
+
+        <div class="field">
+            <label for="amount">Amount (€)</label>
+            <input id="amount" name="amount" type="text" inputmode="decimal" value="{{ form.get('amount', '') }}"
+                placeholder="0,00" required>
+            <!-- Maintain the value when the form needs to be displayed again following an error -->
+            <span class="hint">Use a comma for the cents (e.g.: 12,50).</span>
         </div>
-    </div>
 
-    <div class="field">
-        <label for="amount">Amount (€)</label>
-        <input 
-            id="amount" 
-            name="amount" 
-            type="text" 
-            inputmode="decimal"
-            value="{{ form.get('amount', '') }}" 
-            placeholder="0,00" 
-            required
-        > <!-- Maintain the value when the form needs to be displayed again following an error -->
-        <span class="hint">Use a comma for the cents (e.g.: 12,50).</span>
-    </div>
+        <div class="field">
+            <label for="name">Name</label>
+            <input id="name" name="name" type="text" maxlength="100" value="{{ form.get('name', '') }}" required>
+            <div id="suggestion" class="hint" hidden aria-live="polite">
+                Suggested category: <strong id="suggestion-label"></strong>
+                <button type="button" id="suggestion-use">Use</button>
+            </div>
+        </div>
 
-    <div class="field">
-        <label for="date">Date</label>
-        <input 
-            id="date" 
-            name="date" 
-            type="date" 
-            value="{{ form.get('date', '') }}" 
-            required
-        >
-    </div>
+        <div class="field">
+            <label for="date">Date</label>
+            <input id="date" name="date" type="date" value="{{ form.get('date', '') }}" required>
+        </div>
 
-    <div class="field">
-        <label for="category_id">Category</label>
-        <select id="category_id" name="category_id" required>
+        <div class="field">
+            <label for="category_id">Category</label>
+            <select id="category_id" name="category_id" required>
 
-            <a id="manage-categories-link" class="hint-link" href="{{ url_for('manage_categories') }}">
-                Can't find the category? Manage categories
-            </a>
+                <a id="manage-categories-link" class="hint-link" href="{{ url_for('manage_categories') }}">
+                    Can't find the category? Manage categories
+                </a>
 
-            <option value="">Choose...</option>
+                <option value="">Choose...</option>
 
-            {% for type in ["needs", "wants", "savings"] %}
+                {% for type in ["needs", "wants", "savings"] %}
 
                 <optgroup label="{{ type | capitalize }}">
 
                     {% for c in categories %}
 
-                        {% if c["type"] == type %}
+                    {% if c["type"] == type %}
 
-                            {# The expenses table does not store the category name, but rather the category_id #}
-                            <option value="{{ c['id'] }}"
-                                {% if form.get('category_id') | int == c['id'] %}
-                                    selected
-                                {% endif %}
-                            >
-                                {# Maintain the selected category when the form needs to be displayed again following an error #}
-                                {{ c["emoji"] | capitalize }}
-                                {{ c["name"] | capitalize }}
-                            </option>
+                    {# The expenses table does not store the category name, but rather the category_id #}
+                    <option value="{{ c['id'] }}" {% if form.get('category_id') | int==c['id'] %} selected {% endif %}>
+                        {# Maintain the selected category when the form needs to be displayed again following an error
+                        #}
+                        {{ c["emoji"] | capitalize }}
+                        {{ c["name"] | capitalize }}
+                    </option>
 
-                        {% endif %}
+                    {% endif %}
 
                     {% endfor %}
 
                 </optgroup>
 
-            {% endfor %}
+                {% endfor %}
 
-        </select>
-    </div>
+            </select>
+        </div>
 
-    <div class="form-actions">
-        <button type="submit">Save</button>
-        <a class="button ghost" href="{{ back_url }}">Cancel</a>
-    </div>
+        <div class="form-actions">
+            <button type="submit">Save</button>
+            <a class="button ghost" href="{{ back_url }}">Cancel</a>
+        </div>
 
-</form>
+    </form>
+
+</div>
 
 <script>
-    
+
     // Used a function to keep the script's variables within the function's scope,
     // in order to avoid name conflicts with other potential scripts
     (function () {
@@ -110,7 +94,7 @@
         const label = document.getElementById("suggestion-label");
         const useButton = document.getElementById("suggestion-use");
 
-        let timer = null; 
+        let timer = null;
         let current = null; // Stores the category suggestion currently being displayed
 
         // Hide the suggestion and clear the stored suggestion

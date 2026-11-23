@@ -1,7 +1,7 @@
 {% extends "layout.html" %}
 
 {% block title %}
-    {{ heading }}
+{{ heading }}
 {% endblock %}
 
 {% block content %}
@@ -17,17 +17,9 @@
         <div class="field amount-field">
             <label for="amount">Amount</label>
             <div class="amount-input">
-                <input
-                    id="amount"
-                    name="amount"
-                    type="text"
-                    inputmode="decimal"
-                    value="{{ form.get('amount', '') }}"
-                    placeholder="0,00"
-                    autocomplete="off"
-                    autofocus
-                    required
-                > <!-- Maintain the value when the form needs to be displayed again following an error -->
+                <input id="amount" name="amount" type="text" inputmode="decimal" value="{{ form.get('amount', '') }}"
+                    placeholder="0,00" autocomplete="off" autofocus required>
+                <!-- Maintain the value when the form needs to be displayed again following an error -->
                 <span class="amount-currency" aria-hidden="true">€</span>
             </div>
             <span class="hint">Use a comma for cents, e.g. 12,50</span>
@@ -44,19 +36,10 @@
         </div>
 
         <div class="field">
-            <label for="date">Date</label>
-            <input id="date" name="date" type="date" value="{{ form.get('date', '') }}" required>
-        </div>
-
-        <div class="field">
             <label for="category_id">Category</label>
             <select id="category_id" name="category_id" required>
 
-                <a id="manage-categories-link" class="hint-link" href="{{ url_for('manage_categories') }}">
-                    Can't find the category? Manage categories
-                </a>
-
-                <option value="">Choose...</option>
+                <option value="">Choose a category...</option>
 
                 {% for type in ["needs", "wants", "savings"] %}
 
@@ -83,6 +66,17 @@
                 {% endfor %}
 
             </select>
+
+            <p class="manage-categories">
+                Missing a category?
+                <a id="manage-categories-link" class="hint-link" href="{{ url_for('manage_categories') }}">Manage
+                    categories</a>
+            </p>
+        </div>
+
+        <div class="field">
+            <label for="date">Date</label>
+            <input id="date" name="date" type="date" value="{{ form.get('date', '') }}" required>
         </div>
 
         <div class="form-actions">

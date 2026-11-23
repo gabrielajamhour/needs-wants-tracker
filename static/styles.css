@@ -1691,3 +1691,16 @@ a.segmented-option {
 .suggestion[hidden] {
     display: none;
 }
+
+.manage-categories {
+    margin: var(--space-2) 0 0;
+    font-size: 13px;
+    color: var(--color-muted);
+}
+
+/* Underlined, as in the mockup; the margin of the generic hint link is not needed here */
+.manage-categories .hint-link {
+    margin-top: 0;
+    font-size: inherit;
+    text-decoration: underline;
+}

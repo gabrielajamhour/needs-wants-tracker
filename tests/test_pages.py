@@ -593,3 +593,11 @@ def test_expense_form_has_a_suggestion_line_with_a_use_button(client):
     page = client.get("/expenses/new").data.decode()
     assert 'id="suggestion" class="suggestion" hidden' in page
     assert 'id="suggestion-use" class="button ghost small"' in page
+
+
+def test_expense_form_manage_link_is_outside_the_select(client):
+    page = client.get("/expenses/new").data.decode()
+    select = page[page.index("<select") : page.index("</select>")]
+    assert "manage-categories-link" not in select
+    assert page.index('id="category_id"') < page.index('id="manage-categories-link"')
+    assert page.index('id="manage-categories-link"') < page.index('id="date"')

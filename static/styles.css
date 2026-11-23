@@ -1935,3 +1935,11 @@ a.segmented-option {
         grid-row: 2;
     }
 }
+
+/* Small screens: the form buttons are stacked at full width, the main action first */
+@media (max-width: 600px) {
+    .expense-form .form-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+}

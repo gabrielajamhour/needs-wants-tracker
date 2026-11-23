@@ -663,6 +663,15 @@ button:hover, .button:hover {
     display: inline-flex;
 }
 
+/* Small screens: the title takes the space between the arrows, so they sit at the edges */
+@media (max-width: 600px) {
+    .month-nav .month-picker,
+    .month-nav > .month-title {
+        flex: 1;
+        justify-content: center;
+    }
+}
+
 /* Expenses month row: arrows and title, then the link to see every month */
 .expenses-toolbar {
     display: flex;
@@ -705,12 +714,6 @@ button:hover, .button:hover {
 @media (max-width: 600px) {
     .expenses-toolbar .month-nav {
         flex: 1 1 100%;
-    }
-
-    .expenses-toolbar .month-nav .month-picker,
-    .expenses-toolbar .month-nav > .month-title {
-        flex: 1;
-        justify-content: center;
     }
 
     /* "All months" is an action: a small underlined link under the month row.

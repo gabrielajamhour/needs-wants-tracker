@@ -183,7 +183,7 @@ input, select {
 
 /* Hint text */
 .hint {
-    font-size: 13px;
+    font-size: 12px;
     color: var(--color-muted);
 }
 

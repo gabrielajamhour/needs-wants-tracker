@@ -52,6 +52,12 @@
     --gutter: 40px;
 }
 
+/* Keyboard focus: one ink ring on every control (never a bucket colour) */
+:focus-visible {
+    outline: 3px solid var(--color-ink);
+    outline-offset: 2px;
+}
+
 /* Apply border-box sizing to all elements and their pseudo-elements */
 *, *::before, *::after {
     box-sizing: border-box;

@@ -8,6 +8,9 @@
 
 {% set errors = errors or {} %}
 
+{# The first field with an error gets the focus; without errors, the amount does #}
+{% set first_error = (errors | list | first) if errors else "amount" %}
+
 <div class="expense-page">
 
     <a class="back-link" href="{{ back_url }}">← Back to expenses</a>
@@ -24,7 +27,8 @@
             <label for="amount">Amount</label>
             <div class="amount-input">
                 <input id="amount" name="amount" type="text" inputmode="decimal" value="{{ form.get('amount', '') }}"
-                    placeholder="0,00" autocomplete="off" autofocus required
+                    placeholder="0,00" autocomplete="off" required
+                    {% if first_error == "amount" %} autofocus{% endif %}
                     {% if errors.get("amount") %} aria-invalid="true" aria-describedby="amount-error"{% endif %}>
                 <!-- Maintain the value when the form needs to be displayed again following an error -->
                 <span class="amount-currency" aria-hidden="true">€</span>
@@ -41,6 +45,7 @@
         <div class="field">
             <label for="name">Name</label>
             <input id="name" name="name" type="text" maxlength="100" value="{{ form.get('name', '') }}" required
+                {% if first_error == "name" %} autofocus{% endif %}
                 {% if errors.get("name") %} aria-invalid="true" aria-describedby="name-error"{% endif %}>
             {% if errors.get("name") %}
                 <p class="field-error" id="name-error">
@@ -58,6 +63,7 @@
         <div class="field">
             <label for="category_id">Category</label>
             <select id="category_id" name="category_id" required
+                {% if first_error == "category_id" %} autofocus{% endif %}
                 {% if errors.get("category_id") %} aria-invalid="true" aria-describedby="category_id-error"{% endif %}>
 
                 <option value="">Choose a category...</option>
@@ -106,6 +112,7 @@
         <div class="field">
             <label for="date">Date</label>
             <input id="date" name="date" type="date" value="{{ form.get('date', '') }}" required
+                {% if first_error == "date" %} autofocus{% endif %}
                 {% if errors.get("date") %} aria-invalid="true" aria-describedby="date-error"{% endif %}>
             {% if errors.get("date") %}
                 <p class="field-error" id="date-error">

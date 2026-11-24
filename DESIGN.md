@@ -172,7 +172,7 @@ Every mono figure also gets `font-variant-numeric: tabular-nums`.
 
 ### Principles
 - Headings are 500–600, never 700+. Emphasis comes from **size and the mono figures**, not from weight.
-- Text is sentence case. Buttons are a verb + an object: "Save expense", "Add category", "Edit income", "Use Groceries" — not "Save", "Add", "OK".
+- Text is sentence case. Buttons are a verb + an object: "Save expense", "Add category", "Edit income", "Use" — not "Save", "Add", "OK".
 - Use the real ellipsis character (…) in placeholders: "Name, e.g. supermarket…".
 
 ## Layout
@@ -193,7 +193,7 @@ Every mono figure also gets `font-variant-numeric: tabular-nums`.
 |---|---|
 | ≥ 900px | Summary: hero number and income bar side by side; buckets in 3 columns. Categories: form column + list column. |
 | 600–900px | Hero and income bar stack; buckets stay 3 columns if they fit, otherwise stack. Categories form above the list. |
-| < 600px | One column everywhere. Header: logo mark only, three nav tabs, icon "+" button. Tables become stacked rows (date + name on one line, category and type below, amount right). Buttons in forms full width. |
+| < 600px | One column everywhere. Header: logo mark only, three nav tabs, icon "+" button. Expenses become cards (1px `hairline` border, 4px radius, 8px between cards, transparent background): name and amount on the first line; date, category, type and the two row actions on the second, evenly spaced, with the actions centred under the amount. Buttons in forms full width. At ≤ 360px the side padding drops to 12px and the nav and month title shrink; 320px is the narrowest width supported (no horizontal scroll). |
 
 Every tap target is at least 44×44px (row-action icons are 36px on desktop and grow to 44px under `@media (pointer: coarse)`).
 
@@ -204,7 +204,7 @@ There is **no shadow** in the system, except a single soft shadow on popovers (t
 - A stronger **1px `ink` rule** above important blocks: the table header, the categories form, the expense form, each category group heading, the table total.
 - **Whitespace.**
 
-No cards with borders on the Summary: the three buckets are ledger columns separated by vertical hairlines.
+No cards with borders on the Summary: the three buckets are ledger columns separated by vertical hairlines. The only cards in the system are the Expenses rows on phones.
 
 ## Shapes
 
@@ -220,10 +220,10 @@ No pills. The old rounded "chips" and the "Active" status pill go away.
 
 ### Buttons
 - **Primary** — `ink` fill, `on-ink` text, 44px tall, 18px side padding, 4px radius, weight 500. Hover `ink-strong`. One primary button per area.
-- **Ghost** — transparent, `ink` text, 1px `border` outline (as `box-shadow: inset 0 0 0 1px`). Hover `surface`. For Cancel, Edit income, month arrows.
-- **Quiet** — transparent, `muted` text, no outline. Hover `hairline-soft` fill and `ink` text. For repeated row actions: Rename, Archive, Restore.
+- **Ghost** — transparent, `ink` text, 1px `border` outline (as `box-shadow: inset 0 0 0 1px`). Hover `surface`. For Cancel in dialogs and in the inline rename, Edit income, month arrows. On phones, Edit income is an underlined text link.
+- **Quiet** — transparent, `muted` text, no outline. Hover `hairline-soft` fill and `ink` text. For repeated row actions (Rename, Archive, Restore) and for Cancel on the expense form.
 - **Icon button** — ghost, 44×44, 18px stroke icon, `aria-label` required (month arrows, "+" on phones).
-- **Row action** — 36×36 transparent icon button, 16px stroke icon in `muted`, hover `hairline-soft`. Used for Edit (pencil) and Delete (trash) in the expenses table, each with `aria-label="Edit Supermarket"` / `"Delete Supermarket"`.
+- **Row action** — 36×36 transparent icon button, 16px stroke icon in `muted`, hover `hairline-soft`. Used for Edit (pencil) and Delete (trash) in the expenses table, each with `aria-label="Edit Supermarket"` / `"Delete Supermarket"`. In the phone cards they are 32px wide (44px tall) so the two icons sit close together.
 - Small size: 36px tall, 12px padding, 14px text (44px on coarse pointers).
 
 Icons are simple 24-unit stroke SVGs (stroke 1.9–2.4, round caps) in `currentColor`. No emoji as UI icons — emoji appear only as **category emojis**, which are user content.
@@ -257,19 +257,20 @@ Three equal columns, divided by vertical `hairline`s, under a `hairline` rule. E
 - Rows: 1px `hairline-soft` bottom, 11px × 12px padding, hover `surface-row`.
 - Columns: Date (mono, `muted`, "29 Oct") · Name (500) · Category (emoji + name) · Type (dot + name in bucket text colour) · Amount (mono, right-aligned) · actions (two row-action icons, right).
 - Footer row: 1px `ink` top line, "Total of 18 expenses" in `muted`, total in mono 18px 500.
-- Delete always asks for confirmation (a dialog naming the expense: "Delete “Supermarket, 49,00 €”?", buttons "Delete expense" in `danger` and "Cancel").
+- Delete always asks for confirmation: a dialog titled “Delete “Supermarket”?”, the amount (49,00 €) on its own line, “This cannot be undone.”, then “Cancel” (ghost) and “Delete expense” (`danger`).
 
 ### Category list
 - Left column: page title, one sentence of explanation, then the "Add a category" form under an `ink` rule: emoji button + name input, the bucket as a segmented control, "Add category" primary button.
 - Right column: the filter segmented control, then one group per bucket. Group heading: bucket swatch + bucket name in `eyebrow` style and bucket text colour + "8 categories" (mono, right), with a 1px `ink` line under it.
 - Each row (56px): emoji · name (500) · "Archived" (if archived) · usage count in mono `muted` ("12 expenses", "No expenses") · quiet "Rename" · quiet "Archive" / "Restore".
-- **Rename inline**: the row turns into a form on `surface` — emoji button · name input · "Save name" (primary small) · "Cancel" (ghost small). Only one row is in edit mode at a time; the row keeps its height (no layout jump).
+- **Rename inline**: the row turns into a form on `surface` — emoji button · name input · "Save name" (primary small) · "Cancel" (ghost small). Only one row is in edit mode at a time; the row keeps its height (no layout jump). On phones the form has two lines: emoji and name, then Save name and Cancel.
 - **Archived rows**: `muted` text and a faint diagonal hatch background; no opacity (keeps contrast).
 
 ### Expense form
-- Narrow column, 520px max, left-aligned inside the centred container.
+- Narrow column, 520px max, centred on the page (as in the mockup).
 - "← Back to expenses" link (`muted`), page title, then the form under an `ink` rule.
-- Order: **Amount** (big) → **Name** (with the category suggestion line: "Suggested category: 🛒 Groceries · Needs [Use Groceries]", `aria-live="polite"`) → **Date** and **Category** side by side → "Missing a category? Manage categories" link *below* the select (never inside it) → "Save expense" + "Cancel".
+- Order: **Amount** (big) → **Name** (with the category suggestion line: "Suggested category: 🛒 Groceries · Needs [Use]", `aria-live="polite"`) → **Category** (with "Missing a category? Manage categories" *below* the select, never inside it) → **Date** → "Save expense", "Save and add another" (ghost) and "Cancel" (quiet). On phones the three buttons are stacked at full width. The edit form shows "Save changes" and no "Save and add another".
+- Name, amount, category and date are kept in the browser (`sessionStorage`) when you leave through "Manage categories" or "Back to expenses" and come back.
 
 ### Flash messages
 A full-width line under the header, inside the container: 12px × 16px padding, 4px radius, `paper` background, 1px border (`hairline` for success/info, `ink` for errors), `ink` text, a 16px icon on the left. `role="status"` (errors: `role="alert"`).
@@ -277,8 +278,8 @@ A full-width line under the header, inside the container: 12px × 16px padding, 
 ### Empty states
 Plain text and one action, no illustration:
 - Summary, no income: "Set this month's income to see your limits." + "Add income" button.
-- Expenses, nothing recorded: "No expenses in October yet." + "Add the first expense".
-- Expenses, filters with no match: "No expenses match these filters." + "Clear filters" link.
+- Expenses, nothing recorded: "No expenses recorded yet. Add the first one."
+- Expenses, filters with no match: "No expenses found with these filters."
 
 ## Do's and Don'ts
 

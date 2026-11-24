@@ -428,7 +428,10 @@ def test_expense_list_loads_the_script_that_applies_filters(client):
 
 def test_flash_messages_have_a_hidden_close_button_and_the_right_role(client):
     """Check that flash messages have a close button and errors use role alert."""
-    client.post("/", data={"month": "2026-11", "income": "abc"})
+    # No route flashes an error any more, so put one in the session by hand
+    with client.session_transaction() as session:
+        session["_flashes"] = [("error", "Something went wrong.")]
+
     page = client.get("/?month=2026-11").data.decode()
     assert 'class="flash error" role="alert"' in page
     assert (

@@ -1004,6 +1004,13 @@ h2 {
     text-align: right;
 }
 
+/* The income error takes its own row under the form, like the hint */
+.summary-toolbar .field-error {
+    flex: 0 0 100%;
+    justify-content: flex-end;
+    margin: calc(-1 * var(--space-2)) 0 0;
+}
+
 .summary-toolbar .month-nav,
 .summary-toolbar .income-form {
     margin: 0;
@@ -1040,6 +1047,11 @@ h2 {
 
     .income-line .button:hover {
         background: none;
+    }
+
+    .summary-toolbar .field-error {
+        flex: none;
+        justify-content: flex-start;
     }
 }
 

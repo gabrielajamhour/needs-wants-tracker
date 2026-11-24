@@ -19,10 +19,9 @@ def test_income_is_saved_and_updated_not_duplicated(client, db_rows):
 def test_invalid_income_is_rejected(client, db_rows):
     """Verify that invalid income values are not saved."""
     response = set_income(client, "2026-11", "1,234.56")
-    assert response.status_code == 302
+    assert response.status_code == 400
     assert db_rows("SELECT COUNT(*) AS n FROM budgets")[0]["n"] == 0
-    followed = client.post("/", data={"month": "2026-11", "income": "abc"}, follow_redirects=True)
-    assert b"Enter a valid income" in followed.data
+    assert b"Enter a valid income" in response.data
 
 
 def test_limits_remaining_and_over_cap(client, add_expense):
@@ -76,11 +75,13 @@ def test_without_income_the_summary_offers_to_add_it(client):
     assert 'name="income"' not in page
 
 
-def test_invalid_income_reopens_the_form(client):
-    """Check that an invalid income redirects back to the open form."""
+def test_invalid_income_reopens_the_form_with_the_typed_value(client):
+    """Check that an invalid income shows the open form, the typed value and the error."""
     response = client.post("/", data={"month": "2026-11", "income": "abc"})
-    assert response.status_code == 302
-    assert "edit=income" in response.headers["Location"]
+    page = response.data.decode()
+    assert response.status_code == 400
+    assert 'name="income"' in page and 'value="abc"' in page
+    assert 'id="income-error"' in page and "Enter a valid income" in page
 
 
 def test_valid_income_returns_to_the_closed_form(client):

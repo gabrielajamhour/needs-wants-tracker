@@ -14,12 +14,13 @@
         {{ month_nav(month_links, picker_action=url_for('summary')) }}
 
         {% if editing %}
-            <form method="post" class="control-form income-form">
+            <form method="post" class="control-form income-form" novalidate>
                 <input type="hidden" name="month" value="{{ month }}">
                 <div class="field">
                     <label for="income">Monthly income (€)</label>
                     <input id="income" name="income" type="text" inputmode="decimal"
-                        value="{{ income_value }}" placeholder="0,00" autofocus>
+                        value="{{ income_value }}" placeholder="0,00" autofocus
+                        {% if income_error %} aria-invalid="true" aria-describedby="income-error"{% endif %}>
                 </div>
                 <button type="submit">Save income</button>
                 <a class="button ghost" href="{{ url_for('summary', month=month) }}">Cancel</a>
@@ -32,6 +33,13 @@
                     {{ "Edit income" if income is not none else "Add income" }}
                 </a>
             </div>
+        {% endif %}
+
+        {% if income_error %}
+            <p class="field-error" id="income-error">
+                {% include "_warning_icon.html" %}
+                {{ income_error }}
+            </p>
         {% endif %}
 
         {% if suggested_from %}

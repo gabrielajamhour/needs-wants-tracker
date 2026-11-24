@@ -87,7 +87,7 @@ def test_zero_income_shows_negative_remaining(client, add_expense):
 def test_huge_income_is_rejected(client, db_rows):
     """Verify that excessively large income values are not saved."""
     response = client.post("/", data={"month": "2026-11", "income": "99999999999999999999"})
-    assert response.status_code == 302
+    assert response.status_code == 400
     assert count_rows(db_rows, "budgets") == 0
 
 

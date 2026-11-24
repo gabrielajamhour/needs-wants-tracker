@@ -457,13 +457,21 @@ def summary():
     # The income form is hidden until the user asks to edit (link with ?edit=income)
     editing = request.args.get("edit") == "income"
 
+    # What the income form shows again when the submitted value is not valid
+    income_error = None
+    submitted_income = None
+    status = 200
+
     if request.method == "POST":
-        income_cents = eur_to_cents(request.form.get("income", ""))
+        raw_income = request.form.get("income", "")
+        income_cents = eur_to_cents(raw_income)
 
         if income_cents is None or not 0 <= income_cents <= MAX_AMOUNT_CENTS:
-            flash("Enter a valid income (e.g. 1.000,00).", "error")
-            # Reopen the form so the user can fix the value
-            return redirect(url_for("summary", month=month, edit="income"))
+            # Show the page again with the form open, what the user typed and the message
+            income_error = "Enter a valid income (e.g. 1.000,00)."
+            submitted_income = raw_income
+            editing = True
+            status = 400
 
         else:
             db.execute(
@@ -479,7 +487,7 @@ def summary():
 
             flash("Income saved.", "success")
 
-        return redirect(url_for("summary", month=month))
+            return redirect(url_for("summary", month=month))
 
     budget = db.execute(
         "SELECT income_cents FROM budgets WHERE month = ?",
@@ -501,6 +509,11 @@ def summary():
         if previous:
             income_value = cents_to_field(previous["income_cents"])
             suggested_from = previous["month"]
+
+    # After an invalid value the field shows what the user typed, not the suggestion
+    if submitted_income is not None:
+        income_value = submitted_income
+        suggested_from = None
 
     category_totals = db.execute(
         """
@@ -543,6 +556,7 @@ def summary():
         income=income,
         editing=editing,
         income_value=income_value,
+        income_error=income_error,
         suggested_from=suggested_from,
         cards=cards,
         income_bar=income_bar,
@@ -551,7 +565,7 @@ def summary():
         breakdown=[r for r in category_totals if r["total"] > 0],
         # So as to not display categories with zero spending
         month_links=month_links,
-    )
+    ), status
 
 
 @app.get("/summary")

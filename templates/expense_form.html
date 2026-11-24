@@ -6,6 +6,8 @@
 
 {% block content %}
 
+{% set errors = errors or {} %}
+
 <div class="expense-page">
 
     <a class="back-link" href="{{ back_url }}">← Back to expenses</a>
@@ -27,11 +29,17 @@
                 <span class="amount-currency" aria-hidden="true">€</span>
             </div>
             <span class="hint">Use a comma for cents, e.g. 12,50</span>
+            {% if errors.get("amount") %}
+                <p class="field-error" id="amount-error">{{ errors["amount"] }}</p>
+            {% endif %}
         </div>
 
         <div class="field">
             <label for="name">Name</label>
             <input id="name" name="name" type="text" maxlength="100" value="{{ form.get('name', '') }}" required>
+            {% if errors.get("name") %}
+                <p class="field-error" id="name-error">{{ errors["name"] }}</p>
+            {% endif %}
             <div id="suggestion" class="suggestion" hidden aria-live="polite">
                 <span>Suggested category:</span>
                 <strong id="suggestion-label"></strong>
@@ -71,6 +79,10 @@
 
             </select>
 
+            {% if errors.get("category_id") %}
+                <p class="field-error" id="category_id-error">{{ errors["category_id"] }}</p>
+            {% endif %}
+
             <p class="manage-categories">
                 Missing a category?
                 <a id="manage-categories-link" class="hint-link" href="{{ url_for('manage_categories') }}">Manage
@@ -81,6 +93,9 @@
         <div class="field">
             <label for="date">Date</label>
             <input id="date" name="date" type="date" value="{{ form.get('date', '') }}" required>
+            {% if errors.get("date") %}
+                <p class="field-error" id="date-error">{{ errors["date"] }}</p>
+            {% endif %}
         </div>
 
         <div class="form-actions">

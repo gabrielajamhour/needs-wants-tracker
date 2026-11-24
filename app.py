@@ -72,33 +72,35 @@ def get_categories(include_archived=False, keep_id=None):
 
 
 def parse_expense_form(form, valid_category_ids):
-    """Validate expense form data and return the parsed values and errors."""
+    """Validate expense form data and return the parsed values and the errors by field."""
     name = form.get("name", "").strip()
     amount_cents = eur_to_cents(form.get("amount", ""))
     category_id = form.get("category_id", type=int)
     date_text = form.get("date", "")
 
-    # Created an empty list to store ALL the errors encountered during validation
-    errors = []
-
-    if not name:  # In Python, an empty string "" is considered false
-        errors.append("Enter a name.")
-    elif len(name) > MAX_NAME_LENGTH:
-        errors.append(f"Name must be at most {MAX_NAME_LENGTH} characters.")
+    # One message per field, in the order the fields appear on the page
+    errors = {}
 
     if amount_cents is None or amount_cents <= 0:
-        errors.append("Enter an amount greater than zero, using a comma for cents (e.g. 12,50).")
+        errors["amount"] = (
+            "Enter an amount greater than zero, using a comma for cents (e.g. 12,50)."
+        )
     elif amount_cents > MAX_AMOUNT_CENTS:
-        errors.append("Amount is too large.")
+        errors["amount"] = "Amount is too large."
+
+    if not name:  # In Python, an empty string "" is considered false
+        errors["name"] = "Enter a name."
+    elif len(name) > MAX_NAME_LENGTH:
+        errors["name"] = f"Name must be at most {MAX_NAME_LENGTH} characters."
 
     if category_id not in valid_category_ids:
-        errors.append("Choose a category.")
+        errors["category_id"] = "Choose a category."
 
     date_iso = None
     try:
         date_iso = datetime.strptime(date_text, "%Y-%m-%d").date().isoformat()
     except ValueError:
-        errors.append("Enter a valid date.")
+        errors["date"] = "Enter a valid date."
 
     return (name, amount_cents, date_iso, category_id), errors
 
@@ -337,14 +339,12 @@ def new_expense():
 
             return redirect(url_for("list_expenses"))
 
-        for message in errors:
-            flash(message, "error")
-
         return render_template(
             "expense_form.html",
             heading="New expense",
             categories=categories,
             form=request.form,
+            errors=errors,
             back_url=url_for("list_expenses"),
             add_another=True,
         ), 400
@@ -394,14 +394,12 @@ def edit_expense(expense_id):
 
             return redirect(back_url)
 
-        for message in errors:
-            flash(message, "error")
-
         return render_template(
             "expense_form.html",
             heading="Edit expense",
             categories=categories,
             form=request.form,
+            errors=errors,
             back_url=back_url,
         ), 400
 

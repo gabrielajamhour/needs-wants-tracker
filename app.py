@@ -324,7 +324,7 @@ def new_expense():
     if request.method == "POST":
         values, errors = parse_expense_form(request.form, {c["id"] for c in categories})
 
-        if not errors:  # In Python, an empty list is considered false
+        if not errors:  # In Python, an empty dict is considered false
             db = get_db()
             db.execute(
                 "INSERT INTO expenses (name, amount_cents, date, category_id) VALUES (?, ?, ?, ?)",

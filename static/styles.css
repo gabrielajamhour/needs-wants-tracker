@@ -441,6 +441,35 @@ dialog::backdrop {
     justify-content: flex-end;
 }
 
+/* Field errors: a warning icon and heavier ink text, no new colour */
+.field-error {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin: var(--space-2) 0 0;
+    color: var(--color-ink);
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.field-error svg {
+    flex-shrink: 0;
+    width: 16px;
+    height: 16px;
+}
+
+/* The field with the error gets the strong ink outline */
+input[aria-invalid="true"],
+select[aria-invalid="true"] {
+    border-color: var(--color-ink);
+    box-shadow: inset 0 0 0 1px var(--color-ink);
+}
+
+/* The amount field has no box: its 2px ink line already marks it */
+.expense-form .amount-input input[aria-invalid="true"] {
+    box-shadow: none;
+}
+
 /* The only place where the danger colour fills a button */
 .danger-fill {
     background: var(--color-danger);

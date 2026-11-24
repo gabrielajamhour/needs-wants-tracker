@@ -675,19 +675,19 @@ def edit_category(category_id):
     emoji = request.form.get("emoji", "").strip() or category["emoji"]
     emoji_problem = None if emoji == category["emoji"] else emoji_error(emoji)
 
-    error = None
+    # One message per field, in the order the fields appear in the row
+    errors = {}
+
+    if emoji_problem:
+        errors["emoji"] = emoji_problem
+
     if not name or len(name) > MAX_CATEGORY_NAME_LENGTH:
-        error = f"Enter a name of up to {MAX_CATEGORY_NAME_LENGTH} characters."
-
-    elif emoji_problem:
-        error = emoji_problem
-
+        errors["name"] = f"Enter a name of up to {MAX_CATEGORY_NAME_LENGTH} characters."
     elif name != category["name"] and category_name_exists(db, name, category_id):
-        error = "That category already exists."
+        errors["name"] = "That category already exists."
 
-    if error:
-        flash(error, "error")
-        edit = {"id": category_id, "name": raw_name, "emoji": emoji}
+    if errors:
+        edit = {"id": category_id, "name": raw_name, "emoji": emoji, "errors": errors}
         return render_categories(show, edit=edit, status=400)
 
     if name == category["name"] and emoji == category["emoji"]:

@@ -1299,6 +1299,7 @@ a.segmented-option {
     align-items: center;
     gap: var(--space-2);
     width: 100%;
+    flex-wrap: wrap;
 }
 
 .rename-form input[name="name"] {
@@ -1308,6 +1309,15 @@ a.segmented-option {
 .rename-form input,
 .rename-form .emoji-field {
     margin: 0;
+}
+
+.rename-form .field-error {
+    flex: 0 0 100%;
+    margin: 0;
+}
+
+.rename-form:has(> .field-error) {
+    padding-block: var(--space-2);
 }
 
 /* Categories page: the form on the left, the list on the right */
@@ -1948,6 +1958,17 @@ a.segmented-option {
     .rename-form > .button {
         grid-column: 4;
         grid-row: 2;
+    }
+
+    /* With an error, the message takes the second line and the buttons move to the third */
+    .rename-form > .field-error {
+        grid-column: 1 / -1;
+        grid-row: 2;
+    }
+
+    .rename-form:has(> .field-error) > button,
+    .rename-form:has(> .field-error) > .button {
+        grid-row: 3;
     }
 }
 

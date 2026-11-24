@@ -126,14 +126,25 @@
 
                 <li class="category-row is-editing">
                     <form method="post" action="{{ url_for('edit_category', category_id=c['id']) }}"
-                        class="rename-form">
+                        class="rename-form" novalidate>
                         <input type="hidden" name="show" value="{{ selected }}">
                         {{ emoji_field("emoji-" ~ c["id"], edit.emoji, "Emoji of " ~ (c["name"] | capitalize)) }}
                         <input name="name" type="text" maxlength="{{ MAX_CATEGORY_NAME_LENGTH }}" required
-                            value="{{ edit.name }}" aria-label="Name of {{ c['name'] | capitalize }}" autofocus>
+                            value="{{ edit.name }}" aria-label="Name of {{ c['name'] | capitalize }}" autofocus
+                            {% if edit.errors and edit.errors.get("name") %} aria-invalid="true" aria-describedby="rename-name-error"{% endif %}>
                         <button type="submit" class="small">Save name</button>
                         <a class="button ghost small"
-                            href="{{ url_for('manage_categories', show=selected or None) }}">Cancel</a>
+                            href="{{ url_for('manage_categories', show=selected or None) }}">
+                            Cancel
+                        </a>
+                        {% for field in ["emoji", "name"] %}
+                            {% if edit.errors and edit.errors.get(field) %}
+                                <p class="field-error" id="rename-{{ field }}-error">
+                                    {% include "_warning_icon.html" %}
+                                    {{ edit.errors[field] }}
+                                </p>
+                            {% endif %}
+                        {% endfor %}
                     </form>
                 </li>
 

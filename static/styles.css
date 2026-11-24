@@ -1360,6 +1360,11 @@ a.segmented-option {
     flex: 1;
 }
 
+/* The form gap is 16px; an error sits closer to its field, like in the expense form */
+.add-category .field-error {
+    margin-top: calc(var(--space-2) - var(--space-4));
+}
+
 /* Same 6px gap between label and control that inputs have */
 .add-category .emoji-field {
     margin-top: 6px;

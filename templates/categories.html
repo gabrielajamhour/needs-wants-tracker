@@ -26,6 +26,8 @@
 
 {% endmacro %}
 
+{% set errors = errors or {} %}
+
 <div class="categories-layout">
 
     <aside class="categories-side">
@@ -33,11 +35,12 @@
         <h1>Categories</h1>
         <p class="hint">Each category belongs to one bucket of the 50/30/20 split.</p>
 
-        <form method="post" class="add-category" aria-labelledby="add-category-title">
+        <form method="post" class="add-category" aria-labelledby="add-category-title" novalidate>
             <h2 id="add-category-title" class="add-category-title">Add a category</h2>
             <input type="hidden" name="show" value="{{ selected }}">
 
             <div class="add-category-line">
+
                 <div>
                     <label for="emoji-new">Emoji</label>
                     {{ emoji_field("emoji-new", form.emoji, "Emoji") }}
@@ -45,9 +48,21 @@
                 <div class="grow">
                     <label for="name">Name</label>
                     <input id="name" name="name" type="text" maxlength="{{ MAX_CATEGORY_NAME_LENGTH }}" required
-                        placeholder="e.g. Subscriptions" value="{{ form.name }}">
+                        placeholder="e.g. Subscriptions" value="{{ form.name }}"
+                        {% if errors.get("name") %} autofocus aria-invalid="true" aria-describedby="name-error"{% endif %}>
                 </div>
             </div>
+
+            {% for field in ["emoji", "name"] %}
+
+                {% if errors.get(field) %}
+                    <p class="field-error" id="{{ field }}-error">
+                        {% include "_warning_icon.html" %}
+                        {{ errors[field] }}
+                    </p>
+                {% endif %}
+
+            {% endfor %}
 
             <div>
                 <span class="field-label" id="bucket-label">Bucket</span>
@@ -63,6 +78,13 @@
                     {% endfor %}
 
                 </div>
+
+                {% if errors.get("type") %}
+                    <p class="field-error" id="type-error">
+                        {% include "_warning_icon.html" %}
+                        {{ errors["type"] }}
+                    </p>
+                {% endif %}
             </div>
 
             <button type="submit">Add category</button>

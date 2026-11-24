@@ -163,7 +163,7 @@ def count_categories_by_type():
     return counts
 
 
-def render_categories(show, form=None, edit=None, status=200):
+def render_categories(show, form=None, edit=None, errors=None, status=200):
     """Render the categories page, optionally with what the user typed after an error."""
     where, params = ("WHERE c.type = ?", (show,)) if show else ("", ())
     rows = (
@@ -208,6 +208,7 @@ def render_categories(show, form=None, edit=None, status=200):
             selected=show,
             form=form,
             edit=edit,
+            errors=errors or {},
             counts=count_categories_by_type(),
         ),
         status,
@@ -617,22 +618,28 @@ def manage_categories():
         emoji = request.form.get("emoji", "").strip() or DEFAULT_EMOJI
         emoji_problem = emoji_error(emoji)
 
-        error = None
-        if not name:
-            error = "Enter a category name."
-        elif len(name) > MAX_CATEGORY_NAME_LENGTH:
-            error = f"Category name must be at most {MAX_CATEGORY_NAME_LENGTH} characters."
-        elif category_type not in VALID_TYPES:
-            error = "Choose a type."
-        elif emoji_problem:
-            error = emoji_problem
-        elif category_name_exists(db, name):
-            error = "That category already exists."
+        # One message per field, in the order the fields appear on the page
+        errors = {}
 
-        if error:
-            flash(error, "error")
+        if emoji_problem:
+            errors["emoji"] = emoji_problem
+
+        if not name:
+            errors["name"] = "Enter a category name."
+        elif len(name) > MAX_CATEGORY_NAME_LENGTH:
+            errors["name"] = f"Category name must be at most {MAX_CATEGORY_NAME_LENGTH} characters."
+        elif category_name_exists(db, name):
+            errors["name"] = "That category already exists."
+
+        if category_type not in VALID_TYPES:
+            errors["type"] = "Choose a type."
+
+        if errors:
             return render_categories(
-                show, form={"name": raw_name, "type": category_type, "emoji": emoji}, status=400
+                show,
+                form={"name": raw_name, "type": category_type, "emoji": emoji},
+                errors=errors,
+                status=400,
             )
 
         db.execute(

@@ -882,6 +882,11 @@ button:hover, .button:hover {
     margin-top: var(--space-4);
 }
 
+/* The main action sits at the right end; the DOM keeps it first so Enter submits it */
+.expense-form .form-actions {
+    flex-direction: row-reverse;
+}
+
 /* Inline forms sit next to other actions without extra spacing; controls stay aligned */
 form.inline {
     display: inline-flex;

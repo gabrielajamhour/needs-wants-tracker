@@ -554,6 +554,7 @@ def test_list_marks_each_expense_with_its_type_tag(client, add_expense):
     add_expense(date="2026-11-11")
     page = client.get("/expenses").data.decode()
     assert 'class="type-tag type-tag-' in page
+    assert 'class="type-tag-label"' in page  # the word stays for screen readers
 
 
 def test_list_ends_with_a_total_row(client, add_expense):

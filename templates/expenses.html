@@ -120,7 +120,7 @@
                             </span>
                         </td>
                         <td role="cell" data-label="Type" class="cell-type">
-                            <span class="type-tag type-tag-{{ e['type'] }}">{{ e["type"] | capitalize }}</span>
+                            <span class="type-tag type-tag-{{ e['type'] }}"><span class="type-tag-label">{{ e["type"] | capitalize }}</span></span>
                         </td>
                         <td role="cell" data-label="Amount" class="num">{{ e["amount_cents"] | eur }}</td>
                         <td role="cell" class="actions">

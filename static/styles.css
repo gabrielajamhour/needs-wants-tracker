@@ -285,7 +285,7 @@ input, select {
     }
 
     .table-cards .cell-date {
-        grid-column: 2;
+        grid-column: 1;
         grid-row: 2;
         font-size: 13px;
         color: var(--color-muted);
@@ -334,7 +334,7 @@ input, select {
     }
 
     .table-cards .cell-type {
-        grid-column: 1;
+        grid-column: 2;
         grid-row: 2;
     }
 
